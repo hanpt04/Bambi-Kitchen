@@ -9,11 +9,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.lang.Nullable;
 
-import java.sql.Date;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name="InventoryTransactions")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -29,7 +27,7 @@ public class InventoryTransaction {
     @Nullable
     @JoinColumn(name = "OrderId")
     @ManyToOne
-    private Order order;
+    private Orders orders;
 
     @CreationTimestamp
     private LocalDateTime createAt;

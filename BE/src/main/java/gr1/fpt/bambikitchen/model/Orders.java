@@ -2,6 +2,7 @@ package gr1.fpt.bambikitchen.model;
 import gr1.fpt.bambikitchen.model.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Nationalized;
 
 import java.time.LocalDateTime;
 
@@ -9,17 +10,20 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class Order {
+public class Orders {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Nationalized
     private String name;
     private LocalDateTime createAt;
     private int totalPrice;
     private OrderStatus status;
     private int userId;
     private int staffId;
+    @Nationalized
     private String note;
     private int raking;
+    @Nationalized
     private int comment;
 }

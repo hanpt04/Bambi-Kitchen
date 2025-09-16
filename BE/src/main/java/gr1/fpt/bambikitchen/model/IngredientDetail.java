@@ -11,7 +11,6 @@ import java.sql.Date;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name="IngredientDetails")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

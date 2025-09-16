@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Nationalized;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Date;
@@ -18,12 +19,12 @@ import java.sql.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Table(name = "Accounts")
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @NotBlank
+    @Nationalized
     private String name;
     @NotNull(message = "Role must not be null")
     private Role role;

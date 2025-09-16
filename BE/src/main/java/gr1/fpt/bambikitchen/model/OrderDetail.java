@@ -1,6 +1,7 @@
 package gr1.fpt.bambikitchen.model;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Nationalized;
 
 @Entity
 @NoArgsConstructor
@@ -15,7 +16,8 @@ public class OrderDetail {
     private Dish dish;
     @ManyToOne
     @JoinColumn(name ="OrderId")
-    private Order order;
+    private Orders orders;
     private int totalCalories;
+    @Nationalized
     private String notes;
 }

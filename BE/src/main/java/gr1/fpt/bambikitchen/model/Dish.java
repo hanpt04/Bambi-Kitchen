@@ -1,7 +1,9 @@
 package gr1.fpt.bambikitchen.model;
 import gr1.fpt.bambikitchen.model.enums.DishType;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import lombok.*;
+import org.hibernate.annotations.Nationalized;
 
 @Entity
 @NoArgsConstructor
@@ -11,8 +13,11 @@ public class Dish {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Nationalized
     private String name;
+    @Nationalized
     private String description;
+    @Min(value = 0,message = "Must be equal or greater than 0 !!")
     private int price;
     private String imageUrl;
     @ManyToOne
@@ -24,6 +29,7 @@ public class Dish {
     private DishType dishType;
     private boolean isActive;
     private boolean isPublic;
+    @Min(value = 0,message = "Must be equal greater than 0 !!")
     private int usedQuantity;
 
 
