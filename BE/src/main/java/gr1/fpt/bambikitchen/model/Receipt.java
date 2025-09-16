@@ -1,0 +1,25 @@
+package gr1.fpt.bambikitchen.model;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
+public class Receipt {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+    private String name;
+    @ManyToOne
+    @JoinColumn(name ="IngredientId")
+    private Ingredient ingredient;
+    private int quantity;
+    @ManyToOne
+    @JoinColumn(name ="DishId")
+    private Dish dish;
+
+}

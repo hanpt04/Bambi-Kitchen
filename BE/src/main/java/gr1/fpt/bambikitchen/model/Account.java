@@ -16,6 +16,7 @@ import java.sql.Date;
 
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
 @Data
 @Table(name = "Accounts")
 public class Account {
