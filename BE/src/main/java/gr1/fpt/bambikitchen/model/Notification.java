@@ -21,7 +21,7 @@ public class Notification {
     @Nationalized
     private String message;
     private LocalDateTime createdAt;
-    private boolean isRead;
+    private boolean isRead = false;
     @ManyToOne
     @JoinColumn(name = "AccountId")
     private Account account;
