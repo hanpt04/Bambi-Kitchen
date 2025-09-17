@@ -27,6 +27,7 @@ public class Account {
     @Nationalized
     private String name;
     @NotNull(message = "Role must not be null")
+    @Enumerated(EnumType.STRING)
     private Role role;
     @CreationTimestamp
     private Date createAt;

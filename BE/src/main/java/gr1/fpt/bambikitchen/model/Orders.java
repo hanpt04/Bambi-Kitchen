@@ -18,6 +18,7 @@ public class Orders {
     private String name;
     private LocalDateTime createAt;
     private int totalPrice;
+    @Enumerated(EnumType.STRING)
     private OrderStatus status;
     private int userId;
     private int staffId;

@@ -33,7 +33,7 @@ public class IngredientDetail {
     private int quantity;
 
     @Column(name="active")
-    private boolean active;
+    private boolean active = true;
 
 
 }
