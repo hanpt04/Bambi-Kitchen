@@ -26,6 +26,7 @@ public class Dish {
     @ManyToOne
     @JoinColumn(name = "CategoryId")
     private DishCategory category;
+    @Enumerated(EnumType.STRING)
     private DishType dishType;
     private boolean isActive;
     private boolean isPublic;
