@@ -43,5 +43,11 @@ public class Account {
             message = "Invalid email format"
     )
     private String mail;
+    @Column(name = "Phone")
+    @Pattern(
+            regexp = "^0\\d{9}$\n",
+            message = "Invalid phone number format"
+    )
+    private String phone;
 
 }
