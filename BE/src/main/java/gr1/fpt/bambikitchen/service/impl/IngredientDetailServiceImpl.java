@@ -36,6 +36,9 @@ public class IngredientDetailServiceImpl implements IngredientDetailService {
 
     @Override
     public IngredientDetail save(IngredientDetail ingredientDetail) {
+        if(ingredientDetail.getEntryDate().toLocalDate().isAfter(ingredientDetail.getExpireDate().toLocalDate())) {
+            throw new CustomException("Expire Date must be after Entry Date !!", HttpStatus.CONFLICT);
+        }
         return repo.save(ingredientDetail);
     }
 
