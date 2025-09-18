@@ -34,8 +34,6 @@ public class Account {
     @UpdateTimestamp
     private Date updateAt;
     private boolean isActive;
-    @NotBlank
-    @Size(min = 6, max = 50, message = "Password must be between 6 and 50 characters")
     private String password;
     @NotBlank(message = "Mail must not be blank")
     @Pattern(
