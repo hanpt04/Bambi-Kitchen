@@ -52,6 +52,10 @@ public class AccountServiceImpl implements AccountService {
             throw new CustomException("Account does not exists",
                                         HttpStatus.BAD_REQUEST);
         }
+        if (accountRepository.existsByMail(account.getMail())) {
+            throw new CustomException("Account email already exists",
+                                        HttpStatus.BAD_REQUEST);
+        }
         return accountRepository.save(accountMapper.toEntity(account));
     }
 
