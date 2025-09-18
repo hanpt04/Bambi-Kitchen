@@ -41,5 +41,9 @@ public class Account {
             message = "Invalid email format"
     )
     private String mail;
+    @Column(name = "Phone")
+    @Pattern(regexp = "^(\\+84|0)[3|5|7|8|9][0-9]{8}$",
+            message = "Invalid phone number format")
+    private String phone;
 
 }
