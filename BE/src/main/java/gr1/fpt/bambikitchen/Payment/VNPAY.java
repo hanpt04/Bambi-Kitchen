@@ -9,4 +9,11 @@ public class VNPAY implements PaymentMethod {
     public void pay(double amount) {
         System.out.println( "VNPAY :" + amount );
     }
+
+    @Override
+    public String createPaymentRequest(long amount, int orderIdreal) throws Exception {
+        return "";
+    }
+
+
 }
