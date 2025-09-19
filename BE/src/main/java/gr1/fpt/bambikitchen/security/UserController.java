@@ -27,18 +27,15 @@ public class UserController {
         }
         else if(auth.getPrincipal() instanceof CustomUserDetail) {
             userDetail = (CustomUserDetail) auth.getPrincipal();
-            map.put("userid",userDetail.getUserId());
             map.put("name", userDetail.getName());
-            map.put("phone", userDetail.getPhone());
-            map.put("roles", userDetail.getAuthorities());
-            map.put("active", userDetail.isActive());
+            map.put("role", userDetail.getAuthorities());
+            map.put("userId",userDetail.getUserId());
         }
         else if(auth.getPrincipal() instanceof CustomOAuth2User) {
             oauth2User = (CustomOAuth2User) auth.getPrincipal();
-            map.put("id", oauth2User.getId());
-            map.put("email", oauth2User.getAttribute("email"));
             map.put("name", oauth2User.getAttribute("name"));
-            map.put("roles", oauth2User.getAuthorities());
+            map.put("role", oauth2User.getAuthorities());
+            map.put("userId", oauth2User.getId());
         }
         return ResponseEntity.ok(map);
     }
