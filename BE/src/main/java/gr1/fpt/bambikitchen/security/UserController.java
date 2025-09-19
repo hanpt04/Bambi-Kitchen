@@ -15,30 +15,32 @@ import java.util.Map;
 @RestController
 @RequestMapping("api/user")
 public class UserController {
+
     @GetMapping("/me")
-    public ResponseEntity<Map<String,Object>> getUser() {
+    public ResponseEntity<Map<String,Object>> auth() {
+        Map<String, Object> map = new HashMap<>();
+        CustomUserDetail userDetail;
+        CustomOAuth2User oauth2User;
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if(auth == null || !auth.isAuthenticated() || auth.getPrincipal() instanceof String) {
             return ResponseEntity.status(401).body(Map.of("message", "Unauthorized"));
         }
-        CustomUserDetail user = (CustomUserDetail) auth.getPrincipal();
-        Map<String,Object> map = new HashMap<>();
-        map.put("userid",user.getUserId());
-        map.put("username", user.getName());
-        map.put("phone", user.getPhone());
-        map.put("roles", user.getAuthorities());
-        map.put("active", user.isActive());
+        else if(auth.getPrincipal() instanceof CustomUserDetail) {
+            userDetail = (CustomUserDetail) auth.getPrincipal();
+            map.put("userid",userDetail.getUserId());
+            map.put("name", userDetail.getName());
+            map.put("phone", userDetail.getPhone());
+            map.put("roles", userDetail.getAuthorities());
+            map.put("active", userDetail.isActive());
+        }
+        else if(auth.getPrincipal() instanceof CustomOAuth2User) {
+            oauth2User = (CustomOAuth2User) auth.getPrincipal();
+            map.put("id", oauth2User.getId());
+            map.put("email", oauth2User.getAttribute("email"));
+            map.put("name", oauth2User.getAttribute("name"));
+            map.put("roles", oauth2User.getAuthorities());
+        }
         return ResponseEntity.ok(map);
-    }
-    @GetMapping("/my-profile")
-    public Map<String, Object> me(@AuthenticationPrincipal CustomOAuth2User user) {
-        System.out.println(user.getOauth2User().getName()+"----------");
-        Map<String, Object> info = new HashMap<>();
-        info.put("id", user.getId());
-        info.put("email", user.getAttribute("email"));
-        info.put("name", user.getAttribute("name"));
-        info.put("roles", user.getAuthorities());
-        return info;
     }
     @GetMapping("/debug-principal")
     public Object debug(@AuthenticationPrincipal Object principal) {
