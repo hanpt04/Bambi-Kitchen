@@ -14,32 +14,13 @@ public interface DishMapper {
 
     DishMapper INSTANCE = Mappers.getMapper(DishMapper.class);
 
-
-    @Mapping(target = "account", source = "accountId")
-    @Mapping(target = "category", source = "categoryId")
+    @Mapping(target = "account", ignore = true)
+    @Mapping(target = "category", ignore = true)
     Dish toDish(DishCreateRequest request);
 
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "account", source = "accountId")
-    @Mapping(target = "category", source = "categoryId")
+    @Mapping(target = "account", ignore = true)
+    @Mapping(target = "category", ignore = true)
     Dish toDish(DishUpdateRequest request);
-
-    default Account mapAccount(Integer accountId) {
-        if (accountId == null) {
-            return null;
-        }
-        Account account = new Account();
-        account.setId(accountId);
-        return account;
-    }
-
-    default DishCategory mapCategory(Integer categoryId) {
-        if (categoryId == null) {
-            return null;
-        }
-        DishCategory category = new DishCategory();
-        category.setId(categoryId);
-        return category;
-    }
 }

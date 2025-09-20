@@ -2,10 +2,14 @@ package gr1.fpt.bambikitchen.model.dto.request;
 
 import gr1.fpt.bambikitchen.model.enums.DishType;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 public class DishUpdateRequest {
+    @NotNull
+    private Integer id;
+
     private String name;
 
     private String description;

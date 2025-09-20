@@ -2,10 +2,12 @@ package gr1.fpt.bambikitchen.service.impl;
 
 import gr1.fpt.bambikitchen.exception.CustomException;
 import gr1.fpt.bambikitchen.mapper.DishMapper;
+import gr1.fpt.bambikitchen.model.Account;
 import gr1.fpt.bambikitchen.model.Dish;
+import gr1.fpt.bambikitchen.model.DishCategory;
 import gr1.fpt.bambikitchen.model.dto.request.DishCreateRequest;
 import gr1.fpt.bambikitchen.model.dto.request.DishUpdateRequest;
-import gr1.fpt.bambikitchen.repository.DishRepository;
+import gr1.fpt.bambikitchen.repository.*;
 import gr1.fpt.bambikitchen.service.DishService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -22,11 +24,25 @@ import java.util.List;
 public class DishServiceImpl implements DishService {
 
     private final DishRepository dishRepository;
+    private final AccountRepository accountRepository;
+    private final DishCategoryRepository dishCategoryRepository;
     private final DishMapper dishMapper;
 
     @Override
-    public Dish save(DishCreateRequest account) {
-        return dishRepository.save(dishMapper.toDish(account));
+    public Dish save(DishCreateRequest dish) {
+        Account account = accountRepository.findById(dish.getAccountId()).orElseThrow(
+                () -> new CustomException("Account not found " + dish.getAccountId(), HttpStatus.BAD_REQUEST)
+        );
+
+        DishCategory category = dishCategoryRepository.findById(dish.getCategoryId()).orElseThrow(
+                () -> new CustomException("Category not found " + dish.getCategoryId(), HttpStatus.BAD_REQUEST)
+        );
+
+        Dish newDish = dishMapper.toDish(dish);
+        newDish.setAccount(account);
+        newDish.setCategory(category);
+
+        return dishRepository.save(newDish);
     }
 
     @Override
@@ -42,8 +58,25 @@ public class DishServiceImpl implements DishService {
     }
 
     @Override
-    public Dish update(DishUpdateRequest account) {
-        return dishRepository.save(dishMapper.toDish(account));
+    public Dish update(DishUpdateRequest dish) {
+        Dish oldDish = dishRepository.findById(dish.getId()).orElseThrow(
+                () -> new CustomException("Dish not found " + dish.getId(), HttpStatus.BAD_REQUEST)
+        );
+
+        Account account = accountRepository.findById(dish.getAccountId()).orElseThrow(
+                () -> new CustomException("Account not found " + dish.getAccountId(), HttpStatus.BAD_REQUEST)
+        );
+
+        DishCategory category = dishCategoryRepository.findById(dish.getCategoryId()).orElseThrow(
+                () -> new CustomException("Category not found " + dish.getCategoryId(), HttpStatus.BAD_REQUEST)
+        );
+
+        Dish newDish = dishMapper.toDish(dish);
+        newDish.setId(oldDish.getId()); // get Id from oldDish
+        newDish.setAccount(account);
+        newDish.setCategory(category);
+
+        return dishRepository.save(newDish);
     }
 
     @Override
