@@ -30,7 +30,7 @@ public class DiscountController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Discount> findById(@PathVariable int id){
+    public ResponseEntity<Discount> findById(@PathVariable Integer id){
         return ResponseEntity.ok(discountService.findById(id));
     }
 
@@ -40,7 +40,7 @@ public class DiscountController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable int id){
+    public ResponseEntity<String> delete(@PathVariable Integer id){
         return ResponseEntity.ok(discountService.deleteById(id));
     }
 

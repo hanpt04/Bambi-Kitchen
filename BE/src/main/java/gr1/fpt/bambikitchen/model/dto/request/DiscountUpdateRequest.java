@@ -26,8 +26,5 @@ public class DiscountUpdateRequest {
 
     private Date endTime;
 
-    @Size(min = 3, message = "Code must be at least 3 characters")
-    private String code;
-
     private String description;
 }

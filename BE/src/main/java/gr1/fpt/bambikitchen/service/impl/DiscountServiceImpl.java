@@ -51,12 +51,14 @@ public class DiscountServiceImpl implements DiscountService {
 
     @Override
     public Discount update(DiscountUpdateRequest discount) {
-        if (!discountRepository.existsById(discount.getId())) {
-            throw new CustomException("Discount cannot be found " + discount.getId(),
-                                        HttpStatus.BAD_REQUEST);
-        }
+        Discount oldDiscount = discountRepository.findById(discount.getId()).orElseThrow(
+                () -> new CustomException("Discount cannot be found " + discount.getId(), HttpStatus.BAD_REQUEST)
+        );
 
-        return discountRepository.save(discountMapper.toDiscount(discount));
+        Discount newDiscount = discountMapper.toDiscount(discount);
+        newDiscount.setId(oldDiscount.getId());
+
+        return discountRepository.save(newDiscount);
     }
 
     @Override
