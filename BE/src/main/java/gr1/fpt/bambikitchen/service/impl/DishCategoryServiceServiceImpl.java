@@ -49,12 +49,14 @@ public class DishCategoryServiceServiceImpl implements DishCategoryService {
 
     @Override
     public DishCategory update(DishCategoryUpdateRequest dishCategory) {
-        if (!dishCategoryRepository.existsById(dishCategory.getId())) {
-            throw new CustomException("DishCategory cannot be found " + dishCategory.getId(),
-                                        HttpStatus.BAD_REQUEST);
-        }
+        DishCategory oldDishCategory = dishCategoryRepository.findById(dishCategory.getId()).orElseThrow(
+                () -> new CustomException("Dish Category cannot be found " + dishCategory.getId(), HttpStatus.BAD_REQUEST)
+        );
 
-        return dishCategoryRepository.save(dishCategoryMapper.toDishCategory(dishCategory));
+        DishCategory newDishCategory = dishCategoryMapper.toDishCategory(dishCategory);
+        newDishCategory.setId(oldDishCategory.getId());
+
+        return dishCategoryRepository.save(newDishCategory);
     }
 
     @Override

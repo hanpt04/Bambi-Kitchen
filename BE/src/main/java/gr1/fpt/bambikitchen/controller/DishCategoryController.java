@@ -30,7 +30,7 @@ public class DishCategoryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DishCategory> findById(@PathVariable int id){
+    public ResponseEntity<DishCategory> findById(@PathVariable Integer id){
         return ResponseEntity.ok(dishCategoryService.findById(id));
     }
 
@@ -40,7 +40,7 @@ public class DishCategoryController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable int id){
+    public ResponseEntity<String> delete(@PathVariable Integer id){
         return ResponseEntity.ok(dishCategoryService.deleteById(id));
     }
 }
