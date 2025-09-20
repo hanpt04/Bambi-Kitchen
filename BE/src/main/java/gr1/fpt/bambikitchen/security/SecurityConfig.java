@@ -39,10 +39,10 @@ public class SecurityConfig {
                 }))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth ->auth
-                        .requestMatchers("/api/ingredient-details/**").permitAll()
-                        .requestMatchers("/api/notifications/**","api/user/auth").authenticated()
-                        .requestMatchers("/api/ingredient-categories/**").hasAnyRole("ADMIN", "STAFF")
-                        .requestMatchers("/api/accounts/**").permitAll()
+//                        .requestMatchers("/api/**").permitAll()
+//                        .requestMatchers("/api/notifications/**","api/user/auth").authenticated()
+//                        .requestMatchers("/api/ingredient-categories/**").hasAnyRole("ADMIN", "STAFF")
+//                        .requestMatchers("/api/accounts/**").permitAll()
                         .anyRequest().permitAll()
                 )
                 //OAuth2

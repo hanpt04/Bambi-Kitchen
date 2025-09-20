@@ -15,6 +15,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/account")
+@CrossOrigin(origins = "*")
 public class AccountController {
 
     private final AccountService accountService;

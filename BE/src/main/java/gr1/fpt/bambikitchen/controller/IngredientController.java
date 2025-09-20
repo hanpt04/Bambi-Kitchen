@@ -15,6 +15,7 @@ import java.util.List;
 @RequestMapping("/api/ingredient")
 @RequiredArgsConstructor
 @Slf4j
+@CrossOrigin(origins = "*")
 public class IngredientController {
 
     private final IngredientService ingredientService;

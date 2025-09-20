@@ -15,6 +15,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/dish")
+@CrossOrigin(origins = "*")
 public class DishController {
 
     private final DishService dishService;

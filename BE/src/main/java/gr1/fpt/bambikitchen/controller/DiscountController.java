@@ -15,6 +15,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/discount")
+@CrossOrigin(origins = "*")
 public class DiscountController {
 
     private final DiscountService discountService;
