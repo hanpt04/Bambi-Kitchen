@@ -48,15 +48,17 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account update(AccountUpdateRequest account) {
-        if (!accountRepository.existsById(account.getId())) {
-            throw new CustomException("Account does not exists",
-                                        HttpStatus.BAD_REQUEST);
+        Account oldAccount = accountRepository.findById(account.getId()).orElseThrow(
+                () -> new CustomException("Account not found " + account.getId(), HttpStatus.BAD_REQUEST)
+        );
+
+        if (!account.getMail().equals(oldAccount.getMail())) {
+            throw  new CustomException("Mail is incorrect " + account.getMail(), HttpStatus.BAD_REQUEST);
         }
-        if (accountRepository.existsByMail(account.getMail())) {
-            throw new CustomException("Account email already exists",
-                                        HttpStatus.BAD_REQUEST);
-        }
-        return accountRepository.save(accountMapper.toEntity(account));
+        Account newAccount = accountMapper.toEntity(account);
+        newAccount.setId(oldAccount.getId());
+
+        return accountRepository.save(newAccount);
     }
 
     @Override

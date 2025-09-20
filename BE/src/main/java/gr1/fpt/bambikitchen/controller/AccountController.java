@@ -30,7 +30,7 @@ public class AccountController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Account> findById(@PathVariable int id){
+    public ResponseEntity<Account> findById(@PathVariable Integer id){
         return ResponseEntity.ok(accountService.findById(id));
     }
 
