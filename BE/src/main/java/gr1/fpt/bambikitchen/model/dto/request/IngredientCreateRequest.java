@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.lang.Nullable;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class IngredientCreateRequest {
@@ -18,4 +20,6 @@ public class IngredientCreateRequest {
     @NotNull(message = "Unit is required")
     private Unit unit;
 
+    @Nullable
+    MultipartFile file;
 }

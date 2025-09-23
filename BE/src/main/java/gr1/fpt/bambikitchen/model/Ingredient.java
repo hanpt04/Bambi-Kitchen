@@ -32,4 +32,7 @@ public class Ingredient {
 
     @Column(name="active")
     private boolean active = true;
+
+    @Column(name = "imgUrl" )
+    private String imgUrl;
 }

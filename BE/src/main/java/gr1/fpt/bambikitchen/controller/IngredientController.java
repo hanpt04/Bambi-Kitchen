@@ -21,7 +21,7 @@ public class IngredientController {
     private final IngredientService ingredientService;
 
     @PostMapping
-    public ResponseEntity<Ingredient> save(@RequestBody IngredientCreateRequest ingredient) {
+    public ResponseEntity<Ingredient> save(@ModelAttribute IngredientCreateRequest ingredient) {
         return ResponseEntity.ok(ingredientService.save(ingredient));
     }
 
