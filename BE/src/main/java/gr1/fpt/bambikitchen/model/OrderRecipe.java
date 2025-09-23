@@ -1,27 +1,20 @@
 package gr1.fpt.bambikitchen.model;
-
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Nationalized;
+import lombok.*;
 
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class Receipt {
+public class OrderRecipe {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @Nationalized
-    private String name;
     @ManyToOne
     @JoinColumn(name ="IngredientId")
     private Ingredient ingredient;
-    private int quantity;
     @ManyToOne
-    @JoinColumn(name ="DishId")
-    private Dish dish;
-
+    @JoinColumn(name ="OrderDetailId")
+    private OrderDetail orderDetail;
+    private int quantity;
 }
