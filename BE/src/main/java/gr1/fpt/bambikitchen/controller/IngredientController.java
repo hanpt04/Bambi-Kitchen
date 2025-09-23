@@ -2,6 +2,7 @@ package gr1.fpt.bambikitchen.controller;
 
 import gr1.fpt.bambikitchen.model.Ingredient;
 import gr1.fpt.bambikitchen.model.dto.request.IngredientCreateRequest;
+import gr1.fpt.bambikitchen.model.dto.request.IngredientsGetCountRequest;
 import gr1.fpt.bambikitchen.model.dto.request.IngredientUpdateRequest;
 import gr1.fpt.bambikitchen.service.IngredientService;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/ingredient")
@@ -49,4 +51,10 @@ public class IngredientController {
     public ResponseEntity<String> delete(@PathVariable Integer id) {
         return ResponseEntity.ok(ingredientService.delete(id));
     }
+
+    @GetMapping("/get-ingredients-count")
+    public ResponseEntity<Map<String, Integer>> getIngredientsCount(@RequestBody IngredientsGetCountRequest ingredientsGetCountRequest) {
+        return ResponseEntity.ok(ingredientService.getIngredientsCount(ingredientsGetCountRequest));
+    }
+
 }
