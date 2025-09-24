@@ -1,5 +1,6 @@
 package gr1.fpt.bambikitchen.service.impl;
 
+import gr1.fpt.bambikitchen.Utils.FileUtil;
 import gr1.fpt.bambikitchen.exception.CustomException;
 import gr1.fpt.bambikitchen.mapper.IngredientMapper;
 import gr1.fpt.bambikitchen.model.Ingredient;
@@ -20,9 +21,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -41,6 +45,7 @@ public class IngredientServiceImpl implements IngredientService {
     private final IngredientCategoryRepository ingredientCategoryRepository;
     private final RecipeRepository recipeRepository;
     private final IngredientDetailRepository  ingredientDetailRepository;
+    final ApplicationEventPublisher eventPublisher;
 
     @Override
     public List<Ingredient> findAll() {
@@ -62,7 +67,7 @@ public class IngredientServiceImpl implements IngredientService {
     }
 
     @Override
-    public Ingredient save(IngredientCreateRequest ingredient) {
+    public Ingredient save(IngredientCreateRequest ingredient) throws IOException {
 
         IngredientCategory category = ingredientCategoryRepository.findById(ingredient.getCategoryId()).orElseThrow(
                 () -> new CustomException("Ingredient category cannot be found " + ingredient.getCategoryId(), HttpStatus.BAD_REQUEST)
@@ -71,12 +76,22 @@ public class IngredientServiceImpl implements IngredientService {
         newIngredient.setCategory(category);
 
         Ingredient ingredientSave = ingredientRepository.save(newIngredient);
-        //publisher
-//         if(ingredient.getFile().getSize()>0) {
-//            applicationEventPublisher.publishEvent(new IngredientDtoRequest(ingredientSave, event.getFile()));
-//        }
+
+      // publisher
+         if(!ingredient.getFile().isEmpty()) {
+             String absolutePath = FileUtil.saveFile(ingredient.getFile());
+             File file = FileUtil.getFileByPath(absolutePath);
+             MultipartFile multipartFile = FileUtil.convertFileToMultipart(file);
+             file.delete(); // xóa file gốc trong uploads/
+             eventPublisher.publishEvent(new IngredientDtoRequest(ingredientSave,multipartFile));
+        }
         return ingredientSave;
     }
+
+
+
+
+
 
     @Override
     public Ingredient update(IngredientUpdateRequest ingredient) {

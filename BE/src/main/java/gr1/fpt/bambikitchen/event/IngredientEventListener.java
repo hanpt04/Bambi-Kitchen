@@ -24,17 +24,12 @@ public class IngredientEventListener {
     @EventListener
     @Async
     public void handleIngredientCreatedEvent(IngredientDtoRequest dto) {
-        System.out.println("Sự kiện");
-        System.out.println(dto.toString());
         Ingredient ingredient = ingredientRepository.findById(dto.getIngredient().getId()).orElse(null);
         if(ingredient != null){
             try {
                 String url = cloudinaryService.uploadImage(dto.getFile());
                 ingredient.setImgUrl(url);
                 ingredientRepository.save(ingredient);
-                System.out.println("Image uploaded to Cloudinary: " + url);
-                System.out.println(ingredient.toString());
-                System.out.println(LocalDateTime.now()+"CLOUDINARY");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

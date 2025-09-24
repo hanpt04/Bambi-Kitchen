@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+
 @AllArgsConstructor
 @Data
 public class IngredientDtoRequest {

@@ -19,7 +19,6 @@ public class Ingredient {
     private int id;
 
     @NotBlank(message = "Name can not blank !")
-    @Length(min = 10, message = "Name must greater than 10 chars")
     @Nationalized
     private String name;
 

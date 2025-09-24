@@ -5,6 +5,7 @@ import gr1.fpt.bambikitchen.model.dto.request.IngredientCreateRequest;
 import gr1.fpt.bambikitchen.model.dto.request.IngredientUpdateRequest;
 import gr1.fpt.bambikitchen.model.dto.request.IngredientsGetCountRequest;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -12,7 +13,7 @@ public interface IngredientService {
     List<Ingredient> findAll();
     Ingredient findById(int id);
     Ingredient findByName(String name);
-    Ingredient save(IngredientCreateRequest ingredient);
+    Ingredient save(IngredientCreateRequest ingredient) throws IOException;
     Ingredient update(IngredientUpdateRequest ingredient);
     String delete(int id);
     Map<String, Integer> getIngredientsCount(IngredientsGetCountRequest ingredientsGetCountRequest);
