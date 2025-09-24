@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -19,6 +20,7 @@ import java.sql.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@Builder
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,12 +30,12 @@ public class Account {
     private String name;
     @NotNull(message = "Role must not be null")
     @Enumerated(EnumType.STRING)
-    private Role role;
+    private Role role = Role.USER;
     @CreationTimestamp
     private Date createAt;
     @UpdateTimestamp
     private Date updateAt;
-    private boolean isActive;
+    private boolean isActive = true;
     private String password;
     @NotBlank(message = "Mail must not be blank")
     @Pattern(

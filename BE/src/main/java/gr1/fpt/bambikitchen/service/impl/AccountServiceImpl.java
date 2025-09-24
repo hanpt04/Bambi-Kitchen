@@ -30,7 +30,10 @@ public class AccountServiceImpl implements AccountService {
             throw new CustomException("Account's email already exists",
                                         HttpStatus.CONFLICT);
         }
-        return accountRepository.save(accountMapper.toEntity(account));
+        Account newAccount = accountMapper.toEntity(account);
+        newAccount.setRole(account.getRole());
+
+        return accountRepository.save(newAccount);
     }
 
     @Override

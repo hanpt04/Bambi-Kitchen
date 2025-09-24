@@ -14,7 +14,6 @@ public class AccountUpdateRequest {
     @NotBlank(message = "Name must not be blank")
     private String name;
 
-    @NotNull(message = "Role must not be null")
     private Role role;
 
     private boolean isActive;
