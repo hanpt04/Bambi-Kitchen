@@ -34,4 +34,7 @@ public class Ingredient {
 
     @Column(name = "imgUrl" )
     private String imgUrl;
+
+    @Column(name = "public_id")
+    private String publicId;
 }

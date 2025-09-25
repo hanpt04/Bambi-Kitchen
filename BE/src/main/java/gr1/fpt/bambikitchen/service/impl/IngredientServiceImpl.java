@@ -74,7 +74,6 @@ public class IngredientServiceImpl implements IngredientService {
         );
         Ingredient newIngredient = ingredientMapper.toIngredient(ingredient);
         newIngredient.setCategory(category);
-
         Ingredient ingredientSave = ingredientRepository.save(newIngredient);
 
       // publisher
@@ -88,13 +87,8 @@ public class IngredientServiceImpl implements IngredientService {
         return ingredientSave;
     }
 
-
-
-
-
-
     @Override
-    public Ingredient update(IngredientUpdateRequest ingredient) {
+    public Ingredient update(IngredientUpdateRequest ingredient) throws IOException {
         Ingredient oldIngredient = ingredientRepository.findById(ingredient.getId()).orElseThrow(
                 () -> new CustomException("Ingredient cannot be found " + ingredient.getId(), HttpStatus.BAD_REQUEST)
         );
@@ -102,12 +96,31 @@ public class IngredientServiceImpl implements IngredientService {
         IngredientCategory category = ingredientCategoryRepository.findById(ingredient.getCategoryId()).orElseThrow(
                 () -> new CustomException("Ingredient category cannot be found " + ingredient.getCategoryId(), HttpStatus.BAD_REQUEST)
         );
-
-        Ingredient newIngredient = ingredientMapper.toIngredient(ingredient);
+        //mới bỏ mapper set tay ( do ko hỉu )
+        Ingredient newIngredient = new Ingredient();
         newIngredient.setId(oldIngredient.getId());
         newIngredient.setCategory(category);
-
-        return ingredientRepository.save(newIngredient);
+        newIngredient.setName(ingredient.getName());
+        newIngredient.setUnit(ingredient.getUnit());
+        newIngredient.setActive(ingredient.getActive());
+        //kiểm tra xem nếu đã có img rồi mà ko update lại img thì set lại img cũ
+        if(oldIngredient.getImgUrl()!=null){
+            newIngredient.setImgUrl(oldIngredient.getImgUrl());
+            newIngredient.setPublicId(oldIngredient.getPublicId());
+        }
+        Ingredient ingredientUpdate = ingredientRepository.save(newIngredient);
+        //publisher ( sẽ kiểm tra xem có file gửi về hay ko rồi mới update file
+        //nếu có thay đổi ảnh: xóa ảnh hiện tại trên cloud -> cập lại lại url và public_id
+        if(!ingredient.getFile().isEmpty()) {
+            //luư lại file tạm trong project và giữ đường dẫn đến file
+            String path = FileUtil.saveFile(ingredient.getFile());
+            //lấy ra file từ path và convert qua multipartFile để upload lên cloudinary
+            File file = FileUtil.getFileByPath(path);
+            MultipartFile multipartFile = FileUtil.convertFileToMultipart(file);
+            file.delete();
+            eventPublisher.publishEvent(new IngredientDtoRequest(ingredientUpdate,multipartFile));
+        }
+        return ingredientUpdate;
     }
 
     @Override

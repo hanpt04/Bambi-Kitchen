@@ -14,7 +14,7 @@ public interface IngredientService {
     Ingredient findById(int id);
     Ingredient findByName(String name);
     Ingredient save(IngredientCreateRequest ingredient) throws IOException;
-    Ingredient update(IngredientUpdateRequest ingredient);
+    Ingredient update(IngredientUpdateRequest ingredient) throws IOException;
     String delete(int id);
     Map<String, Integer> getIngredientsCount(IngredientsGetCountRequest ingredientsGetCountRequest);
 }
