@@ -1,7 +1,6 @@
 package gr1.fpt.bambikitchen.security;
 
 import gr1.fpt.bambikitchen.repository.AccountRepository;
-import gr1.fpt.bambikitchen.security.OTP.OTPGeneratorService;
 import gr1.fpt.bambikitchen.security.OTP.OTPRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
