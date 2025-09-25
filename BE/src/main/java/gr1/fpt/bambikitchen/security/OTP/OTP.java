@@ -25,4 +25,7 @@ public class OTP {
 
     @Column
     private boolean isActive = true;
+
+    @Column
+    private boolean isExpired = false;
 }

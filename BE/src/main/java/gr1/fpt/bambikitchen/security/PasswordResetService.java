@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class PasswordResetService {
-    private final OTPGeneratorService otpService;
     private final AccountRepository accountRepository;
     private final PasswordEncoder passwordEncoder;
     private final OTPRepository otpRepository;
