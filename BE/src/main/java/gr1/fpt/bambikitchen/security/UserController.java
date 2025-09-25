@@ -1,20 +1,23 @@
 package gr1.fpt.bambikitchen.security;
 
+import gr1.fpt.bambikitchen.security.Mail.MailService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping("api/user")
+@RequiredArgsConstructor
 public class UserController {
+
+    private final MailService mailService;
+    private final PasswordResetService passwordResetService;
 
     @GetMapping("/me")
     public ResponseEntity<Map<String,Object>> auth() {
@@ -42,5 +45,19 @@ public class UserController {
     @GetMapping("/debug-principal")
     public Object debug(@AuthenticationPrincipal Object principal) {
         return principal != null ? principal.getClass().getName() : "null";
+    }
+
+    @GetMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestParam String email) {
+        mailService.sendOTPMail(email);
+        return ResponseEntity.ok("OTP sent to " + email);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestParam String otp, @RequestParam String email, @RequestParam String newPassword) {
+        boolean success = passwordResetService.resetPassword(otp, email, newPassword);
+        return success
+                ? ResponseEntity.ok("Password reset successful")
+                : ResponseEntity.badRequest().body("OTP not verified or user not found");
     }
 }
