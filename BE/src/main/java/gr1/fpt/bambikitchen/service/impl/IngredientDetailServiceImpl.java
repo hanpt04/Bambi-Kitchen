@@ -69,4 +69,7 @@ public class IngredientDetailServiceImpl implements IngredientDetailService {
         }
         repo.save(ingredientDetail);
     }
+
+    /// quan trọng
+
 }

@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.lang.Nullable;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class IngredientUpdateRequest {
@@ -20,4 +22,7 @@ public class IngredientUpdateRequest {
     private Unit unit;
 
     private Boolean active; // có thể bật/tắt
+
+    @Nullable
+    MultipartFile file;
 }
