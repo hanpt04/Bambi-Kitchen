@@ -42,7 +42,7 @@ public class IngredientController {
     }
 
     @PutMapping
-    public ResponseEntity<Ingredient> update(@RequestBody IngredientUpdateRequest ingredient) {
+    public ResponseEntity<Ingredient> update(@ModelAttribute IngredientUpdateRequest ingredient) throws IOException {
         return ResponseEntity.ok(ingredientService.update(ingredient));
     }
 
