@@ -151,13 +151,11 @@ public class IngredientServiceImpl implements IngredientService {
                 // Filter the needed ingredients for the requested dishes
                 .filter(recipe -> dishes.contains(recipe.getDish().getId()))
                 // Count required ingredient's quantity
-                .forEach(recipe -> {
-                    ingredientsCount.merge(
-                            recipe.getIngredient().getId(),
-                            recipe.getQuantity(),
-                            Integer::sum
-                    );
-                });
+                .forEach(recipe -> ingredientsCount.merge(
+                        recipe.getIngredient().getId(),
+                        recipe.getQuantity(),
+                        Integer::sum
+                ));
 
         return ingredientsCount;
     }
