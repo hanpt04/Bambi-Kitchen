@@ -11,7 +11,6 @@ import gr1.fpt.bambikitchen.model.dto.request.IngredientCreateRequest;
 import gr1.fpt.bambikitchen.model.dto.request.IngredientDtoRequest;
 import gr1.fpt.bambikitchen.model.dto.request.IngredientUpdateRequest;
 import gr1.fpt.bambikitchen.repository.IngredientCategoryRepository;
-import gr1.fpt.bambikitchen.repository.IngredientDetailRepository;
 import gr1.fpt.bambikitchen.repository.IngredientRepository;
 import gr1.fpt.bambikitchen.repository.RecipeRepository;
 import gr1.fpt.bambikitchen.service.IngredientService;
