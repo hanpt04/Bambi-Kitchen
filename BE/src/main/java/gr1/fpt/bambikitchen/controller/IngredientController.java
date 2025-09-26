@@ -53,9 +53,9 @@ public class IngredientController {
         return ResponseEntity.ok(ingredientService.delete(id));
     }
 
-    @GetMapping("/get-ingredients-count")
-    public ResponseEntity<Map<String, Integer>> getIngredientsCount(@RequestBody IngredientsGetCountRequest ingredientsGetCountRequest) {
-        return ResponseEntity.ok(ingredientService.getIngredientsCount(ingredientsGetCountRequest));
-    }
+//    @GetMapping("/get-ingredients-count")
+//    public ResponseEntity<Map<String, Integer>> getIngredientsCount(@RequestBody IngredientsGetCountRequest ingredientsGetCountRequest) {
+//        return ResponseEntity.ok(ingredientService.getIngredientsCount(ingredientsGetCountRequest));
+//    }
 
 }
