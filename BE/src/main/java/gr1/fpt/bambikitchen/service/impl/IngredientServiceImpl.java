@@ -10,7 +10,6 @@ import gr1.fpt.bambikitchen.model.Recipe;
 import gr1.fpt.bambikitchen.model.dto.request.IngredientCreateRequest;
 import gr1.fpt.bambikitchen.model.dto.request.IngredientDtoRequest;
 import gr1.fpt.bambikitchen.model.dto.request.IngredientUpdateRequest;
-import gr1.fpt.bambikitchen.model.dto.request.IngredientsGetCountRequest;
 import gr1.fpt.bambikitchen.repository.IngredientCategoryRepository;
 import gr1.fpt.bambikitchen.repository.IngredientDetailRepository;
 import gr1.fpt.bambikitchen.repository.IngredientRepository;
@@ -21,15 +20,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +39,6 @@ public class IngredientServiceImpl implements IngredientService {
     private final IngredientMapper ingredientMapper;
     private final IngredientCategoryRepository ingredientCategoryRepository;
     private final RecipeRepository recipeRepository;
-    private final IngredientDetailRepository  ingredientDetailRepository;
     final ApplicationEventPublisher eventPublisher;
 
     @Override
@@ -77,20 +71,16 @@ public class IngredientServiceImpl implements IngredientService {
 
         Ingredient ingredientSave = ingredientRepository.save(newIngredient);
 
-      // publisher
-         if(!ingredient.getFile().isEmpty()) {
-             String absolutePath = FileUtil.saveFile(ingredient.getFile());
-             File file = FileUtil.getFileByPath(absolutePath);
-             MultipartFile multipartFile = FileUtil.convertFileToMultipart(file);
-             file.delete(); // xóa file gốc trong uploads/
-             eventPublisher.publishEvent(new IngredientDtoRequest(ingredientSave,multipartFile));
+        // publisher
+        if (!ingredient.getFile().isEmpty()) {
+            String absolutePath = FileUtil.saveFile(ingredient.getFile());
+            File file = FileUtil.getFileByPath(absolutePath);
+            MultipartFile multipartFile = FileUtil.convertFileToMultipart(file);
+            file.delete(); // xóa file gốc trong uploads/
+            eventPublisher.publishEvent(new IngredientDtoRequest(ingredientSave, multipartFile));
         }
         return ingredientSave;
     }
-
-
-
-
 
 
     @Override
@@ -130,30 +120,27 @@ public class IngredientServiceImpl implements IngredientService {
      * and sums the quantities for each ingredient.
      *
      * @return a map where keys are ingredient names and values are the total quantities
-     *         required for the requested dishes.
+     * required for the requested dishes.
      */
     @Override
-    public Map<String, Integer> getIngredientsCount(IngredientsGetCountRequest ingredientsGetCountRequest) {
-        Map<String, Integer> ingredientsCount = new HashMap<>();
+    public Map<Integer, Integer> getIngredientsCount(List<Integer> dishes) {
+        Map<Integer, Integer> ingredientsCount = new HashMap<>();
 
         List<Recipe> recipes = recipeRepository.findAll();
 
         /**
-         * Retrieves recipes for the requested dishes and returns a map of ingredient names to total quantities.
+         * Retrieves recipes and returns a map of ingredient names to total needed quantities to make requested dishes.
          */
         recipes.stream()
                 // Filter the needed ingredients for the requested dishes
-                .filter(recipe -> ingredientsGetCountRequest.getDishes().contains(recipe.getDish().getId()))
-                .map(Recipe::getIngredient)
-                // Remove the duplicated ingredients out of the list
-                .distinct()
-                // Count stored ingredient's quantity
-                .forEach(ingredient -> {
-                    ingredientDetailRepository.findByIngredientId(ingredient.getId())
-                            // Get quantity sum for each ingredient
-                            .forEach(detail ->
-                                    ingredientsCount.merge(ingredient.getName(), detail.getQuantity(), Integer::sum)
-                            );
+                .filter(recipe -> dishes.contains(recipe.getDish().getId()))
+                // Count required ingredient's quantity
+                .forEach(recipe -> {
+                    ingredientsCount.merge(
+                            recipe.getIngredient().getId(),
+                            recipe.getQuantity(),
+                            Integer::sum
+                    );
                 });
 
         return ingredientsCount;
