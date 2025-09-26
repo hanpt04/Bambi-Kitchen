@@ -147,7 +147,7 @@ public class IngredientServiceImpl implements IngredientService {
         /**
          * Retrieves recipes and returns a map of ingredient names to total needed quantities to make requested dishes.
          */
-        recipes.stream()
+        recipes.parallelStream()
                 // Filter the needed ingredients for the requested dishes
                 .filter(recipe -> dishes.contains(recipe.getDish().getId()))
                 // Count required ingredient's quantity
