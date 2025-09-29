@@ -5,7 +5,6 @@ import gr1.fpt.bambikitchen.exception.CustomException;
 import gr1.fpt.bambikitchen.mapper.IngredientMapper;
 import gr1.fpt.bambikitchen.model.Ingredient;
 import gr1.fpt.bambikitchen.model.IngredientCategory;
-import gr1.fpt.bambikitchen.model.IngredientDetail;
 import gr1.fpt.bambikitchen.model.Recipe;
 import gr1.fpt.bambikitchen.model.dto.request.IngredientCreateRequest;
 import gr1.fpt.bambikitchen.model.dto.request.IngredientDtoRequest;
