@@ -25,7 +25,9 @@ public class CloudinaryService {
 
     //viết hàm upload lại có lưu thêm public_id để xóa ảnh trên cloud khi có update
     public Map<String,String> uploadImg(MultipartFile file) throws IOException {
-        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap("folder", "my_app/images",
+                "resource_type", "image",
+                "allowed_formats", new String[]{"jpg", "jpeg", "png", "gif", "webp"}));
         //Map result này sẽ nhận tất cả tham số của ảnh khi upload thành công trong đó thường chỉ cần: public_id( phục vụ cho việc xóa ảnh hay update) + secure_url
         // upload có 2 tham số:
         // 1.Dữ liệu file ( cloudinary SDK nhận là kiểu byte arrays nên convert qua kiểu này)
