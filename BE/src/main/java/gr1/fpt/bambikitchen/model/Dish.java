@@ -9,6 +9,7 @@ import org.hibernate.annotations.Nationalized;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@Builder
 public class Dish {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,9 +24,6 @@ public class Dish {
     @ManyToOne
     @JoinColumn(name = "AccountId")
     private Account account;
-    @ManyToOne
-    @JoinColumn(name = "CategoryId")
-    private DishCategory category;
     @Enumerated(EnumType.STRING)
     private DishType dishType;
     private boolean isActive;

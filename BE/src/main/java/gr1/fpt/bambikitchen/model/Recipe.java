@@ -2,6 +2,7 @@ package gr1.fpt.bambikitchen.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Nationalized;
@@ -10,12 +11,11 @@ import org.hibernate.annotations.Nationalized;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@Builder
 public class Recipe {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @Nationalized
-    private String name;
     @ManyToOne
     @JoinColumn(name ="IngredientId")
     private Ingredient ingredient;

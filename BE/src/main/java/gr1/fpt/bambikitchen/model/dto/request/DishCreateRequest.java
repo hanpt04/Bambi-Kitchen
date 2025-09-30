@@ -1,13 +1,20 @@
 package gr1.fpt.bambikitchen.model.dto.request;
 
+import gr1.fpt.bambikitchen.model.Account;
+import gr1.fpt.bambikitchen.model.Ingredient;
 import gr1.fpt.bambikitchen.model.enums.DishType;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.util.List;
+import java.util.Map;
+
 @Data
 public class DishCreateRequest {
+
+
     @NotBlank(message = "Name must not be blank")
     private String name;
 
@@ -19,18 +26,14 @@ public class DishCreateRequest {
     private String imageUrl;
 
     @NotNull(message = "Account ID must not be null")
-    private Integer accountId;
+    private Account account;
 
-    @NotNull(message = "Category ID must not be null")
-    private Integer categoryId;
 
     @NotNull(message = "Dish type must not be null")
     private DishType dishType;
 
-    private boolean isActive;
-
     private boolean isPublic;
 
-    @Min(value = 0, message = "Used quantity must be equal or greater than 0 !!")
-    private int usedQuantity;
+    @NotNull
+    Map<Integer, Integer> ingredients;
 }

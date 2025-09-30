@@ -21,28 +21,11 @@ public class DishController {
     private final DishService dishService;
 
     @PostMapping
-    public ResponseEntity<Dish> save(@RequestBody DishCreateRequest discount){
-        return ResponseEntity.ok(dishService.save(discount));
+    public ResponseEntity<Dish> save(@RequestBody DishCreateRequest request){
+        System.out.println(request);
+        return ResponseEntity.ok(dishService.save(request));
     }
 
-    @GetMapping
-    public ResponseEntity<List<Dish>> findAll(){
-        return ResponseEntity.ok(dishService.findAll());
-    }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Dish> findById(@PathVariable Integer id){
-        return ResponseEntity.ok(dishService.findById(id));
-    }
-
-    @PutMapping
-    public ResponseEntity<Dish> update(@RequestBody DishUpdateRequest discount){
-        return ResponseEntity.ok(dishService.update(discount));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable Integer id){
-        return ResponseEntity.ok(dishService.deleteById(id));
-    }
 
 }
