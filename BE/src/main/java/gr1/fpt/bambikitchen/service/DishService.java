@@ -43,6 +43,7 @@ public class DishService {
 
         if ( request.getId() != null ) {
             dish.setId( request.getId() );
+            dish.setActive(request.isActive());
             deleteRecipeWithDishId( request.getId() );
         }
 

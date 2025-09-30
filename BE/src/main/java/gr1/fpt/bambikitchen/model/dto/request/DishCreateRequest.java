@@ -39,6 +39,8 @@ public class DishCreateRequest {
 
     private boolean isPublic;
 
+    boolean isActive = true;
+
     @NotNull
     Map<Integer, Integer> ingredients;
 }
