@@ -7,6 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,9 +43,11 @@ public class UserController {
         }
         return ResponseEntity.ok(map);
     }
-    @GetMapping("/debug-principal")
-    public Object debug(@AuthenticationPrincipal Object principal) {
-        return principal != null ? principal.getClass().getName() : "null";
+
+    @GetMapping("/google")
+    public RedirectView googleLogin() {
+        // chuyển hướng sang login bằng gg
+        return new RedirectView("/oauth2/authorization/google");
     }
 
     @GetMapping("/forgot-password")
