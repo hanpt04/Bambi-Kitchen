@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -70,6 +71,18 @@ public class DishService {
     public void deleteRecipeWithDishId(int dishId)
     {
         recipeRepository.deleteByDish_Id(dishId);
+    }
+
+
+    public Map<Integer,Integer> getIngredientsByDishId(int dishId)
+    {
+        Map<Integer, Integer> ingredients = new HashMap<>();
+        for (Recipe recipe : recipeRepository.getIngredientsByDish_Id(dishId)) {
+            ingredients.put(recipe.getIngredient().getId(), recipe.getQuantity());
+        }
+
+
+        return ingredients;
     }
 
 }
