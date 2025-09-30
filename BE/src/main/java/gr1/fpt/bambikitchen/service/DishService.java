@@ -25,6 +25,7 @@ public class DishService {
     @Autowired
     private IngredientRepository ingredientRepository;
 
+    @Transactional
     public Dish save(DishCreateRequest request) {
 
 
@@ -39,14 +40,19 @@ public class DishService {
                 .isPublic(request.isPublic())
                 .account(request.getAccount())
                 .build();
+
+        if ( request.getId() != null ) {
+            dish.setId( request.getId() );
+            deleteRecipeWithDishId( request.getId() );
+        }
+
+
         Dish savedDish = dishRepository.save(dish);
         saveRecipe(request.getIngredients(), savedDish);
 
         return savedDish;
     }
 
-
-    @Transactional
     public void saveRecipe (Map<Integer, Integer> ingredients, Dish dish)
     {
         ingredients.forEach((ingredientId, quantity) -> {
@@ -58,6 +64,11 @@ public class DishService {
                     .build();
             recipeRepository.save( recipe);
         });
+    }
+
+    public void deleteRecipeWithDishId(int dishId)
+    {
+        recipeRepository.deleteByDish_Id(dishId);
     }
 
 }

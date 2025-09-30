@@ -4,6 +4,9 @@ import gr1.fpt.bambikitchen.model.Dish;
 import gr1.fpt.bambikitchen.model.dto.request.DishCreateRequest;
 import gr1.fpt.bambikitchen.model.dto.request.DishUpdateRequest;
 import gr1.fpt.bambikitchen.service.DishService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +23,7 @@ public class DishController {
 
     private final DishService dishService;
 
+    @Operation(summary = "Sài chung cho create & update, nếu update thì gửi id, còn create thì ko cần", description = "Tạo món ăn mới kèm nguyên liệu và thông tin chi tiết, gửi kèm 1 map chứa Id Ingredient và số lượng. Account chỉ cần gửi Id, mấy field khác để trống")
     @PostMapping
     public ResponseEntity<Dish> save(@RequestBody DishCreateRequest request){
         System.out.println(request);

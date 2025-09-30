@@ -3,6 +3,7 @@ package gr1.fpt.bambikitchen.model.dto.request;
 import gr1.fpt.bambikitchen.model.Account;
 import gr1.fpt.bambikitchen.model.Ingredient;
 import gr1.fpt.bambikitchen.model.enums.DishType;
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -14,6 +15,10 @@ import java.util.Map;
 @Data
 public class DishCreateRequest {
 
+    // Dung chung 1 DTO cho create va update
+
+    @Nullable
+    Integer id;
 
     @NotBlank(message = "Name must not be blank")
     private String name;

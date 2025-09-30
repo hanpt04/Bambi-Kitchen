@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RecipeRepository extends JpaRepository<Recipe, Integer> {
+    void deleteByDish_Id(int dishId);
+
 }
