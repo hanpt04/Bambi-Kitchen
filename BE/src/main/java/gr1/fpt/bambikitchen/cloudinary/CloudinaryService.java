@@ -42,7 +42,7 @@ public class CloudinaryService {
 
     public Map deleteImage(String publicId) throws IOException {
         Map result = cloudinary.uploader().destroy(publicId, ObjectUtils.asMap("invalidate",true));
-        //có thể xóa cache CDN hoặc ko ( thường thì sẽ bị mất sau 1 thời giannn vài phút - vài giờ
+        //có thể xóa cache CDN hoặc ko ( thường thì sẽ bị mất sau 1 thời gian vài phút - vài giờ
         return result;
     }
 

@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface AccountService {
     Account save(AccountCreateRequest account);
+    Account register(Account account);
     List<Account> findAll();
     Account findById(int id);
 //    Account findByUsername(String username);

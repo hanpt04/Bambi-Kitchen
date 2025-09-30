@@ -4,6 +4,7 @@ import gr1.fpt.bambikitchen.model.Account;
 import gr1.fpt.bambikitchen.model.dto.request.AccountCreateRequest;
 import gr1.fpt.bambikitchen.model.dto.request.AccountUpdateRequest;
 import gr1.fpt.bambikitchen.service.AccountService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,11 @@ public class AccountController {
     @PostMapping
     public ResponseEntity<Account> save(@RequestBody AccountCreateRequest account){
         return ResponseEntity.ok(accountService.save(account));
+    }
+
+    @PostMapping("register")
+    public ResponseEntity<Account> register(@RequestBody @Valid Account account){
+        return ResponseEntity.ok(accountService.register(account));
     }
 
     @GetMapping
