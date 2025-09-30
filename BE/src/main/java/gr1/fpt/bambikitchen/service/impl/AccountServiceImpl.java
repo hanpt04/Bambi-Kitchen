@@ -37,6 +37,18 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public Account register(Account account) {
+        if (accountRepository.existsByMail(account.getMail())) {
+            throw new CustomException("Account's email already exists",
+                    HttpStatus.CONFLICT);
+        }
+        if(account.getPhone() == null || account.getPhone().isEmpty()) {
+            throw new CustomException("Phone must not be empty !!",HttpStatus.BAD_REQUEST);
+        }
+        return accountRepository.save(account);
+    }
+
+    @Override
     public List<Account> findAll() {
         return accountRepository.findAll();
     }
