@@ -12,6 +12,7 @@ import gr1.fpt.bambikitchen.model.enums.OrderStatus;
 import gr1.fpt.bambikitchen.model.enums.SourceType;
 import gr1.fpt.bambikitchen.repository.OrderRepository;
 import gr1.fpt.bambikitchen.service.impl.DishTemplateService;
+import gr1.fpt.bambikitchen.service.impl.IngredientServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -31,8 +32,8 @@ public class OrderService {
     DishTemplateService dishTemplateService;
     @Autowired
     PaymentFactory paymentFactory;
-
-
+    @Autowired
+    private IngredientServiceImpl ingredientServiceImpl;
 
 
     public void makeOrder (MakeOrderRequest makeOrderRequest) {
@@ -47,7 +48,8 @@ public class OrderService {
         newOrder.setStatus(OrderStatus.PENDING);
         newOrder.setNote(makeOrderRequest.getNote());
         Orders savedOrder = orderRepository.save(newOrder);
-        boolean isEnough = checkInventory(calculateNeededIngredients(TongMonAn), savedOrder.getId());
+//        boolean isEnough = checkInventory(calculateNeededIngredients(TongMonAn), savedOrder.getId());
+        boolean isEnough = checkInventory(calculateNeededIngredients(TongMonAn),savedOrder.getId());
 
         if ( !isEnough ) {
             throw new CustomException("Not enough inventory to fulfill the order", HttpStatus.UNPROCESSABLE_ENTITY);
@@ -61,18 +63,12 @@ public class OrderService {
 
 
         // nếu kho ok thì lưu order
-
-
-
-
+       ingredientServiceImpl.checkAvailable(calculateNeededIngredients(TongMonAn),savedOrder.getId());
     }
 
 
     boolean checkInventory (Map< Integer, Double> ingredientMap, int orderId) {
-
-        //Inventoryservice.check(ingredientMap)
-
-        return false;
+        return ingredientServiceImpl.isEnoughIngredient(ingredientMap, orderId);
     }
 
     void confirmInventory ( int orderId)
