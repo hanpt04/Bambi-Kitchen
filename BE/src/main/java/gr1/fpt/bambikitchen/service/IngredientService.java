@@ -16,4 +16,6 @@ public interface IngredientService {
     Ingredient update(IngredientUpdateRequest ingredient) throws IOException;
     String delete(int id);
     Map<Integer, Integer> getIngredientsCount(List<Integer> dishes);
+    boolean isEnoughIngredient(Map<Integer,Double> ingredientMap, int orderId );
+    boolean checkAvailable(Map<Integer,Double> ingredientMap, int orderId);
 }

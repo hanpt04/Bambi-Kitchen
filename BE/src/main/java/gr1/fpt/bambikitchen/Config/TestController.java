@@ -2,17 +2,19 @@ package gr1.fpt.bambikitchen.Config;
 
 import gr1.fpt.bambikitchen.model.enums.ResponseStatus;
 import gr1.fpt.bambikitchen.service.DishService;
+import gr1.fpt.bambikitchen.service.impl.IngredientServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequestMapping("api")
 public class TestController {
+
+    @Autowired
+    private IngredientServiceImpl ingredientServiceImpl;
 
     public record UserDTO (int id, String name, int age) {}
     @GetMapping("/demo")
@@ -34,4 +36,9 @@ public class TestController {
         dishService.deleteRecipeWithDishId(DishId);
     }
 
+    @GetMapping("/confirm/{id}")
+    public String confirm(@PathVariable int id) {
+        ingredientServiceImpl.minusInventory(id);
+        return "confirm";
+    }
 }

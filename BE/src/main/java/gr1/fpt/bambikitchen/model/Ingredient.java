@@ -1,13 +1,17 @@
 package gr1.fpt.bambikitchen.model;
 
 import gr1.fpt.bambikitchen.model.enums.Unit;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Nationalized;
 import org.hibernate.validator.constraints.Length;
+
+import java.sql.Date;
 
 @Entity
 @Data
@@ -37,4 +41,25 @@ public class Ingredient {
 
     @Column(name = "public_id")
     private String publicId;
+
+    //số lượng thực tế còn lại trong kho
+    @Column(name = "quantity")
+    private Double quantity;
+
+    //số lượng mà đang giữ chỗ
+    @Column(name = "reserve")
+    private Double reserve;
+
+    @Column(name = "last_reserve_at")
+    @CreationTimestamp
+    private Date lastReserveAt;
+
+    @Nullable
+    @Column(name = "available_quantity")
+    private Double available;
+
+    //số lượng mà khả dụng cho các order tiếp theo
+    public double availableIngredient(){
+        return quantity - reserve;
+    }
 }

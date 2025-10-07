@@ -21,6 +21,8 @@ public class Dish {
     @Min(value = 0,message = "Must be equal or greater than 0 !!")
     private int price;
     private String imageUrl;
+    @Column(name = "public_id")
+    private String publicId;
     @ManyToOne
     @JoinColumn(name = "AccountId")
     private Account account;
@@ -30,6 +32,5 @@ public class Dish {
     private boolean isPublic;
     @Min(value = 0,message = "Must be equal greater than 0 !!")
     private int usedQuantity;
-
 
 }

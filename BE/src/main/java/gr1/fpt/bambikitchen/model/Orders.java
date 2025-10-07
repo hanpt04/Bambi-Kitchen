@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Nationalized;
+import org.springframework.lang.Nullable;
 
 import java.time.LocalDateTime;
 
@@ -21,10 +22,13 @@ public class Orders {
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
     private int userId;
+    @Nullable
     private int staffId;
     @Nationalized
     private String note;
+    @Nullable
     private int ranking;
+    @Nullable
     @Nationalized
     private int comment;
 }
