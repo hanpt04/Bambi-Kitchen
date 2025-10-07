@@ -164,9 +164,6 @@ public class IngredientServiceImpl implements IngredientService {
     //hàm check kho coi đủ nguyên liệu không
     @Override
     public boolean isEnoughIngredient(Map<Integer, Double> ingredientMap, int orderId) {
-        ingredientMap.forEach((id, aDouble) -> {
-            System.out.println("Ingredient: " + id +", Quantity: " + aDouble);
-        });
         for(Map.Entry<Integer, Double> entry : ingredientMap.entrySet()) {
             int ingredientId = entry.getKey();
             double quantity = entry.getValue();
