@@ -20,4 +20,13 @@ public class OrderDetail {
     private int totalCalories;
     @Nationalized
     private String notes;
+
+
+
+
+    public OrderDetail(Dish dish, Orders order, String note) {
+        this.dish = dish;
+        this.orders = order;
+        this.notes = note;
+    }
 }

@@ -12,7 +12,7 @@ public class OrderItemDTO {
     private Integer basedOnId; // ID của dish PRESET (nếu dựa trên preset), null nếu custom từ đầu
     private String name; // Tên món (VD: "Cơm Gà + Cà chua + Trứng")
     private Integer quantity; // Số lượng món
-
+    String note;
     private DishTemplate dishTemplate;
     private List<RecipeItemDTO> recipe; // Danh sách nguyên liệu
 }

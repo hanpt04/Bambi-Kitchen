@@ -4,6 +4,8 @@ package gr1.fpt.bambikitchen.service;
 import gr1.fpt.bambikitchen.Factory.PaymentFactory;
 import gr1.fpt.bambikitchen.Payment.PaymentMethod;
 import gr1.fpt.bambikitchen.exception.CustomException;
+import gr1.fpt.bambikitchen.model.Dish;
+import gr1.fpt.bambikitchen.model.OrderDetail;
 import gr1.fpt.bambikitchen.model.Orders;
 import gr1.fpt.bambikitchen.model.dto.request.DishCreateRequest;
 import gr1.fpt.bambikitchen.model.dto.request.MakeOrderRequest;
@@ -12,12 +14,15 @@ import gr1.fpt.bambikitchen.model.dto.request.RecipeItemDTO;
 import gr1.fpt.bambikitchen.model.enums.DishType;
 import gr1.fpt.bambikitchen.model.enums.OrderStatus;
 import gr1.fpt.bambikitchen.model.enums.SourceType;
+import gr1.fpt.bambikitchen.repository.DishRepository;
+import gr1.fpt.bambikitchen.repository.OrderDetailRepository;
 import gr1.fpt.bambikitchen.repository.OrderRepository;
 import gr1.fpt.bambikitchen.service.impl.DishTemplateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import gr1.fpt.bambikitchen.service.impl.IngredientServiceImpl;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -38,7 +43,10 @@ public class OrderService {
     AccountService accountService;
     @Autowired
     private IngredientServiceImpl ingredientServiceImpl;
-
+    @Autowired
+    OrderDetailRepository orderDetailRepository;
+    @Autowired
+    private DishRepository dishRepository;
 
 
     /**
@@ -52,6 +60,7 @@ public class OrderService {
      * 7. Frontend giữ screen hiện tại, không chuyển trang, chờ user bấm lại nút thanh toán thì quay lại bước 1
      */
     // nếu nó lưu lại dish custom, thì phải chỉnh lại recipe, gỡ base on ra
+    @Transactional
     public void makeOrder (MakeOrderRequest makeOrderRequest) throws Exception {
         List<OrderItemDTO> TongMonAn = makeOrderRequest.getItems();
 
@@ -71,18 +80,17 @@ public class OrderService {
             throw new CustomException("Not enough inventory to fulfill the order", HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
-        // lưu dish custom vô table dish
-        saveCustomDish( TongMonAn, makeOrderRequest.getAccountId());
-        // Tạo order Detail
+        // lưu dish custom vô table dish & tạo order Detail
+        saveCustomDish( TongMonAn, makeOrderRequest.getAccountId(), savedOrder);
+
 
 
         PaymentMethod payment = paymentFactory.getPaymentMethod(makeOrderRequest.getPaymentMethod());
-       // String url = payment.createPaymentRequest(Integer.parseInt(makeOrderRequest.getTotalPrice().toString()), savedOrder.getId());
-
+        //String url = payment.createPaymentRequest(Integer.parseInt(makeOrderRequest.getTotalPrice().toString()), savedOrder.getId());
     }
 
     // Hàm lưu dish Cusom/Adjust vào DB
-    void saveCustomDish ( List<OrderItemDTO> TongMonAn, int accountId)
+    void saveCustomDish ( List<OrderItemDTO> TongMonAn, int accountId, Orders order)
     {
         for ( OrderItemDTO monAn: TongMonAn) {
             if (monAn.getBasedOnId()== null && monAn.getDishId() ==null) // món custom 100%
@@ -102,7 +110,11 @@ public class OrderService {
                     ingredients.put(congThuc.getIngredientId(), congThuc.getQuantity());
                 }
                 dishRequest.setIngredients(ingredients);
-                 dishService.save(dishRequest);
+                Dish savedDish =  dishService.save(dishRequest);
+
+                createOrderDetail(savedDish, order, monAn.getNote());
+
+
                 System.out.println("Dish custom 100% saved detail: " + dishRequest.getName() + " with ingredients: " + dishRequest.getIngredients());
             }
             else if (monAn.getBasedOnId() != null) // món preset có chỉnh sửa
@@ -141,16 +153,23 @@ public class OrderService {
 
 
                 dishRequest.setIngredients(ingredients);
-                 dishService.save(dishRequest);
+               Dish savedDish = dishService.save(dishRequest);
+                createOrderDetail(savedDish, order, monAn.getNote());
                 System.out.println("Dish custom based on preset saved detail: " + dishRequest.getName() + " with ingredients: " + dishRequest.getIngredients());
             }
             else // món preset 100%
             {
                 System.out.println("Dish preset 100% detail: " + monAn.getName() + " with ID: " + monAn.getDishId());
+                createOrderDetail(dishRepository.findById(monAn.getDishId()).get(), order, monAn.getNote());
             }
     }
         }
 
+
+    void createOrderDetail (Dish dish, Orders order,String note )
+    {
+        orderDetailRepository.save(new OrderDetail(dish,order, note) );
+    }
 
     boolean checkInventory (Map< Integer, Double> ingredientMap, int orderId) {
         return ingredientServiceImpl.checkAvailable(ingredientMap,orderId);
