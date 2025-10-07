@@ -18,6 +18,7 @@ public class MakeOrderRequest {
     int accountId;
     String paymentMethod;
     String note;
+    Double totalPrice;
     List<OrderItemDTO> items;
 
 

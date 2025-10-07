@@ -17,7 +17,7 @@ public class Orders {
     private int id;
     @CreationTimestamp
     private LocalDateTime createAt;
-    private int totalPrice;
+    private double totalPrice;
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
     private int userId;

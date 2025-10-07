@@ -20,7 +20,7 @@ public class DishTemplate {
     @Nationalized
     private String name;
     double priceRatio;
-    double quantityRatio;
+    double quantityRatio; // M 1.0 L 1.3 S 0.7
     int max_Carb;
     int max_Protein;
     int max_Vegetable;
