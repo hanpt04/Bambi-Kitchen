@@ -25,7 +25,6 @@ public class DishCreateRequest {
 
     private String description;
 
-    @Min(value = 0, message = "Price must be equal or greater than 0 !!")
     private int price;
 
     private String imageUrl;
