@@ -16,13 +16,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -251,6 +254,27 @@ public class IngredientServiceImpl implements IngredientService {
 
 
     //hàm schedule để chạy nếu sau 5' vẫn còn giữ chỗ chưa phản hôì thì sẽ cập nhật lại reserve và available quantity
+    @Scheduled(fixedRate = 60000)
+    public void reserve(){
+        List<InventoryOrder> inventoryOrder = inventoryOrderService.findAll();
+        for(InventoryOrder order : inventoryOrder) {
+            if(order.getReceivedAt().before(Timestamp.valueOf(LocalDateTime.now().minusMinutes(5)))) {
+                resetReserve(order.getOrderId());
+                orderItemService.deleteAllByOrderId(order.getOrderId());
+                inventoryOrderService.delete(order.getOrderId());
+            }
+        }
+    }
 
+    public void resetReserve(int orderId){
+        for(OrderItem item : orderItemService.findByOrderId(orderId)) {
+            Ingredient ingredient = ingredientRepository.findById(item.getIngredientId()).orElseThrow();
+            double newReserve = ingredient.getReserve() - item.getQuantity();
+            double newAvailable = ingredient.getAvailable() + item.getQuantity();
+            ingredient.setReserve(newReserve);
+            ingredient.setAvailable(newAvailable);
+            ingredientRepository.save(ingredient);
+        }
+    }
 
 }
