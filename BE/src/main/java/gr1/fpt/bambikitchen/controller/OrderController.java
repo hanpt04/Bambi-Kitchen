@@ -17,8 +17,9 @@ public class OrderController {
 
 
     @PostMapping
-    public void createOrder(@RequestBody MakeOrderRequest makeOrderRequest) throws Exception {
+    public String createOrder(@RequestBody MakeOrderRequest makeOrderRequest) throws Exception {
         System.out.println("Received order request: " + makeOrderRequest);
-        orderService.makeOrder( makeOrderRequest);
+        return orderService.makeOrder( makeOrderRequest);
+
     }
 }

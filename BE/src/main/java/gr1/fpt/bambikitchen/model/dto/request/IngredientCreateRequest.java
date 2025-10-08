@@ -16,7 +16,7 @@ public class IngredientCreateRequest {
 
     @NotNull(message = "Category id is required")
     private Integer categoryId;
-
+    double quantity;
     @NotNull(message = "Unit is required")
     private Unit unit;
 

@@ -7,6 +7,7 @@ import gr1.fpt.bambikitchen.exception.CustomException;
 import gr1.fpt.bambikitchen.model.Dish;
 import gr1.fpt.bambikitchen.model.OrderDetail;
 import gr1.fpt.bambikitchen.model.Orders;
+import gr1.fpt.bambikitchen.model.Payment;
 import gr1.fpt.bambikitchen.model.dto.request.DishCreateRequest;
 import gr1.fpt.bambikitchen.model.dto.request.MakeOrderRequest;
 import gr1.fpt.bambikitchen.model.dto.request.OrderItemDTO;
@@ -47,6 +48,8 @@ public class OrderService {
     OrderDetailRepository orderDetailRepository;
     @Autowired
     private DishRepository dishRepository;
+    @Autowired
+    PaymentService paymentService;
 
 
     /**
@@ -61,19 +64,11 @@ public class OrderService {
      */
     // nếu nó lưu lại dish custom, thì phải chỉnh lại recipe, gỡ base on ra
     @Transactional
-    public void makeOrder (MakeOrderRequest makeOrderRequest) throws Exception {
+    public String makeOrder (MakeOrderRequest makeOrderRequest) throws Exception {
         List<OrderItemDTO> TongMonAn = makeOrderRequest.getItems();
 
 
-
-
-        Orders newOrder = new Orders();
-
-        newOrder.setUserId(makeOrderRequest.getAccountId());
-        newOrder.setTotalPrice( makeOrderRequest.getTotalPrice());
-        newOrder.setStatus(OrderStatus.PENDING);
-        newOrder.setNote(makeOrderRequest.getNote());
-        Orders savedOrder = orderRepository.save(newOrder);
+        Orders savedOrder =  makeOrder( makeOrderRequest.getAccountId(), makeOrderRequest.getTotalPrice().longValue(), makeOrderRequest.getNote());
         boolean isEnough = checkInventory(calculateNeededIngredients(TongMonAn), savedOrder.getId());
 
         if ( !isEnough ) {
@@ -82,11 +77,27 @@ public class OrderService {
 
         // lưu dish custom vô table dish & tạo order Detail
         saveCustomDish( TongMonAn, makeOrderRequest.getAccountId(), savedOrder);
-
+        makePayment( makeOrderRequest.getTotalPrice().longValue(), savedOrder.getId(), makeOrderRequest.getPaymentMethod(), makeOrderRequest.getAccountId() );
 
 
         PaymentMethod payment = paymentFactory.getPaymentMethod(makeOrderRequest.getPaymentMethod());
-        //String url = payment.createPaymentRequest(Integer.parseInt(makeOrderRequest.getTotalPrice().toString()), savedOrder.getId());
+        Long price = makeOrderRequest.getTotalPrice().longValue();
+        String url = payment.createPaymentRequest(price, savedOrder.getId());
+        return url;
+    }
+
+    // Hàm save order
+    Orders makeOrder(int userId, Long totalPrice, String note) {
+        Orders newOrder = new Orders();
+        newOrder.setUserId(userId);
+        newOrder.setTotalPrice(totalPrice);
+        newOrder.setStatus(OrderStatus.PENDING);
+        newOrder.setNote(note);
+        return orderRepository.save(newOrder);
+    }
+
+    void makePayment( Long amount, int orderId, String method, int accountId ) {
+        paymentService .savePayment(new Payment(orderId, accountId, method, amount));
     }
 
     // Hàm lưu dish Cusom/Adjust vào DB
@@ -173,13 +184,6 @@ public class OrderService {
 
     boolean checkInventory (Map< Integer, Double> ingredientMap, int orderId) {
         return ingredientServiceImpl.checkAvailable(ingredientMap,orderId);
-    }
-
-
-
-    void confirmInventory ( int orderId)
-    {
-
     }
 
 

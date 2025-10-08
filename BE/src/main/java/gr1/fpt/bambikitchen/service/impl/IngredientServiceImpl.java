@@ -71,7 +71,10 @@ public class IngredientServiceImpl implements IngredientService {
         );
         Ingredient newIngredient = ingredientMapper.toIngredient(ingredient);
         newIngredient.setCategory(category);
+        newIngredient.setQuantity(ingredient.getQuantity());
+        newIngredient.setAvailable(ingredient.getQuantity());
         Ingredient ingredientSave = ingredientRepository.save(newIngredient);
+
 
         // publisher
         if (!ingredient.getFile().isEmpty()) {
@@ -270,7 +273,7 @@ public class IngredientServiceImpl implements IngredientService {
         for(OrderItem item : orderItemService.findByOrderId(orderId)) {
             Ingredient ingredient = ingredientRepository.findById(item.getIngredientId()).orElseThrow();
             double newReserve = ingredient.getReserve() - item.getQuantity();
-            double newAvailable = ingredient.getQuantity() + item.getQuantity();
+            double newAvailable = ingredient.getAvailable() + item.getQuantity();
             ingredient.setReserve(newReserve);
             ingredient.setAvailable(newAvailable);
             ingredientRepository.save(ingredient);
