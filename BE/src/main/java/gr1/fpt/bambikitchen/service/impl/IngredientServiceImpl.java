@@ -270,7 +270,7 @@ public class IngredientServiceImpl implements IngredientService {
         for(OrderItem item : orderItemService.findByOrderId(orderId)) {
             Ingredient ingredient = ingredientRepository.findById(item.getIngredientId()).orElseThrow();
             double newReserve = ingredient.getReserve() - item.getQuantity();
-            double newAvailable = ingredient.getAvailable() + item.getQuantity();
+            double newAvailable = ingredient.getQuantity() + item.getQuantity();
             ingredient.setReserve(newReserve);
             ingredient.setAvailable(newAvailable);
             ingredientRepository.save(ingredient);
