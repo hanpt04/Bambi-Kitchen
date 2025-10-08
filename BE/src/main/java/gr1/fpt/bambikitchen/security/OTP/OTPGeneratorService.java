@@ -48,7 +48,7 @@ public class OTPGeneratorService {
         }
     }
 
-    @Scheduled(fixedRate = 5 * 60 * 1000)
+    @Scheduled(fixedRate = 24 * 60 * 60 * 1000)
     public void terminateExpiredOTPs() {
         List<OTP> expiredOTPs = otpRepository.findAllByCreatedAtBefore(LocalDateTime.now().minusMinutes(5));
         for (OTP otp : expiredOTPs) {
