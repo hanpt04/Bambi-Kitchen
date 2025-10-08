@@ -219,7 +219,7 @@ public class IngredientServiceImpl implements IngredientService {
                 if(ingredientId == ingredient.getId()) {
                     Ingredient locked = ingredientRepository.lockById(ingredientId);
                     double newReserve = locked.getReserve()+quantity;
-                    double newAvailable = locked.getAvailable()-newReserve;
+                    double newAvailable = locked.getQuantity()-newReserve;
                     locked.setReserve(newReserve);
                     locked.setLastReserveAt(Date.valueOf(LocalDate.now()));
                     locked.setAvailable(newAvailable);
