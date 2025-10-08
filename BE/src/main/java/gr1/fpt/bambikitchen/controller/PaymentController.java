@@ -1,6 +1,9 @@
 package gr1.fpt.bambikitchen.controller;
 
 import gr1.fpt.bambikitchen.Factory.PaymentFactory;
+import gr1.fpt.bambikitchen.model.Payment;
+import gr1.fpt.bambikitchen.service.IngredientService;
+import gr1.fpt.bambikitchen.service.PaymentService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +19,10 @@ public class PaymentController {
 
     @Autowired
     PaymentFactory paymentFactory;
+    @Autowired
+    PaymentService paymentService;
+    @Autowired
+    IngredientService ingredientService;
 
     @GetMapping("/testpayment")
     public String testPayment(@RequestParam String paymentMethodName) throws Exception {
@@ -53,10 +60,14 @@ public class PaymentController {
 
         if (message.equals("Successful.")) {
             System.out.println("thanh toan thanh cong");
+            // nếu sucess thì set lại state là confirm và gửi mail và lock kho
+            paymentService.paymentSucess( Integer.parseInt(paymentId), "MOMO", transId);
+
         }
         else
         {
             System.out.println("Thanh toan cancle");
+            paymentService.paymentFail( Integer.parseInt(paymentId), "MOMO");
         }
 
 //        String redirectUrl = "http://localhost:3000/order/status?"
@@ -112,9 +123,11 @@ public class PaymentController {
         // Cập nhật trạng thái thanh toán vào database + gửi hoóa đơn vào mail + tạo notification + dissable url
         if (isSuccess) {
             System.out.println("thanh toan thanh cong VNPAY");
+            paymentService.paymentSucess( Integer.parseInt(paymentId), "VNPAY", vnp_TransactionNo);
 
         } else {
             System.out.println("Thanh toan cancle");
+            paymentService.paymentFail( Integer.parseInt(paymentId), "VNPAY");
         }
 
 //        Payment payment = paymentService.getPaymentById(Integer.parseInt(paymentId));
