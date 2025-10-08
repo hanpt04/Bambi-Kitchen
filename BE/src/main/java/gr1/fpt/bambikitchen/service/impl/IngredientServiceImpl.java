@@ -261,12 +261,11 @@ public class IngredientServiceImpl implements IngredientService {
         for(InventoryOrder order : inventoryOrder) {
             if(order.getReceivedAt().before(Timestamp.valueOf(LocalDateTime.now().minusMinutes(5)))) {
                 resetReserve(order.getOrderId());
-                orderItemService.deleteAllByOrderId(order.getOrderId());
-                inventoryOrderService.delete(order.getOrderId());
             }
         }
     }
 
+    @Override
     public void resetReserve(int orderId){
         for(OrderItem item : orderItemService.findByOrderId(orderId)) {
             Ingredient ingredient = ingredientRepository.findById(item.getIngredientId()).orElseThrow();
@@ -275,6 +274,8 @@ public class IngredientServiceImpl implements IngredientService {
             ingredient.setReserve(newReserve);
             ingredient.setAvailable(newAvailable);
             ingredientRepository.save(ingredient);
+            orderItemService.deleteAllByOrderId(orderId);
+            inventoryOrderService.delete(orderId);
         }
     }
 

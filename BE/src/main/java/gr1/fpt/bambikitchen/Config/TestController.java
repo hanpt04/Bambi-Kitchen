@@ -2,6 +2,7 @@ package gr1.fpt.bambikitchen.Config;
 
 import gr1.fpt.bambikitchen.model.enums.ResponseStatus;
 import gr1.fpt.bambikitchen.service.DishService;
+import gr1.fpt.bambikitchen.service.IngredientService;
 import gr1.fpt.bambikitchen.service.impl.IngredientServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,7 @@ import java.util.List;
 public class TestController {
 
     @Autowired
-    private IngredientServiceImpl ingredientServiceImpl;
+    private IngredientService ingredientService;
 
     public record UserDTO (int id, String name, int age) {}
     @GetMapping("/demo")
@@ -38,7 +39,7 @@ public class TestController {
 
     @GetMapping("/confirm/{id}")
     public String confirm(@PathVariable int id) {
-        ingredientServiceImpl.minusInventory(id);
+        ingredientService.minusInventory(id);
         return "confirm";
     }
 }
