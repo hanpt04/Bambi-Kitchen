@@ -42,4 +42,10 @@ public class TestController {
         ingredientService.minusInventory(id);
         return "confirm";
     }
+
+    @GetMapping("/canceled/{orderId}")
+    public String canceled(@PathVariable int orderId) {
+        ingredientService.resetReserve(orderId);
+        return "canceled";
+    }
 }

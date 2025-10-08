@@ -54,7 +54,6 @@ public class Ingredient {
     @CreationTimestamp
     private Date lastReserveAt;
 
-    @Nullable
     @Column(name = "available_quantity")
     private Double available;
 
