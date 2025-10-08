@@ -18,4 +18,5 @@ public interface IngredientService {
     Map<Integer, Integer> getIngredientsCount(List<Integer> dishes);
     boolean isEnoughIngredient(Map<Integer,Double> ingredientMap, int orderId );
     boolean checkAvailable(Map<Integer,Double> ingredientMap, int orderId);
+    public void minusInventory(int orderId);
 }

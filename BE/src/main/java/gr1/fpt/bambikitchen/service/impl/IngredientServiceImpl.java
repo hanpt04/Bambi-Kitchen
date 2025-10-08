@@ -235,6 +235,7 @@ public class IngredientServiceImpl implements IngredientService {
     }
 
 
+    @Override
     //hàm confirm: set lại reserve và trừ kho ( cập nhật lại quantity)
     //xóa inventoryOrder, orderItem
     public void minusInventory(int orderId){
