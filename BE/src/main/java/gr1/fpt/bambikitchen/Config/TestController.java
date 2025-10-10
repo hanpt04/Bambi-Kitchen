@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api")
+@RequestMapping("api/test")
 public class TestController {
 
     @Autowired
@@ -31,19 +31,19 @@ public class TestController {
     @Autowired
     DishService dishService;
 
-    @DeleteMapping("demo")
+    @DeleteMapping("/demo/delete-recipe")
     public void deleteRecipe(int DishId, int IngredientId)
     {
         dishService.deleteRecipeWithDishId(DishId);
     }
 
-    @GetMapping("/confirm/{id}")
+    @GetMapping("order/confirm/{id}")
     public String confirm(@PathVariable int id) {
         ingredientService.minusInventory(id);
         return "confirm";
     }
 
-    @GetMapping("/canceled/{orderId}")
+    @GetMapping("/order/cancel/{orderId}")
     public String canceled(@PathVariable int orderId) {
         ingredientService.resetReserve(orderId);
         return "canceled";

@@ -24,7 +24,7 @@ public class PaymentController {
     @Autowired
     IngredientService ingredientService;
 
-    @GetMapping("/testpayment")
+    @GetMapping("/test-payment")
     public String testPayment(@RequestParam String paymentMethodName) throws Exception {
 
         paymentFactory.getPaymentMethod(paymentMethodName).pay(20);
@@ -33,7 +33,7 @@ public class PaymentController {
     }
 
 
-    @GetMapping("momo-return")
+    @GetMapping("return-momo")
     public ResponseEntity<Map<String, Object>> handleMomoReturn(@RequestParam Map<String, String> params, HttpServletResponse httpResponse) throws Exception {
         Map<String, Object> response = new HashMap<>(params);
 
@@ -83,7 +83,7 @@ public class PaymentController {
     }
 
 
-    @GetMapping("/vnpay-return")
+    @GetMapping("/return-vnpay")
     public String handleVnPayReturn(@RequestParam Map<String, String> params, HttpServletResponse httpResponse) throws Exception {
         Map<String, Object> response = new HashMap<>();
 

@@ -20,7 +20,7 @@ public class UserController {
     private final MailService mailService;
     private final PasswordResetService passwordResetService;
 
-    @GetMapping("/me")
+    @GetMapping("/get-me")
     public ResponseEntity<Map<String,Object>> auth() {
         Map<String, Object> map = new HashMap<>();
         CustomUserDetail userDetail;
@@ -44,7 +44,7 @@ public class UserController {
         return ResponseEntity.ok(map);
     }
 
-    @GetMapping("/google")
+    @GetMapping("/login-with-google")
     public RedirectView googleLogin() {
         // chuyển hướng sang login bằng gg
         return new RedirectView("/oauth2/authorization/google");

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/dish-templates")
+@RequestMapping("/api/dish-template")
 public class DishTemplateController {
 
     @Autowired
