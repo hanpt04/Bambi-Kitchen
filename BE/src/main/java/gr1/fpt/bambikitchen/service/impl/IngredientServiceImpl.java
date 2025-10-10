@@ -11,6 +11,8 @@ import gr1.fpt.bambikitchen.repository.RecipeRepository;
 import gr1.fpt.bambikitchen.service.IngredientService;
 import gr1.fpt.bambikitchen.service.InventoryOrderService;
 import gr1.fpt.bambikitchen.service.OrderItemService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +46,8 @@ public class IngredientServiceImpl implements IngredientService {
     final InventoryOrderService inventoryOrderService;
     final OrderItemService orderItemService;
 
+    @PersistenceContext
+    private EntityManager entityManager;
     @Override
     public List<Ingredient> findAll() {
         return ingredientRepository.findAll();
@@ -167,23 +171,24 @@ public class IngredientServiceImpl implements IngredientService {
         return ingredientsCount;
     }
 
+
     //hàm check kho coi đủ nguyên liệu không
     @Override
     public boolean isEnoughIngredient(Map<Integer, Double> ingredientMap, int orderId) {
         for(Map.Entry<Integer, Double> entry : ingredientMap.entrySet()) {
             int ingredientId = entry.getKey();
             double quantity = entry.getValue();
-            List<Ingredient> ingredients = ingredientRepository.findAll();
-            for(Ingredient ingredient : ingredients) {
-                if(ingredientId == ingredient.getId()) {
-                    if(ingredient.availableIngredient()<quantity) {
-                        return false;
-                    }
+            entityManager.clear();
+            Ingredient locked = ingredientRepository.lockById(ingredientId);
+            System.out.println(locked.toString()+"locked");
+                if (locked.availableIngredient() < quantity) {
+                    return false;
                 }
-            }
         }
+        reserveIngredient(ingredientMap,orderId);
         return true;
     }
+
 
     @Override
     public boolean checkAvailable(Map<Integer, Double> ingredientMap, int orderId) {
@@ -192,10 +197,9 @@ public class IngredientServiceImpl implements IngredientService {
         }
         else{
             //lưu lại các orderitem ( luư nguyên liệu + quantity để sau này trừ kho và gỡ kho
-            saveOrder(orderId);
+           // saveOrder(orderId);
             System.out.println("Order: " + orderId);
             //giữ chỗ ingredient
-            reserveIngredient(ingredientMap,orderId);
             return true;
         }
     }
@@ -204,6 +208,7 @@ public class IngredientServiceImpl implements IngredientService {
     public void saveOrder(int orderId){
         InventoryOrder inventory = new InventoryOrder();
         inventory.setOrderId(orderId);
+        inventory.setReceivedAt(Timestamp.valueOf(LocalDateTime.now()));
         inventoryOrderService.save(inventory);
     }
 
@@ -218,23 +223,26 @@ public class IngredientServiceImpl implements IngredientService {
                 //thêm bảng orderitem đi theo để truy vấn cái ingredientId+quantity để sau này lấy ra trừ kho hoặc trả chỗ
                 if(ingredientId == ingredient.getId()) {
                     Ingredient locked = ingredientRepository.lockById(ingredientId);
+                    System.out.println(locked.toString()+"222");
                     double newReserve = locked.getReserve()+quantity;
                     double newAvailable = locked.getQuantity()-newReserve;
                     locked.setReserve(newReserve);
                     locked.setLastReserveAt(Date.valueOf(LocalDate.now()));
                     locked.setAvailable(newAvailable);
+                    Ingredient saved=ingredientRepository.saveAndFlush(locked);
+                    System.out.println(saved.toString()+"saved");
+                    ingredientRepository.flush();
+                    entityManager.clear();
                     OrderItem item = new OrderItem();
                     item.setIngredientId(ingredientId);
                     item.setQuantity(quantity);
+                    saveOrder(orderId);
                     InventoryOrder inventoryOrder = inventoryOrderService.findByOrderId(orderId);
                     item.setOrder(inventoryOrder);
                     orderItemService.save(item);
                 }
             }
         }
-        ingredientRepository.flush();
-        System.out.println(inventoryOrderService.findByOrderId(orderId));
-        System.out.println(orderItemService.findByOrderId(orderId));
     }
 
 
