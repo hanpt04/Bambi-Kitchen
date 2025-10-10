@@ -33,7 +33,7 @@ public class PaymentController {
     }
 
 
-    @GetMapping("return-momo")
+    @GetMapping("momo-return")
     public ResponseEntity<Map<String, Object>> handleMomoReturn(@RequestParam Map<String, String> params, HttpServletResponse httpResponse) throws Exception {
         Map<String, Object> response = new HashMap<>(params);
 
@@ -83,7 +83,7 @@ public class PaymentController {
     }
 
 
-    @GetMapping("/return-vnpay")
+    @GetMapping("/vnpay-return")
     public String handleVnPayReturn(@RequestParam Map<String, String> params, HttpServletResponse httpResponse) throws Exception {
         Map<String, Object> response = new HashMap<>();
 

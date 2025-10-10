@@ -16,6 +16,7 @@ import gr1.fpt.bambikitchen.model.enums.DishType;
 import gr1.fpt.bambikitchen.model.enums.OrderStatus;
 import gr1.fpt.bambikitchen.model.enums.SourceType;
 import gr1.fpt.bambikitchen.repository.DishRepository;
+import gr1.fpt.bambikitchen.repository.IngredientRepository;
 import gr1.fpt.bambikitchen.repository.OrderDetailRepository;
 import gr1.fpt.bambikitchen.repository.OrderRepository;
 import gr1.fpt.bambikitchen.service.impl.DishTemplateService;
@@ -51,6 +52,15 @@ public class OrderService {
     private DishRepository dishRepository;
     @Autowired
     PaymentService paymentService;
+    @Autowired
+    private IngredientRepository ingredientRepository;
+
+
+
+    public Orders findById(int id) {
+        return orderRepository.findById(id)
+                .orElseThrow(() -> new CustomException("Order not found!", HttpStatus.NOT_FOUND));
+    }
 
 
     /**
@@ -97,6 +107,7 @@ public class OrderService {
         return orderRepository.save(newOrder);
     }
 
+    // Hàm save payment
     void makePayment( Long amount, int orderId, String method, int accountId ) {
         paymentService .savePayment(new Payment(orderId, accountId, method, amount));
     }
@@ -172,7 +183,8 @@ public class OrderService {
             else // món preset 100%
             {
                 System.out.println("Dish preset 100% detail: " + monAn.getName() + " with ID: " + monAn.getDishId());
-                createOrderDetail(dishRepository.findById(monAn.getDishId()).get(), order, monAn.getNote());
+                Dish presetDish = dishRepository.findById(monAn.getDishId()).orElseThrow(() -> new CustomException("Dish not found with ID: " + monAn.getDishId(), HttpStatus.NOT_FOUND));
+                createOrderDetail( presetDish, order, monAn.getNote());
             }
     }
         }
@@ -205,7 +217,7 @@ public class OrderService {
         for (OrderItemDTO monAn: TongMonAn) {
             monAn.setDishTemplate(dishTemplateService.findBySizeCode(monAn.getDishTemplate().getSize()));
 
-            if (monAn.getBasedOnId() != null)
+            if (monAn.getBasedOnId() != null ) // món preset có chỉnh sửa
             {
                 //Ingreid, Quantity
                 Map<Integer, Integer> baseIngredients = dishService.getIngredientsByDishId(monAn.getBasedOnId());
@@ -232,7 +244,7 @@ public class OrderService {
 
             }
             // Nếu là món custom hoàn toàn không có base
-            else if ( monAn.getBasedOnId() == null)
+            else if ( monAn.getBasedOnId() == null && monAn.getDishId() == null ) // món custom 100%
             {
                 for (RecipeItemDTO congThuc : monAn.getRecipe())
                 {
@@ -241,10 +253,19 @@ public class OrderService {
                     ingredientMap.put(ingredientId, ingredientMap.getOrDefault(ingredientId, 0.0) + quantity);
                 }
             }
+            // nếu là preset 100%
+            else if ( monAn.getDishId() != null ){
+                Map<Integer, Integer> ingredients = dishService.getIngredientsByDishId(monAn.getDishId());
+                for (Map.Entry<Integer, Integer> entry : ingredients.entrySet()) {
+                    Integer ingredientId = entry.getKey();
+                    Double quantity = (entry.getValue() * monAn.getQuantity()*monAn.getDishTemplate().getQuantityRatio()); // Nhân với số lượng món
+                    ingredientMap.put(ingredientId, ingredientMap.getOrDefault(ingredientId, 0.0) + quantity);
+                }
+            }
         }
 
         ingredientMap.forEach( (ingredientId, quantity) -> {
-            System.out.println("Ingredient ID: " + ingredientId + ", Total Quantity Needed: " + quantity);
+            System.out.println("Ingredient Name: " +ingredientRepository.findById(ingredientId).get().getName()  +" - Ingredient ID: " + ingredientId + ", Total Quantity Needed: " + quantity);
         });
 
         return ingredientMap;

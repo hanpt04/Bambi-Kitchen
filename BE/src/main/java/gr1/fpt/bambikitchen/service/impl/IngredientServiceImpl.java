@@ -270,7 +270,7 @@ public class IngredientServiceImpl implements IngredientService {
     public void reserve(){
         List<InventoryOrder> inventoryOrder = inventoryOrderService.findAll();
         for(InventoryOrder order : inventoryOrder) {
-            if(order.getReceivedAt().before(Timestamp.valueOf(LocalDateTime.now().minusMinutes(5)))) {
+            if(order.getReceivedAt().before(Timestamp.valueOf(LocalDateTime.now().minusMinutes(3)))) {
                 resetReserve(order.getOrderId());
             }
         }
