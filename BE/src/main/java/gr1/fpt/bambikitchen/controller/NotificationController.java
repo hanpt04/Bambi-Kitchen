@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/notifications")
+@RequestMapping("/api/notification")
 @CrossOrigin(origins = "*")
 public class NotificationController {
 
@@ -26,7 +26,7 @@ public class NotificationController {
         return service.findById(id);
     }
 
-    @GetMapping("account/{id}")
+    @GetMapping("to-account/{id}")
     public List<Notification> getNotificationByAccountId(@PathVariable int id) {
         return service.findByAccount(id);
     }
@@ -46,7 +46,7 @@ public class NotificationController {
         service.delete(id);
     }
 
-    @PatchMapping("/{id}/read")
+    @PatchMapping("/{id}/check-read")
     public void markAsRead(@PathVariable int id) {
         service.setRead(id);
     }
