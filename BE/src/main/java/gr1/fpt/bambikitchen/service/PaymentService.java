@@ -17,8 +17,6 @@ public class PaymentService {
     @Autowired
     IngredientService ingredientService;
     @Autowired
-    OrderService orderService;
-    @Autowired
     OrderRepository orderRepository;
 
     public void savePayment(Payment payment) {
