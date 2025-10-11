@@ -20,7 +20,7 @@ public class AccountCreateRequest {
     private String mail;
 
     @NotNull
-    private Role role;
+    private Role role = Role.USER;
 
     @NotBlank(message = "Password must not be blank")
     @Size(min = 6, max = 50, message = "Password must be between 6 and 50 characters")
