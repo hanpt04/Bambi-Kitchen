@@ -264,9 +264,7 @@ public class OrderService {
             }
         }
 
-        ingredientMap.forEach( (ingredientId, quantity) -> {
-            System.out.println("Ingredient Name: " +ingredientRepository.findById(ingredientId).get().getName()  +" - Ingredient ID: " + ingredientId + ", Total Quantity Needed: " + quantity);
-        });
+        System.out.println("Ingredient Map: " + ingredientMap);
 
         return ingredientMap;
     }
