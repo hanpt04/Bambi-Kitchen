@@ -28,6 +28,7 @@ public class Payment {
     @UpdateTimestamp
     LocalDateTime updatedAt;
     String transactionId;
+    String note;
 
 
     public Payment(int orderId, int accountId, String method, Long amount) {

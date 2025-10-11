@@ -44,6 +44,7 @@ public class PaymentService {
         Payment payment = getPaymentById(paymentId);
         payment.setPaymentMethod(paymentMethod);
         payment.setStatus("FAIL");
+        payment.setNote("Payment failed or cancelled by user");
         savePayment(payment);
         ingredientService.resetReserve(paymentId);
       getOrderByPaymentIdAndUpdateStatus(paymentId, OrderStatus.CANCELLED);
