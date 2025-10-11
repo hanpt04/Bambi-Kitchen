@@ -23,4 +23,9 @@ public class IngredientCategory {
     private String name;
     @Nationalized
     private String description;
+
+    public IngredientCategory(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
 }

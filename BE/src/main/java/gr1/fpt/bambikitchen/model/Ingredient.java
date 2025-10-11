@@ -48,7 +48,7 @@ public class Ingredient {
 
     //số lượng mà đang giữ chỗ
     @Column(name = "reserve")
-    private Double reserve;
+    private Double reserve = 0.0;
 
     @Column(name = "last_reserve_at")
     @CreationTimestamp

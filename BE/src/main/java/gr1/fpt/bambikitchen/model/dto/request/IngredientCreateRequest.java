@@ -21,5 +21,5 @@ public class IngredientCreateRequest {
     private Unit unit;
 
     @Nullable
-    MultipartFile file;
+    MultipartFile file  ;
 }
