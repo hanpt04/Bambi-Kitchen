@@ -48,13 +48,5 @@ public class OTPGeneratorService {
         }
     }
 
-    @Scheduled(fixedRate = 24 * 60 * 60 * 1000)
-    public void terminateExpiredOTPs() {
-        List<OTP> expiredOTPs = otpRepository.findAllByCreatedAtBefore(LocalDateTime.now().minusMinutes(5));
-        for (OTP otp : expiredOTPs) {
-            otp.setExpired(true);
-            otpRepository.save(otp);
-        }
-        log.info("Terminated {} expired OTPs", expiredOTPs.size());
-    }
+
 }
