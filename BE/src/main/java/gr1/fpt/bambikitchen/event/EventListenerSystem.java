@@ -97,7 +97,6 @@ public class EventListenerSystem {
     @EventListener
     @Async
     public void createItemAndInventory(CreateItemAndInventory createItemAndInventory){
-        System.out.println("Nghe");
         OrderItem orderItem = new OrderItem();
         orderItem.setIngredientId(createItemAndInventory.ingredientId);
         orderItem.setQuantity(createItemAndInventory.quantity);

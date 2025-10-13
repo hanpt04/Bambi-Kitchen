@@ -42,7 +42,6 @@ public class Scheduler  {
     //hàm schedule để chạy nếu sau 5' vẫn còn giữ chỗ chưa phản hôì thì sẽ cập nhật lại reserve và available quantity
     @Scheduled(fixedRate = 60000)
     public void reserve(){
-
         List<InventoryOrder> inventoryOrder = inventoryOrderService.findAll();
         for(InventoryOrder order : inventoryOrder) {
             if(order.getReceivedAt().before(Timestamp.valueOf(LocalDateTime.now().minusMinutes(2)))) {
