@@ -1,6 +1,7 @@
 package gr1.fpt.bambikitchen.service.impl;
 
 import gr1.fpt.bambikitchen.Utils.FileUtil;
+import gr1.fpt.bambikitchen.event.EventListenerSystem;
 import gr1.fpt.bambikitchen.exception.CustomException;
 import gr1.fpt.bambikitchen.mapper.IngredientMapper;
 import gr1.fpt.bambikitchen.model.*;
@@ -48,6 +49,7 @@ public class IngredientServiceImpl implements IngredientService {
 
     @PersistenceContext
     private EntityManager entityManager;
+
     @Override
     public List<Ingredient> findAll() {
         return ingredientRepository.findAll();
@@ -108,21 +110,21 @@ public class IngredientServiceImpl implements IngredientService {
         newIngredient.setUnit(ingredient.getUnit());
         newIngredient.setActive(ingredient.getActive());
         //kiểm tra xem nếu đã có img rồi mà ko update lại img thì set lại img cũ
-        if(oldIngredient.getImgUrl()!=null){
+        if (oldIngredient.getImgUrl() != null) {
             newIngredient.setImgUrl(oldIngredient.getImgUrl());
             newIngredient.setPublicId(oldIngredient.getPublicId());
         }
         Ingredient ingredientUpdate = ingredientRepository.save(newIngredient);
         //publisher ( sẽ kiểm tra xem có file gửi về hay ko rồi mới update file
         //nếu có thay đổi ảnh: xóa ảnh hiện tại trên cloud -> cập lại lại url và public_id
-        if(!ingredient.getFile().isEmpty()) {
+        if (!ingredient.getFile().isEmpty()) {
             //luư lại file tạm trong project và giữ đường dẫn đến file
             String path = FileUtil.saveFile(ingredient.getFile());
             //lấy ra file từ path và convert qua multipartFile để upload lên cloudinary
             File file = FileUtil.getFileByPath(path);
             MultipartFile multipartFile = FileUtil.convertFileToMultipart(file);
             file.delete();
-            eventPublisher.publishEvent(new IngredientDtoRequest(ingredientUpdate,multipartFile));
+            eventPublisher.publishEvent(new IngredientDtoRequest(ingredientUpdate, multipartFile));
         }
         return ingredientUpdate;
     }
@@ -138,40 +140,6 @@ public class IngredientServiceImpl implements IngredientService {
         return "Deleted Ingredient with id: " + id;
     }
 
-
-    /**
-     * Aggregates ingredient quantities for the requested dishes.
-     * <p>
-     * Retrieves all recipes, filters them by dish IDs from {@code ingredientsGetCountRequest},
-     * extracts unique ingredients, fetches their {@link IngredientDetail} records,
-     * and sums the quantities for each ingredient.
-     *
-     * @return a map where keys are ingredient names and values are the total quantities
-     * required for the requested dishes.
-     */
-    @Override
-    public Map<Integer, Integer> getIngredientsCount(List<Integer> dishes) {
-        Map<Integer, Integer> ingredientsCount = new HashMap<>();
-
-        List<Recipe> recipes = recipeRepository.findAll();
-
-        /**
-         * Retrieves recipes and returns a map of ingredient names to total needed quantities to make requested dishes.
-         */
-        recipes.parallelStream()
-                // Filter the needed ingredients for the requested dishes
-                .filter(recipe -> dishes.contains(recipe.getDish().getId()))
-                // Count required ingredient's quantity
-                .forEach(recipe -> ingredientsCount.merge(
-                        recipe.getIngredient().getId(),
-                        recipe.getQuantity(),
-                        Integer::sum
-                ));
-
-        return ingredientsCount;
-    }
-
-
     //hàm check kho coi đủ nguyên liệu không
     @Override
     public boolean isEnoughIngredient(Map<Integer, Double> ingredientMap, int orderId) {
@@ -179,26 +147,26 @@ public class IngredientServiceImpl implements IngredientService {
         for (Map.Entry<Integer, Double> entry : ingredientMap.entrySet()) {
             int ingredientId = entry.getKey();
             double quantity = entry.getValue();
-            entityManager.clear();
+            //entityManager.clear();
+            entityManager.getEntityManagerFactory().getCache().evict(Ingredient.class);
             Ingredient locked = ingredientRepository.lockById(ingredientId);
-            System.out.println(locked.toString()+"locked");
-                if (locked.availableIngredient() < quantity) {
-                    return false;
-                }
+            System.out.println(locked.toString() + "locked");
+            if (locked.availableIngredient() < quantity) {
+                return false;
+            }
         }
-        reserveIngredient(ingredientMap,orderId);
+        reserveIngredient(ingredientMap, orderId);
         return true;
     }
 
 
     @Override
     public boolean checkAvailable(Map<Integer, Double> ingredientMap, int orderId) {
-        if(!isEnoughIngredient(ingredientMap, orderId)) {
+        if (!isEnoughIngredient(ingredientMap, orderId)) {
             return false;
-        }
-        else{
+        } else {
             //lưu lại các orderitem ( luư nguyên liệu + quantity để sau này trừ kho và gỡ kho
-           // saveOrder(orderId);
+            // saveOrder(orderId);
             System.out.println("Order: " + orderId);
             //giữ chỗ ingredient
             return true;
@@ -206,7 +174,7 @@ public class IngredientServiceImpl implements IngredientService {
     }
 
     //lưu bảng này để check xem create lúc nào để nếu sau 5' chưa có trừ kho thì sẽ trả lại reserve
-    public void saveOrder(int orderId){
+    public void saveOrder(int orderId) {
         InventoryOrder inventory = new InventoryOrder();
         inventory.setOrderId(orderId);
         inventory.setReceivedAt(Timestamp.valueOf(LocalDateTime.now()));
@@ -214,8 +182,8 @@ public class IngredientServiceImpl implements IngredientService {
     }
 
     //giữ chỗ nguyên liệu
-    public void reserveIngredient(Map<Integer,Double> ingredientMap, int orderId){
-        for(Map.Entry<Integer,Double> entry : ingredientMap.entrySet()) {
+    public void reserveIngredient(Map<Integer, Double> ingredientMap, int orderId) {
+        for (Map.Entry<Integer, Double> entry : ingredientMap.entrySet()) {
             int ingredientId = entry.getKey();
             double quantity = entry.getValue();
             //set reserve và lưu thêm bảng tạm inventory order để xem order đó giữ chỗ hồi nào
@@ -236,11 +204,11 @@ public class IngredientServiceImpl implements IngredientService {
     @Override
     //hàm confirm: set lại reserve và trừ kho ( cập nhật lại quantity)
     //xóa inventoryOrder, orderItem
-    public void minusInventory(int orderId){
+    public void minusInventory(int orderId) {
         List<OrderItem> items = orderItemService.findByOrderId(orderId);
-        for(OrderItem item : items) {
+        for (OrderItem item : items) {
             Ingredient ingredient = ingredientRepository.findById(item.getIngredientId()).orElseThrow();
-            double newQuantity = ingredient.getQuantity()-item.getQuantity();
+            double newQuantity = ingredient.getQuantity() - item.getQuantity();
             double newReserve = ingredient.getReserve() - item.getQuantity();
             ingredient.setReserve(newReserve);
             ingredient.setQuantity(newQuantity);
@@ -251,27 +219,16 @@ public class IngredientServiceImpl implements IngredientService {
         inventoryOrderService.delete(orderId);
     }
 
-
-    //hàm schedule để chạy nếu sau 5' vẫn còn giữ chỗ chưa phản hôì thì sẽ cập nhật lại reserve và available quantity
-    @Scheduled(fixedRate = 60000)
-    public void reserve(){
-        List<InventoryOrder> inventoryOrder = inventoryOrderService.findAll();
-        for(InventoryOrder order : inventoryOrder) {
-            if(order.getReceivedAt().before(Timestamp.valueOf(LocalDateTime.now().minusMinutes(3)))) {
-                resetReserve(order.getOrderId());
-            }
-        }
-    }
-
     @Override
-    public void resetReserve(int orderId){
-        for(OrderItem item : orderItemService.findByOrderId(orderId)) {
+    public void resetReserve(int orderId) {
+        entityManager.clear();
+        for (OrderItem item : orderItemService.findByOrderId(orderId)) {
             Ingredient ingredient = ingredientRepository.findById(item.getIngredientId()).orElseThrow();
             double newReserve = ingredient.getReserve() - item.getQuantity();
             double newAvailable = ingredient.getAvailable() + item.getQuantity();
             ingredient.setReserve(newReserve);
             ingredient.setAvailable(newAvailable);
-            ingredientRepository.save(ingredient);
+            Ingredient saved = ingredientRepository.save(ingredient);
             orderItemService.deleteAllByOrderId(orderId);
             inventoryOrderService.delete(orderId);
         }

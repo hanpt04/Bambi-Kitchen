@@ -1,13 +1,15 @@
 package gr1.fpt.bambikitchen.event;
 
 import gr1.fpt.bambikitchen.cloudinary.CloudinaryService;
-import gr1.fpt.bambikitchen.model.Ingredient;
-import gr1.fpt.bambikitchen.model.Payment;
+import gr1.fpt.bambikitchen.model.*;
 import gr1.fpt.bambikitchen.model.dto.request.IngredientDtoRequest;
 import gr1.fpt.bambikitchen.model.enums.OrderStatus;
 import gr1.fpt.bambikitchen.repository.IngredientRepository;
 import gr1.fpt.bambikitchen.repository.OrderRepository;
 import gr1.fpt.bambikitchen.repository.PaymentRepository;
+import gr1.fpt.bambikitchen.service.IngredientService;
+import gr1.fpt.bambikitchen.service.InventoryOrderService;
+import gr1.fpt.bambikitchen.service.OrderItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -33,6 +35,7 @@ public class EventListenerSystem {
     private InventoryOrderService inventoryOrderService;
     @Autowired
     private OrderItemService orderItemService;
+
 
     //update img url sau khi hoàn tất tạo ingredient
     @EventListener
@@ -89,6 +92,20 @@ public class EventListenerSystem {
         }
     }
 
+    public static record CreateItemAndInventory(int ingredientId,double quantity, int orderId){}
+
+    @EventListener
+    @Async
+    public void createItemAndInventory(CreateItemAndInventory createItemAndInventory){
+        System.out.println("Nghe");
+        OrderItem orderItem = new OrderItem();
+        orderItem.setIngredientId(createItemAndInventory.ingredientId);
+        orderItem.setQuantity(createItemAndInventory.quantity);
+        ingredientService.saveOrder(createItemAndInventory.orderId);
+        InventoryOrder inventoryOrder = inventoryOrderService.findByOrderId(createItemAndInventory.orderId);
+        orderItem.setOrder(inventoryOrder);
+        orderItemService.save(orderItem);
+    }
 
 
 }
