@@ -76,25 +76,21 @@ public class OrderService {
     public String makeOrder (MakeOrderRequest makeOrderRequest) throws Exception {
         List<OrderItemDTO> TongMonAn = makeOrderRequest.getItems();
 
-
         Orders savedOrder =  makeOrder( makeOrderRequest.getAccountId(), makeOrderRequest.getTotalPrice().longValue(), makeOrderRequest.getNote());
         boolean isEnough = checkInventory(calculateNeededIngredients(TongMonAn), savedOrder.getId());
+        calculateNeededIngredients(TongMonAn);
         if ( !isEnough ) {
             throw new CustomException("Not enough inventory to fulfill the order", HttpStatus.UNPROCESSABLE_ENTITY);
         }
-
         // lưu dish custom vô table dish & tạo order Detail
         saveCustomDish( TongMonAn, makeOrderRequest.getAccountId(), savedOrder);
         makePayment( makeOrderRequest.getTotalPrice().longValue(), savedOrder.getId(), makeOrderRequest.getPaymentMethod(), makeOrderRequest.getAccountId() );
-
 
         PaymentMethod payment = paymentFactory.getPaymentMethod(makeOrderRequest.getPaymentMethod());
         Long price = makeOrderRequest.getTotalPrice().longValue();
         String url = payment.createPaymentRequest(price, savedOrder.getId());
         return url;
     }
-
-
 
     // Hàm save order
     Orders makeOrder(int userId, Long totalPrice, String note) {
@@ -195,7 +191,6 @@ public class OrderService {
     {
         orderDetailRepository.save(new OrderDetail(dish,order, note) );
     }
-
 
 
     /**

@@ -40,6 +40,7 @@ public class DishCreateRequest {
 
     boolean isActive = true;
 
+    //IngreId, Quantity
     @NotNull
     Map<Integer, Integer> ingredients;
 }
