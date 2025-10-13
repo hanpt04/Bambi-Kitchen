@@ -50,10 +50,6 @@ public class OrderService {
     private DishRepository dishRepository;
     @Autowired
     PaymentService paymentService;
-    @Autowired
-    private IngredientRepository ingredientRepository;
-
-
 
     public Orders findById(int id) {
         return orderRepository.findById(id)
@@ -135,9 +131,6 @@ public class OrderService {
                 Dish savedDish =  dishService.save(dishRequest);
 
                 createOrderDetail(savedDish, order, monAn.getNote());
-
-
-                System.out.println("Dish custom 100% saved detail: " + dishRequest.getName() + " with ingredients: " + dishRequest.getIngredients());
             }
             else if (monAn.getBasedOnId() != null) // món preset có chỉnh sửa
             {
@@ -175,11 +168,9 @@ public class OrderService {
                 dishRequest.setIngredients(ingredients);
                Dish savedDish = dishService.save(dishRequest);
                 createOrderDetail(savedDish, order, monAn.getNote());
-                System.out.println("Dish custom based on preset saved detail: " + dishRequest.getName() + " with ingredients: " + dishRequest.getIngredients());
             }
             else // món preset 100%
             {
-                System.out.println("Dish preset 100% detail: " + monAn.getName() + " with ID: " + monAn.getDishId());
                 Dish presetDish = dishRepository.findById(monAn.getDishId()).orElseThrow(() -> new CustomException("Dish not found with ID: " + monAn.getDishId(), HttpStatus.NOT_FOUND));
                 createOrderDetail( presetDish, order, monAn.getNote());
             }
@@ -231,7 +222,6 @@ public class OrderService {
 
             //Ingreid, Quantity
             Map<Integer, Integer> baseIngredients = monAn.getBasedOnId() != null ? dishService.getIngredientsByDishId(monAn.getBasedOnId()) : null;
-            System.out.println(baseIngredients + " baseIngredients for dish ID: " + monAn.getBasedOnId());
 
             if (monAn.getBasedOnId() != null ) // món preset có chỉnh sửa
             {
@@ -277,10 +267,6 @@ public class OrderService {
                 }
             }
         }
-
-
-        System.out.println("Ingredient Map: " + ingredientMap);
-
         return ingredientMap;
     }
 

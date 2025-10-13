@@ -42,7 +42,6 @@ public class IngredientServiceImpl implements IngredientService {
     private final IngredientRepository ingredientRepository;
     private final IngredientMapper ingredientMapper;
     private final IngredientCategoryRepository ingredientCategoryRepository;
-    private final RecipeRepository recipeRepository;
     final ApplicationEventPublisher eventPublisher;
     final InventoryOrderService inventoryOrderService;
     final OrderItemService orderItemService;
@@ -80,7 +79,6 @@ public class IngredientServiceImpl implements IngredientService {
         newIngredient.setQuantity(ingredient.getQuantity());
         newIngredient.setAvailable(ingredient.getQuantity());
         Ingredient ingredientSave = ingredientRepository.save(newIngredient);
-
 
         // publisher
         if (!ingredient.getFile().isEmpty()) {
@@ -143,14 +141,12 @@ public class IngredientServiceImpl implements IngredientService {
     //hàm check kho coi đủ nguyên liệu không
     @Override
     public boolean isEnoughIngredient(Map<Integer, Double> ingredientMap, int orderId) {
-        System.out.println("IN RA CAI MAP BEN INVENTORY NHAN VAO: " + ingredientMap);
         for (Map.Entry<Integer, Double> entry : ingredientMap.entrySet()) {
             int ingredientId = entry.getKey();
             double quantity = entry.getValue();
             //entityManager.clear();
             entityManager.getEntityManagerFactory().getCache().evict(Ingredient.class);
             Ingredient locked = ingredientRepository.lockById(ingredientId);
-            System.out.println(locked.toString() + "locked");
             if (locked.availableIngredient() < quantity) {
                 return false;
             }
@@ -166,8 +162,6 @@ public class IngredientServiceImpl implements IngredientService {
             return false;
         } else {
             //lưu lại các orderitem ( luư nguyên liệu + quantity để sau này trừ kho và gỡ kho
-            // saveOrder(orderId);
-            System.out.println("Order: " + orderId);
             //giữ chỗ ingredient
             return true;
         }
@@ -228,7 +222,7 @@ public class IngredientServiceImpl implements IngredientService {
             double newAvailable = ingredient.getAvailable() + item.getQuantity();
             ingredient.setReserve(newReserve);
             ingredient.setAvailable(newAvailable);
-            Ingredient saved = ingredientRepository.save(ingredient);
+            ingredientRepository.save(ingredient);
             orderItemService.deleteAllByOrderId(orderId);
             inventoryOrderService.delete(orderId);
         }
