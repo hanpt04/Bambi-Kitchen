@@ -4,16 +4,14 @@ package gr1.fpt.bambikitchen.service;
 import gr1.fpt.bambikitchen.Factory.PaymentFactory;
 import gr1.fpt.bambikitchen.Payment.PaymentMethod;
 import gr1.fpt.bambikitchen.exception.CustomException;
-import gr1.fpt.bambikitchen.model.Dish;
-import gr1.fpt.bambikitchen.model.OrderDetail;
-import gr1.fpt.bambikitchen.model.Orders;
-import gr1.fpt.bambikitchen.model.Payment;
+import gr1.fpt.bambikitchen.model.*;
 import gr1.fpt.bambikitchen.model.dto.request.DishCreateRequest;
 import gr1.fpt.bambikitchen.model.dto.request.MakeOrderRequest;
 import gr1.fpt.bambikitchen.model.dto.request.OrderItemDTO;
 import gr1.fpt.bambikitchen.model.dto.request.RecipeItemDTO;
 import gr1.fpt.bambikitchen.model.enums.DishType;
 import gr1.fpt.bambikitchen.model.enums.OrderStatus;
+import gr1.fpt.bambikitchen.model.enums.SizeCode;
 import gr1.fpt.bambikitchen.model.enums.SourceType;
 import gr1.fpt.bambikitchen.repository.DishRepository;
 import gr1.fpt.bambikitchen.repository.IngredientRepository;
@@ -81,7 +79,6 @@ public class OrderService {
 
         Orders savedOrder =  makeOrder( makeOrderRequest.getAccountId(), makeOrderRequest.getTotalPrice().longValue(), makeOrderRequest.getNote());
         boolean isEnough = checkInventory(calculateNeededIngredients(TongMonAn), savedOrder.getId());
-
         if ( !isEnough ) {
             throw new CustomException("Not enough inventory to fulfill the order", HttpStatus.UNPROCESSABLE_ENTITY);
         }
@@ -97,6 +94,8 @@ public class OrderService {
         return url;
     }
 
+
+
     // Hàm save order
     Orders makeOrder(int userId, Long totalPrice, String note) {
         Orders newOrder = new Orders();
@@ -110,6 +109,10 @@ public class OrderService {
     // Hàm save payment
     void makePayment( Long amount, int orderId, String method, int accountId ) {
         paymentService .savePayment(new Payment(orderId, accountId, method, amount));
+    }
+
+    boolean checkInventory (Map< Integer, Double> ingredientMap, int orderId) {
+        return ingredientServiceImpl.checkAvailable(ingredientMap,orderId);
     }
 
     // Hàm lưu dish Cusom/Adjust vào DB
@@ -195,9 +198,6 @@ public class OrderService {
         orderDetailRepository.save(new OrderDetail(dish,order, note) );
     }
 
-    boolean checkInventory (Map< Integer, Double> ingredientMap, int orderId) {
-        return ingredientServiceImpl.checkAvailable(ingredientMap,orderId);
-    }
 
 
     /**
@@ -214,13 +214,34 @@ public class OrderService {
     public Map< Integer, Double> calculateNeededIngredients (List<OrderItemDTO> TongMonAn) {
         Map<Integer, Double > ingredientMap = new HashMap<>();
 
+        DishTemplate sizeM = dishTemplateService.findBySizeCode(SizeCode.M);
+        DishTemplate sizeL = dishTemplateService.findBySizeCode(SizeCode.L);
+        DishTemplate sizeS = dishTemplateService.findBySizeCode(SizeCode.S);
+
         for (OrderItemDTO monAn: TongMonAn) {
-            monAn.setDishTemplate(dishTemplateService.findBySizeCode(monAn.getDishTemplate().getSize()));
+
+            switch (monAn.getDishTemplate().getSize().toString())
+            {
+                case "S":
+                    monAn.setDishTemplate(sizeS);
+                    break;
+                case "M":
+                    monAn.setDishTemplate(sizeM);
+                    break;
+                case "L":
+                    monAn.setDishTemplate(sizeL);
+                    break;
+                default:
+                    throw new CustomException("Size not found", HttpStatus.NOT_FOUND);
+            }
+
+
+            //Ingreid, Quantity
+            Map<Integer, Integer> baseIngredients = monAn.getBasedOnId() != null ? dishService.getIngredientsByDishId(monAn.getBasedOnId()) : null;
+            System.out.println(baseIngredients + " baseIngredients for dish ID: " + monAn.getBasedOnId());
 
             if (monAn.getBasedOnId() != null ) // món preset có chỉnh sửa
             {
-                //Ingreid, Quantity
-                Map<Integer, Integer> baseIngredients = dishService.getIngredientsByDishId(monAn.getBasedOnId());
                 for (Map.Entry<Integer, Integer> entry : baseIngredients.entrySet()) {
                     Integer ingredientId = entry.getKey();
                     Double quantity =  (entry.getValue() * monAn.getQuantity()*monAn.getDishTemplate().getQuantityRatio()); // Nhân với số lượng món
@@ -255,14 +276,15 @@ public class OrderService {
             }
             // nếu là preset 100%
             else if ( monAn.getDishId() != null ){
-                Map<Integer, Integer> ingredients = dishService.getIngredientsByDishId(monAn.getDishId());
-                for (Map.Entry<Integer, Integer> entry : ingredients.entrySet()) {
+                baseIngredients = dishService.getIngredientsByDishId(monAn.getDishId());
+                for (Map.Entry<Integer, Integer> entry : baseIngredients.entrySet()) {
                     Integer ingredientId = entry.getKey();
                     Double quantity = (entry.getValue() * monAn.getQuantity()*monAn.getDishTemplate().getQuantityRatio()); // Nhân với số lượng món
                     ingredientMap.put(ingredientId, ingredientMap.getOrDefault(ingredientId, 0.0) + quantity);
                 }
             }
         }
+
 
         System.out.println("Ingredient Map: " + ingredientMap);
 

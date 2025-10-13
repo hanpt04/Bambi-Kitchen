@@ -4,7 +4,9 @@ import gr1.fpt.bambikitchen.cloudinary.CloudinaryService;
 import gr1.fpt.bambikitchen.model.Ingredient;
 import gr1.fpt.bambikitchen.model.Payment;
 import gr1.fpt.bambikitchen.model.dto.request.IngredientDtoRequest;
+import gr1.fpt.bambikitchen.model.enums.OrderStatus;
 import gr1.fpt.bambikitchen.repository.IngredientRepository;
+import gr1.fpt.bambikitchen.repository.OrderRepository;
 import gr1.fpt.bambikitchen.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
@@ -23,6 +25,14 @@ public class EventListenerSystem {
     private CloudinaryService cloudinaryService;
     @Autowired
     PaymentRepository paymentRepository;
+    @Autowired
+    OrderRepository orderRepository;
+    @Autowired
+    IngredientService ingredientService;
+    @Autowired
+    private InventoryOrderService inventoryOrderService;
+    @Autowired
+    private OrderItemService orderItemService;
 
     //update img url sau khi hoàn tất tạo ingredient
     @EventListener
@@ -61,7 +71,7 @@ public class EventListenerSystem {
 
     @EventListener
     @Async
-    public void canclePaymentEvent (PaymentCancelEvent paymentCancelEvent)
+    public void canclePaymentAndOrderEvent (PaymentCancelEvent paymentCancelEvent)
     {
         Payment payment = paymentRepository.findById(paymentCancelEvent.paymentId).orElse(null);
         if(payment != null)
@@ -69,6 +79,13 @@ public class EventListenerSystem {
             payment.setStatus("CANCELLED");
             payment.setNote("Payment timeout");
             paymentRepository.save(payment);
+        }
+        Orders order = orderRepository.findById(paymentCancelEvent.paymentId).orElse(null);
+        if(order != null)
+        {
+            order.setStatus(OrderStatus.CANCELLED);
+            order.setNote("Order cancelled due to payment timeout");
+            orderRepository.save(order);
         }
     }
 

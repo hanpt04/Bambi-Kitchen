@@ -175,7 +175,8 @@ public class IngredientServiceImpl implements IngredientService {
     //hàm check kho coi đủ nguyên liệu không
     @Override
     public boolean isEnoughIngredient(Map<Integer, Double> ingredientMap, int orderId) {
-        for(Map.Entry<Integer, Double> entry : ingredientMap.entrySet()) {
+        System.out.println("IN RA CAI MAP BEN INVENTORY NHAN VAO: " + ingredientMap);
+        for (Map.Entry<Integer, Double> entry : ingredientMap.entrySet()) {
             int ingredientId = entry.getKey();
             double quantity = entry.getValue();
             entityManager.clear();
@@ -217,31 +218,17 @@ public class IngredientServiceImpl implements IngredientService {
         for(Map.Entry<Integer,Double> entry : ingredientMap.entrySet()) {
             int ingredientId = entry.getKey();
             double quantity = entry.getValue();
-            List<Ingredient> ingredients = ingredientRepository.findAll();
-            for(Ingredient ingredient : ingredients) {
-                //set reserve và lưu thêm bảng tạm inventory order để xem order đó giữ chỗ hồi nào
-                //thêm bảng orderitem đi theo để truy vấn cái ingredientId+quantity để sau này lấy ra trừ kho hoặc trả chỗ
-                if(ingredientId == ingredient.getId()) {
-                    Ingredient locked = ingredientRepository.lockById(ingredientId);
-                    System.out.println(locked.toString()+"222");
-                    double newReserve = locked.getReserve()+quantity;
-                    double newAvailable = locked.getQuantity()-newReserve;
-                    locked.setReserve(newReserve);
-                    locked.setLastReserveAt(Date.valueOf(LocalDate.now()));
-                    locked.setAvailable(newAvailable);
-                    Ingredient saved=ingredientRepository.saveAndFlush(locked);
-                    System.out.println(saved.toString()+"saved");
-                    ingredientRepository.flush();
-                    entityManager.clear();
-                    OrderItem item = new OrderItem();
-                    item.setIngredientId(ingredientId);
-                    item.setQuantity(quantity);
-                    saveOrder(orderId);
-                    InventoryOrder inventoryOrder = inventoryOrderService.findByOrderId(orderId);
-                    item.setOrder(inventoryOrder);
-                    orderItemService.save(item);
-                }
-            }
+            //set reserve và lưu thêm bảng tạm inventory order để xem order đó giữ chỗ hồi nào
+            //thêm bảng orderitem đi theo để truy vấn cái ingredientId+quantity để sau này lấy ra trừ kho hoặc trả chỗ
+            Ingredient locked = ingredientRepository.lockById(ingredientId);
+            double newReserve = locked.getReserve() + quantity;
+            double newAvailable = locked.getQuantity() - newReserve;
+            locked.setReserve(newReserve);
+            locked.setLastReserveAt(Date.valueOf(LocalDate.now()));
+            locked.setAvailable(newAvailable);
+            ingredientRepository.saveAndFlush(locked);
+            entityManager.clear();
+            eventPublisher.publishEvent(new EventListenerSystem.CreateItemAndInventory(ingredientId, quantity, orderId));
         }
     }
 

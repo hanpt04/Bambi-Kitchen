@@ -44,7 +44,7 @@ public class Scheduler  {
 
         List<InventoryOrder> inventoryOrder = inventoryOrderService.findAll();
         for(InventoryOrder order : inventoryOrder) {
-            if(order.getReceivedAt().before(Timestamp.valueOf(LocalDateTime.now().minusMinutes(3)))) {
+            if(order.getReceivedAt().before(Timestamp.valueOf(LocalDateTime.now().minusMinutes(2)))) {
                 ingredientService.resetReserve(order.getOrderId());
                 eventPublisher.publishEvent(new EventListenerSystem.PaymentCancelEvent(order.getOrderId()));
             }
