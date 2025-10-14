@@ -2,8 +2,10 @@ package gr1.fpt.bambikitchen.event;
 
 import gr1.fpt.bambikitchen.cloudinary.CloudinaryService;
 import gr1.fpt.bambikitchen.model.*;
+import gr1.fpt.bambikitchen.model.dto.request.DishDtoRequest;
 import gr1.fpt.bambikitchen.model.dto.request.IngredientDtoRequest;
 import gr1.fpt.bambikitchen.model.enums.OrderStatus;
+import gr1.fpt.bambikitchen.repository.DishRepository;
 import gr1.fpt.bambikitchen.repository.IngredientRepository;
 import gr1.fpt.bambikitchen.repository.OrderRepository;
 import gr1.fpt.bambikitchen.repository.PaymentRepository;
@@ -35,6 +37,8 @@ public class EventListenerSystem {
     private InventoryOrderService inventoryOrderService;
     @Autowired
     private OrderItemService orderItemService;
+    @Autowired
+    private DishRepository dishRepository;
 
 
     //update img url sau khi hoàn tất tạo ingredient
@@ -53,10 +57,31 @@ public class EventListenerSystem {
             else{
                 //xóa trước rồi mới lưu mới
                 Map result = cloudinaryService.deleteImage(ingredient.getPublicId());
-                System.out.println(result+"result");
                 //nếu xóa thành công thì lưu ảnh mới upload lên
                 if(result.get("result").equals("ok")) {
                     uploadAndSave(ingredient,dto.getFile());
+                }
+            }
+        }
+    }
+
+    @EventListener
+    @Async
+    public void handleDishCreate(DishDtoRequest dto) throws IOException {
+        Dish dish = dishRepository.findById(dto.getDish().getId()).orElse(null);
+        if(dto != null){
+            if(dish.getPublicId() == null){
+                try{
+                    uploadAndSaveDish(dish,dto.getFile());
+                }
+                catch(IOException e){
+                    throw new RuntimeException(e);
+                }
+            }
+            else{
+                Map result = cloudinaryService.deleteImage(dish.getPublicId());
+                if(result.get("result").equals("ok")) {
+                    uploadAndSaveDish(dish,dto.getFile());
                 }
             }
         }
@@ -68,6 +93,13 @@ public class EventListenerSystem {
         ingredient.setImgUrl(map.get("secure_url"));
         ingredient.setPublicId(map.get("public_id"));
         ingredientRepository.save(ingredient);
+    }
+
+    private void uploadAndSaveDish(Dish dish, MultipartFile file) throws IOException {
+        Map<String, String> map = cloudinaryService.uploadImg(file);
+        dish.setImageUrl(map.get("secure_url"));
+        dish.setPublicId(map.get("public_id"));
+        dishRepository.save(dish);
     }
 
     public static record PaymentCancelEvent(int paymentId) {}

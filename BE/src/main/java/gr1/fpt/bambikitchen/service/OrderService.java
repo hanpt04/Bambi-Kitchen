@@ -25,6 +25,7 @@ import gr1.fpt.bambikitchen.service.impl.IngredientServiceImpl;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,8 +109,7 @@ public class OrderService {
     }
 
     // Hàm lưu dish Cusom/Adjust vào DB
-    void saveCustomDish ( List<OrderItemDTO> TongMonAn, int accountId, Orders order)
-    {
+    void saveCustomDish ( List<OrderItemDTO> TongMonAn, int accountId, Orders order) throws IOException {
         for ( OrderItemDTO monAn: TongMonAn) {
             if (monAn.getBasedOnId()== null && monAn.getDishId() ==null) // món custom 100%
             {
@@ -117,10 +117,10 @@ public class OrderService {
                 dishRequest.setName(monAn.getName()+" (Custom)+"+"Của khách ID:  " + accountId);
                 dishRequest.setDescription("Món custom của khách");
                 dishRequest.setPrice(0); // Món custom không có giá
-                dishRequest.setImageUrl("");
                 dishRequest.setDishType(DishType.CUSTOM);
                 dishRequest.setPublic(false);
                 dishRequest.setActive(true);
+                dishRequest.setFile(null);
                 dishRequest.setAccount(accountService.findById(accountId));
                 Map<Integer, Integer> ingredients = new HashMap<>();
                 for (RecipeItemDTO congThuc : monAn.getRecipe())
@@ -138,7 +138,7 @@ public class OrderService {
                 dishRequest.setName(monAn.getName()+" (Custom based on ID: " + monAn.getBasedOnId()+")"+"Của khách ID:  " + accountId);
                 dishRequest.setDescription("Món custom dựa trên preset của khách");
                 dishRequest.setPrice(0); // Món custom không có giá
-                dishRequest.setImageUrl("");
+                dishRequest.setFile(null);
                 dishRequest.setDishType(DishType.CUSTOM);
                 dishRequest.setPublic(false);
                 dishRequest.setActive(true);

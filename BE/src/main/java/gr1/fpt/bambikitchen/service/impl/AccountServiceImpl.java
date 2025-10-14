@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -62,6 +63,14 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public Account findByPhone(String phone) {
+        if(!accountRepository.existsByPhone((phone))) {
+            throw new CustomException("Account not found with " + phone,HttpStatus.BAD_REQUEST);
+        }
+        return accountRepository.findByPhone(phone);
+    }
+
+    @Override
     public Account update(AccountUpdateRequest account) {
         Account oldAccount = accountRepository.findById(account.getId()).orElseThrow(
                 () -> new CustomException("Account not found " + account.getId(), HttpStatus.BAD_REQUEST)
@@ -74,6 +83,12 @@ public class AccountServiceImpl implements AccountService {
         newAccount.setId(oldAccount.getId());
 
         return accountRepository.save(newAccount);
+    }
+
+    @Override
+    public Optional<Account> findByEmail(String email) {
+
+        return accountRepository.findByMail(email);
     }
 
     @Override
