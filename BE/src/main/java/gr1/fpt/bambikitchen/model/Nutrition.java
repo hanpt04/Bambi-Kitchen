@@ -7,12 +7,13 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@Builder
 public class Nutrition {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    @ManyToOne
-    @JoinColumn(name = "IngredientId")
+    int id;
+    @OneToOne
+    @MapsId // Ánh xạ id của Nutrition từ id của Ingredient
+    @JoinColumn(name = "id") // Tên cột trong bảng nutrition sẽ là "id"
     private Ingredient ingredient;
     private int calories;
     private float protein;
@@ -23,5 +24,5 @@ public class Nutrition {
     private float calcium;
     private float sugar;
     private float sat_fat;
-    private float per_unit;
+    private String per_unit;
 }
