@@ -33,7 +33,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration corsConfiguration = new CorsConfiguration();
                     // Use specific origins instead of "*" for better security; remove the duplicate call
-                    corsConfiguration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000", "https://bambi-kitchen-web.vercel.app", "http://localhost:8081"));
+                    corsConfiguration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000", "https://bambi-kitchen-web.vercel.app", "http://localhost:8081","http://10.3.80.38:8081"));
                     corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     corsConfiguration.setAllowedHeaders(Arrays.asList("*"));
                     corsConfiguration.setAllowCredentials(true);
