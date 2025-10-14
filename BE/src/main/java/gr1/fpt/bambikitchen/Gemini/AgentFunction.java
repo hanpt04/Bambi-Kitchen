@@ -27,11 +27,6 @@ public class AgentFunction {
      */
     public record GetAllDishesRequest() {}
 
-    /**
-     * Function Bean - Spring AI 1.1.0-SNAPSHOT sẽ TỰ ĐỘNG DETECT
-     * Gemini sẽ tự động gọi function này khi user hỏi về menu
-     */
-
 
     @Bean
     public ToolCallback getAllDishes() {
