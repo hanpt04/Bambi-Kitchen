@@ -1,7 +1,7 @@
 package gr1.fpt.bambikitchen.Config;
 
 import gr1.fpt.bambikitchen.model.enums.ResponseStatus;
-import gr1.fpt.bambikitchen.service.DishService;
+import gr1.fpt.bambikitchen.service.impl.DishService;
 import gr1.fpt.bambikitchen.service.IngredientService;
 import gr1.fpt.bambikitchen.service.impl.IngredientServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;

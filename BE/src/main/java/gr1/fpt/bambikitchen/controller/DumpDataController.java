@@ -1,20 +1,16 @@
 package gr1.fpt.bambikitchen.controller;
 
 import gr1.fpt.bambikitchen.exception.CustomException;
-import gr1.fpt.bambikitchen.model.Account;
 import gr1.fpt.bambikitchen.model.DishTemplate;
 import gr1.fpt.bambikitchen.model.IngredientCategory;
 import gr1.fpt.bambikitchen.model.Nutrition;
 import gr1.fpt.bambikitchen.model.dto.request.AccountCreateRequest;
-import gr1.fpt.bambikitchen.model.dto.request.DishCreateRequest;
 import gr1.fpt.bambikitchen.model.dto.request.IngredientCreateRequest;
-import gr1.fpt.bambikitchen.model.enums.DishType;
 import gr1.fpt.bambikitchen.model.enums.SizeCode;
 import gr1.fpt.bambikitchen.model.enums.Unit;
 import gr1.fpt.bambikitchen.repository.*;
 import gr1.fpt.bambikitchen.service.AccountService;
-import gr1.fpt.bambikitchen.service.DishService;
-import gr1.fpt.bambikitchen.service.IngredientCategoryService;
+import gr1.fpt.bambikitchen.service.impl.DishService;
 import gr1.fpt.bambikitchen.service.IngredientService;
 import gr1.fpt.bambikitchen.service.impl.DishTemplateService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,10 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-
-import static org.springdoc.core.service.GenericResponseService.setDescription;
 
 @RestController
 public class DumpDataController {

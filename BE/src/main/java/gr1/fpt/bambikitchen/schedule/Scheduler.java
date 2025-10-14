@@ -1,17 +1,15 @@
 package gr1.fpt.bambikitchen.schedule;
 
 import gr1.fpt.bambikitchen.event.EventListenerSystem;
-import gr1.fpt.bambikitchen.model.Ingredient;
 import gr1.fpt.bambikitchen.model.InventoryOrder;
 import gr1.fpt.bambikitchen.security.OTP.OTP;
 import gr1.fpt.bambikitchen.security.OTP.OTPRepository;
 import gr1.fpt.bambikitchen.service.IngredientService;
-import gr1.fpt.bambikitchen.service.InventoryOrderService;
+import gr1.fpt.bambikitchen.service.impl.InventoryOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;

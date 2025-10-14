@@ -8,10 +8,7 @@ import gr1.fpt.bambikitchen.model.*;
 import gr1.fpt.bambikitchen.model.dto.request.*;
 import gr1.fpt.bambikitchen.repository.IngredientCategoryRepository;
 import gr1.fpt.bambikitchen.repository.IngredientRepository;
-import gr1.fpt.bambikitchen.repository.RecipeRepository;
 import gr1.fpt.bambikitchen.service.IngredientService;
-import gr1.fpt.bambikitchen.service.InventoryOrderService;
-import gr1.fpt.bambikitchen.service.OrderItemService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -19,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,7 +25,6 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

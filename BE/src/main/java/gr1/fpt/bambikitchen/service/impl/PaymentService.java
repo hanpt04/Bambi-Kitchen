@@ -1,10 +1,11 @@
-package gr1.fpt.bambikitchen.service;
+package gr1.fpt.bambikitchen.service.impl;
 
 import gr1.fpt.bambikitchen.model.Orders;
 import gr1.fpt.bambikitchen.model.Payment;
 import gr1.fpt.bambikitchen.model.enums.OrderStatus;
 import gr1.fpt.bambikitchen.repository.OrderRepository;
 import gr1.fpt.bambikitchen.repository.PaymentRepository;
+import gr1.fpt.bambikitchen.service.IngredientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -3,17 +3,14 @@ package gr1.fpt.bambikitchen.controller;
 import gr1.fpt.bambikitchen.model.Dish;
 import gr1.fpt.bambikitchen.model.dto.request.DishCreateRequest;
 import gr1.fpt.bambikitchen.model.dto.request.DishUpdateRequest;
-import gr1.fpt.bambikitchen.service.DishService;
+import gr1.fpt.bambikitchen.service.impl.DishService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @Slf4j

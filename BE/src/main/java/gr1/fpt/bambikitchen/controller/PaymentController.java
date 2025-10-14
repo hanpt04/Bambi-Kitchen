@@ -1,9 +1,8 @@
 package gr1.fpt.bambikitchen.controller;
 
 import gr1.fpt.bambikitchen.Factory.PaymentFactory;
-import gr1.fpt.bambikitchen.model.Payment;
 import gr1.fpt.bambikitchen.service.IngredientService;
-import gr1.fpt.bambikitchen.service.PaymentService;
+import gr1.fpt.bambikitchen.service.impl.PaymentService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

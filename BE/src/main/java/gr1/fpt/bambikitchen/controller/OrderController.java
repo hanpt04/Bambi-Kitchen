@@ -3,7 +3,7 @@ package gr1.fpt.bambikitchen.controller;
 import gr1.fpt.bambikitchen.model.Orders;
 import gr1.fpt.bambikitchen.model.dto.request.MakeOrderRequest;
 import gr1.fpt.bambikitchen.model.dto.request.OrderUpdateDto;
-import gr1.fpt.bambikitchen.service.OrderService;
+import gr1.fpt.bambikitchen.service.impl.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

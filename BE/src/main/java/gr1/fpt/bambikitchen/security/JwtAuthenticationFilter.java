@@ -26,7 +26,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String path = request.getRequestURI();
 
-        if (path.equals("/api/user/login")||path.equals("/api/user/login-with-google") || path.startsWith("/oauth2/")||path.startsWith("/swagger-ui/")||path.startsWith("/api")) {
+        if (path.equals("/api/user/login")||path.equals("/api/user/login-with-google") || path.startsWith("/oauth2/")||path.startsWith("/swagger-ui/")||path.startsWith("/api")||path.startsWith("/v3/api-docs")||path.startsWith("/ws/")||path.startsWith("/app/")||path.startsWith("/topic/")||path.equals("/dump-data")) {
             filterChain.doFilter(request, response);
             return;
         }

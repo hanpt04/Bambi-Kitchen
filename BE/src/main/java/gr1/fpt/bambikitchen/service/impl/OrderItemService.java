@@ -1,4 +1,4 @@
-package gr1.fpt.bambikitchen.service;
+package gr1.fpt.bambikitchen.service.impl;
 
 import gr1.fpt.bambikitchen.model.OrderItem;
 import gr1.fpt.bambikitchen.repository.OrderItemRepository;

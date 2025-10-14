@@ -1,4 +1,4 @@
-package gr1.fpt.bambikitchen.service;
+package gr1.fpt.bambikitchen.service.impl;
 
 
 import gr1.fpt.bambikitchen.Factory.PaymentFactory;
@@ -11,15 +11,12 @@ import gr1.fpt.bambikitchen.model.enums.OrderStatus;
 import gr1.fpt.bambikitchen.model.enums.SizeCode;
 import gr1.fpt.bambikitchen.model.enums.SourceType;
 import gr1.fpt.bambikitchen.repository.DishRepository;
-import gr1.fpt.bambikitchen.repository.IngredientRepository;
 import gr1.fpt.bambikitchen.repository.OrderDetailRepository;
 import gr1.fpt.bambikitchen.repository.OrderRepository;
-import gr1.fpt.bambikitchen.service.impl.DishTemplateService;
+import gr1.fpt.bambikitchen.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import gr1.fpt.bambikitchen.service.impl.IngredientServiceImpl;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
@@ -127,7 +124,7 @@ public class OrderService {
                 dishRequest.setIngredients(ingredients);
                 Dish savedDish =  dishService.save(dishRequest);
 
-                createOrderDetail(savedDish, order, monAn.getNote());
+                createOrderDetail(savedDish, order, monAn.getNote(), monAn.getDishTemplate().getSize().toString());
             }
             else if (monAn.getBasedOnId() != null) // món preset có chỉnh sửa
             {
@@ -164,19 +161,19 @@ public class OrderService {
 
                 dishRequest.setIngredients(ingredients);
                Dish savedDish = dishService.save(dishRequest);
-                createOrderDetail(savedDish, order, monAn.getNote());
+                createOrderDetail(savedDish, order, monAn.getNote(), monAn.getDishTemplate().getSize().toString());
             }
             else // món preset 100%
             {
                 Dish presetDish = dishRepository.findById(monAn.getDishId()).orElseThrow(() -> new CustomException("Dish not found with ID: " + monAn.getDishId(), HttpStatus.NOT_FOUND));
-                createOrderDetail( presetDish, order, monAn.getNote());
+                createOrderDetail( presetDish, order, monAn.getNote(), monAn.getDishTemplate().getSize().toString());
             }
     }
         }
 
-    void createOrderDetail (Dish dish, Orders order,String note )
+    void createOrderDetail (Dish dish, Orders order,String note, String size )
     {
-        orderDetailRepository.save(new OrderDetail(dish,order, note) );
+        orderDetailRepository.save(new OrderDetail(dish,order, note, size) );
     }
 
 
