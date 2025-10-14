@@ -1,4 +1,5 @@
-package gr1.fpt.bambikitchen.security;
+package gr1.fpt.bambikitchen.security.google;
+
 
 import gr1.fpt.bambikitchen.model.Account;
 import gr1.fpt.bambikitchen.model.enums.Role;
@@ -15,20 +16,22 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 @Service
 public class CustomOAuthUserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
-    @Autowired
-    private AccountRepository accountRepository;
 
     @Autowired
     private AccountService accountService;
+    @Autowired
+    private AccountRepository accountRepository;
 
     public Account linkAccount (String mail, String name){
-        Optional<Account> existAcc =accountRepository.findByMail(mail);
+        Optional<Account> existAcc =accountService.findByEmail((mail));
         Account acc;
         if(existAcc.isPresent()){
             acc=existAcc.get();

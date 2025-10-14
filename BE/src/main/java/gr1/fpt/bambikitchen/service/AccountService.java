@@ -5,14 +5,15 @@ import gr1.fpt.bambikitchen.model.dto.request.AccountCreateRequest;
 import gr1.fpt.bambikitchen.model.dto.request.AccountUpdateRequest;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface AccountService {
     Account save(AccountCreateRequest account);
     Account register(Account account);
     List<Account> findAll();
     Account findById(int id);
-//    Account findByUsername(String username);
+    Account findByPhone(String username);
     Account update(AccountUpdateRequest account);
-
+    Optional<Account> findByEmail(String email);
     String deleteById(int id);
 }

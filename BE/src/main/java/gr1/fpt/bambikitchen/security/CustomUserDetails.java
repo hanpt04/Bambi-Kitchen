@@ -5,9 +5,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-
 @Data
-public class CustomUserDetail implements UserDetails {
+public class CustomUserDetails implements UserDetails {
     private final int userId;
     private final String name;
     private final String phone;
@@ -15,7 +14,7 @@ public class CustomUserDetail implements UserDetails {
     private final Collection<? extends GrantedAuthority> authorities;
     private final boolean active;
 
-    public CustomUserDetail(int userId, String name,String phone ,String password, Collection<? extends GrantedAuthority> authorities, boolean active) {
+    public CustomUserDetails(int userId, String name, String phone , String password, Collection<? extends GrantedAuthority> authorities, boolean active) {
         this.userId = userId;
         this.name = name;
         this.phone = phone;
@@ -24,9 +23,25 @@ public class CustomUserDetail implements UserDetails {
         this.active = active;
     }
 
+    public CustomUserDetails(int userId, Collection<? extends GrantedAuthority> authorities) {
+        this.userId = userId;
+        this.name = null;
+        this.phone = null;
+        this.password = null;
+        this.authorities = authorities;
+        this.active = true;
+    }
+
+
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return authorities;
+    }
+
     @Override
     public String getUsername() {
-        return "";
+        return phone;
     }
 
     @Override
@@ -46,7 +61,6 @@ public class CustomUserDetail implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        return active;
     }
-
 }
