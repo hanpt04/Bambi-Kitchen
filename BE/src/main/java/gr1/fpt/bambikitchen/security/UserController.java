@@ -1,12 +1,21 @@
 package gr1.fpt.bambikitchen.security;
 
+import gr1.fpt.bambikitchen.exception.CustomException;
+import gr1.fpt.bambikitchen.model.Account;
+import gr1.fpt.bambikitchen.model.dto.request.LoginRequest;
 import gr1.fpt.bambikitchen.security.Mail.MailService;
+import gr1.fpt.bambikitchen.service.AccountService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.HashMap;
@@ -19,29 +28,36 @@ public class UserController {
 
     private final MailService mailService;
     private final PasswordResetService passwordResetService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtils jwtUtils;
+    private final AccountService accountService;
 
-    @GetMapping("/get-me")
-    public ResponseEntity<Map<String,Object>> auth() {
-        Map<String, Object> map = new HashMap<>();
-        CustomUserDetail userDetail;
-        CustomOAuth2User oauth2User;
+    @GetMapping("/me")
+    public ResponseEntity<Map<String,Object>> getMe(){
+        Map<String,Object> map = new HashMap<>();
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if(auth == null || !auth.isAuthenticated() || auth.getPrincipal() instanceof String) {
-            return ResponseEntity.status(401).body(Map.of("message", "Unauthorized"));
-        }
-        else if(auth.getPrincipal() instanceof CustomUserDetail) {
-            userDetail = (CustomUserDetail) auth.getPrincipal();
-            map.put("name", userDetail.getName());
-            map.put("role", userDetail.getAuthorities());
-            map.put("userId",userDetail.getUserId());
-        }
-        else if(auth.getPrincipal() instanceof CustomOAuth2User) {
-            oauth2User = (CustomOAuth2User) auth.getPrincipal();
-            map.put("name", oauth2User.getAttribute("name"));
-            map.put("role", oauth2User.getAuthorities());
-            map.put("userId", oauth2User.getId());
-        }
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+        int id = userDetails.getUserId();
+        Account account = accountService.findById(id);
+        map.put("id", account.getId());
+        map.put("name", account.getName());
+        map.put("role", account.getRole());
+        map.put("phone", account.getPhone());
+        map.put("mail", account.getMail());
         return ResponseEntity.ok(map);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+        try{
+        Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+        SecurityContextHolder.getContext().setAuthentication(auth);
+        System.out.println("Trc token");
+        String token = jwtUtils.generateToken(auth);
+        return ResponseEntity.ok().header("Authorization", "Bearer " + token).body(token);}
+        catch(BadCredentialsException e){
+            throw new CustomException("Invalid password",HttpStatus.UNAUTHORIZED);
+        }
     }
 
     @GetMapping("/login-with-google")
