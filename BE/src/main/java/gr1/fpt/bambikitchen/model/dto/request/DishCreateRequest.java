@@ -8,12 +8,13 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
 
 @Data
-public class DishCreateRequest {
+public class    DishCreateRequest {
 
     // Dung chung 1 DTO cho create va update
 
@@ -26,8 +27,6 @@ public class DishCreateRequest {
     private String description;
 
     private int price;
-
-    private String imageUrl;
 
     @NotNull(message = "Account ID must not be null")
     private Account account;
@@ -43,4 +42,7 @@ public class DishCreateRequest {
     //IngreId, Quantity
     @NotNull
     Map<Integer, Integer> ingredients;
+
+    @Nullable
+    MultipartFile file ;
 }

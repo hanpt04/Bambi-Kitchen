@@ -32,7 +32,7 @@ public class SecurityConfig {
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
-                        .requestMatchers("/api/user/login","/api/user/login-with-google").permitAll()
+                        .requestMatchers("/api/**","/api/user/login","/api/user/login-with-google").permitAll()
                         .requestMatchers("/test").hasRole("USER")
                         .requestMatchers("/test/admin").hasRole("ADMIN")
                         .anyRequest().permitAll())

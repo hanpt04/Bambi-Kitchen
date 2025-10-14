@@ -1,17 +1,26 @@
 package gr1.fpt.bambikitchen.service;
 
 
+import gr1.fpt.bambikitchen.Utils.FileUtil;
+import gr1.fpt.bambikitchen.exception.CustomException;
 import gr1.fpt.bambikitchen.model.Dish;
 import gr1.fpt.bambikitchen.model.Ingredient;
 import gr1.fpt.bambikitchen.model.Recipe;
 import gr1.fpt.bambikitchen.model.dto.request.DishCreateRequest;
+import gr1.fpt.bambikitchen.model.dto.request.DishDtoRequest;
+import gr1.fpt.bambikitchen.model.dto.request.DishUpdateRequest;
 import gr1.fpt.bambikitchen.repository.DishRepository;
 import gr1.fpt.bambikitchen.repository.IngredientRepository;
 import gr1.fpt.bambikitchen.repository.RecipeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,6 +34,8 @@ public class DishService {
     RecipeRepository recipeRepository;
     @Autowired
     private IngredientRepository ingredientRepository;
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional
     public Dish save(DishCreateRequest request) {
@@ -35,7 +46,6 @@ public class DishService {
                 .name(request.getName())
                 .description(request.getDescription())
                 .price(request.getPrice())
-                .imageUrl(request.getImageUrl())
                 .dishType(request.getDishType())
                 .isActive(true)
                 .isPublic(request.isPublic())
@@ -52,6 +62,69 @@ public class DishService {
         Dish savedDish = dishRepository.save(dish);
         saveRecipe(request.getIngredients(), savedDish);
 
+        return savedDish;
+    }
+
+    @Transactional
+    public Dish saveMenu(DishCreateRequest request) throws IOException {
+
+        Dish dish = Dish.builder()
+                .name(request.getName())
+                .description(request.getDescription())
+                .price(request.getPrice())
+                .dishType(request.getDishType())
+                .isActive(true)
+                .isPublic(request.isPublic())
+                .account(request.getAccount())
+                .build();
+
+        if ( request.getId() != null ) {
+            dish.setId(request.getId());
+            dish.setActive(request.isActive());
+            deleteRecipeWithDishId(request.getId());
+        }
+        Dish savedDish = dishRepository.save(dish);
+        saveRecipe(request.getIngredients(), savedDish);
+
+        //publisher
+        if(!request.getFile().isEmpty()){
+            String absolutePath = FileUtil.saveFile(request.getFile());
+            File file = FileUtil.getFileByPath(absolutePath);
+            MultipartFile multipartFile = FileUtil.convertFileToMultipart(file);
+            file.delete();
+            applicationEventPublisher.publishEvent(new DishDtoRequest(savedDish, multipartFile));
+        }
+        return savedDish;
+    }
+
+    public Dish update(DishUpdateRequest dto) throws IOException {
+        System.out.println(dto.isPublic());;
+        Dish dishExist = dishRepository.findById(dto.getId()).get();
+        if ( dishExist == null ) {
+            throw new CustomException("Dish not found", HttpStatus.BAD_REQUEST);
+        }
+        Dish dish = new Dish();
+        dish.setId(dishExist.getId());
+        dish.setName(dto.getName());
+        dish.setDescription(dto.getDescription());
+        dish.setPrice(dto.getPrice());
+        dish.setDishType(dto.getDishType());
+        dish.setActive(dto.isActive());
+        dish.setAccount(dto.getAccount());
+        dish.setPublic(dto.isPublic());
+        dish.setUsedQuantity(dto.getUsedQuantity());
+        if(dishExist.getImageUrl() != null){
+            dish.setImageUrl(dishExist.getImageUrl());
+            dish.setPublicId(dishExist.getPublicId());
+        }
+        Dish savedDish = dishRepository.save(dish);
+        if (!dto.getFile().isEmpty()) {
+            String path = FileUtil.saveFile(dto.getFile());
+            File file = FileUtil.getFileByPath(path);
+            MultipartFile multipartFile = FileUtil.convertFileToMultipart(file);
+            file.delete();
+            applicationEventPublisher.publishEvent(new DishDtoRequest(savedDish, multipartFile));
+        }
         return savedDish;
     }
 
