@@ -153,9 +153,36 @@ public class DishService {
         for (Recipe recipe : recipeRepository.getIngredientsByDish_Id(dishId)) {
             ingredients.put(recipe.getIngredient().getId(), recipe.getQuantity());
         }
-
-
         return ingredients;
+    }
+
+    public boolean togglePublic(int dishId){
+        Dish dish = dishRepository.findById(dishId).orElse(null);
+        if(dish!=null){
+            if(dish.isPublic()){
+                dish.setPublic(false);
+            }
+            else{
+                dish.setPublic(true);
+            }
+            dishRepository.save(dish);
+            return true;
+        }
+        return false;
+    }
+    public boolean toggleActive(int dishId){
+        Dish dish = dishRepository.findById(dishId).orElse(null);
+        if(dish!=null){
+            if(dish.isActive()){
+                dish.setActive(false);
+            }
+            else{
+                dish.setActive(true);
+            }
+            dishRepository.save(dish);
+            return true;
+        }
+        return false;
     }
 
 }

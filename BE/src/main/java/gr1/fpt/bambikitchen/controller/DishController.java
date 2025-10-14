@@ -30,11 +30,17 @@ public class DishController {
         System.out.println(request);
         return ResponseEntity.ok(dishService.saveMenu(request));
     }
-
-
     @PutMapping
     public ResponseEntity<Dish> update(@ModelAttribute DishUpdateRequest request) throws IOException {
         return ResponseEntity.ok(dishService.update(request));
     }
+    @GetMapping("/toggle-public/{id}")
+    public ResponseEntity<Boolean> toggleActive(@PathVariable int id) {
+        return ResponseEntity.ok(dishService.togglePublic(id));
+    }
 
+    @GetMapping("/toggle-active/{id}")
+    public ResponseEntity<Boolean> toggleInactive(@PathVariable int id) {
+        return ResponseEntity.ok(dishService.toggleActive(id));
+    }
 }

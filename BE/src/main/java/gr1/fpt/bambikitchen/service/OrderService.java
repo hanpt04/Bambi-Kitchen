@@ -5,10 +5,7 @@ import gr1.fpt.bambikitchen.Factory.PaymentFactory;
 import gr1.fpt.bambikitchen.Payment.PaymentMethod;
 import gr1.fpt.bambikitchen.exception.CustomException;
 import gr1.fpt.bambikitchen.model.*;
-import gr1.fpt.bambikitchen.model.dto.request.DishCreateRequest;
-import gr1.fpt.bambikitchen.model.dto.request.MakeOrderRequest;
-import gr1.fpt.bambikitchen.model.dto.request.OrderItemDTO;
-import gr1.fpt.bambikitchen.model.dto.request.RecipeItemDTO;
+import gr1.fpt.bambikitchen.model.dto.request.*;
 import gr1.fpt.bambikitchen.model.enums.DishType;
 import gr1.fpt.bambikitchen.model.enums.OrderStatus;
 import gr1.fpt.bambikitchen.model.enums.SizeCode;
@@ -177,7 +174,6 @@ public class OrderService {
     }
         }
 
-
     void createOrderDetail (Dish dish, Orders order,String note )
     {
         orderDetailRepository.save(new OrderDetail(dish,order, note) );
@@ -270,5 +266,15 @@ public class OrderService {
         return ingredientMap;
     }
 
+    public Orders feedbackOrder(OrderUpdateDto dto) {
+        Orders orders = orderRepository.findById(dto.getOrderId()).orElseThrow(() -> new CustomException("Order not found", HttpStatus.NOT_FOUND));
+        if(orders.getStatus().equals(OrderStatus.PAID)){
+            orders.setComment(dto.getComment());
+            orders.setRanking(dto.getRanking());
+            return orderRepository.save(orders);
+        }
+
+           throw new CustomException("Order not paid", HttpStatus.BAD_REQUEST);
+    }
 
 }

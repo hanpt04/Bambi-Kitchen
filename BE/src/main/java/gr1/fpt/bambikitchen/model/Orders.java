@@ -30,5 +30,5 @@ public class Orders {
     private int ranking;
     @Nullable
     @Nationalized
-    private int comment;
+    private String comment;
 }

@@ -1,12 +1,12 @@
 package gr1.fpt.bambikitchen.controller;
 
+import gr1.fpt.bambikitchen.model.Orders;
 import gr1.fpt.bambikitchen.model.dto.request.MakeOrderRequest;
+import gr1.fpt.bambikitchen.model.dto.request.OrderUpdateDto;
 import gr1.fpt.bambikitchen.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/order")
@@ -22,6 +22,11 @@ public class OrderController {
         return orderService.makeOrder( makeOrderRequest);
 
     }
+
+   @PutMapping
+    public ResponseEntity<Orders> updateOrder(@RequestBody OrderUpdateDto dto) {
+        return ResponseEntity.ok(orderService.feedbackOrder(dto));
+   }
 
 
 }
