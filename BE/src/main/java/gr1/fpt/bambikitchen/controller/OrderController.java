@@ -28,5 +28,9 @@ public class OrderController {
         return ResponseEntity.ok(orderService.feedbackOrder(dto));
    }
 
+   @PutMapping("/feedback")
+   public ResponseEntity<Orders> feedback(@RequestBody OrderUpdateDto request) {
+       return ResponseEntity.ok(orderService.feedbackOrder(request));
 
+   }
 }

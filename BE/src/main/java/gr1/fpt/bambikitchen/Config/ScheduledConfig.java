@@ -24,19 +24,19 @@ public class ScheduledConfig {
 //        return scheduler;
 //    }
 
-    /**
-     * Thread pool executor tự tạo với tên pool
-     * Muốn dùng thì @Async("mailPool") ở chỗ cần dùng
-     * @return ThreadPoolTaskExecutor
-     */
-    @Bean(name = "mailPool")
-    public ThreadPoolTaskExecutor taskExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(5);
-        executor.setMaxPoolSize(10);
-        executor.setQueueCapacity(25);
-        executor.setThreadNamePrefix("async-");
-        executor.initialize();
-        return executor;
-    }
+//    /**
+//     * Thread pool executor tự tạo với tên pool
+//     * Muốn dùng thì @Async("mailPool") ở chỗ cần dùng
+//     * @return ThreadPoolTaskExecutor
+//     */
+//    @Bean(name = "mailPool")
+//    public ThreadPoolTaskExecutor taskExecutor() {
+//        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+//        executor.setCorePoolSize(5);
+//        executor.setMaxPoolSize(10);
+//        executor.setQueueCapacity(25);
+//        executor.setThreadNamePrefix("async-");
+//        executor.initialize();
+//        return executor;
+//    }
 }

@@ -1,26 +1,40 @@
 package gr1.fpt.bambikitchen.security.Mail;
 
+import gr1.fpt.bambikitchen.event.EventListenerSystem;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/mail")
 @RequiredArgsConstructor
 public class MailController {
     private final MailService mailService;
+    private final ApplicationEventPublisher eventPublisher;
 
-    @GetMapping("/send")
-    public ResponseEntity<String> sendMail() {
-        mailService.sendMail("test@example.com", "Hello", "This is a test email via Mailtrap");
-        return ResponseEntity.ok("send mail successfully");
+//    @GetMapping("/send")
+//    public ResponseEntity<String> sendMail() {
+//        mailService.sendMail("test@example.com", "Hello", "This is a test email via Mailtrap");
+//        return ResponseEntity.ok("send mail successfully");
+//    }
+
+    private record SendMailRequest(String email, Map<String, Map<String,Integer>> dishes) {
     }
 
-//    @GetMapping("/send-otp")
-//    public ResponseEntity<String> sendOTP(@RequestParam String email) {
-//        mailService.sendOTPMail(email);
-//        return ResponseEntity.ok("OTP sent to " + email);
-//    }
+    @PostMapping("/send-order-mail")
+    public void sendOrderMail(@RequestBody SendMailRequest request) {
+        eventPublisher.publishEvent(new EventListenerSystem.SendOrderEvent(request.email, request.dishes));
+    }
+
+    @GetMapping("/send-otp")
+    public ResponseEntity<String> sendOTP(@RequestParam String email) {
+        mailService.sendOTPMail(email);
+        return ResponseEntity.ok("OTP sent to " + email);
+    }
 
     @PostMapping("/verify-otp")
     public ResponseEntity<String> verifyOtp(@RequestParam String email, @RequestParam String otp) {
