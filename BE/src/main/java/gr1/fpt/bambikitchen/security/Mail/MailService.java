@@ -8,11 +8,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@EnableAsync
 public class MailService {
 
     private final JavaMailSender mailSender;
@@ -27,6 +33,7 @@ public class MailService {
         mailSender.send(message);
     }
 
+    @Async("mailPool")
     public void sendOTPMail(String email) {
         String otp = otpGeneratorService.generateOtpForEmail(email);
 
