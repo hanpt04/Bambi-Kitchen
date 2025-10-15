@@ -40,4 +40,9 @@ public class DishController {
     public ResponseEntity<Boolean> toggleInactive(@PathVariable int id) {
         return ResponseEntity.ok(dishService.toggleActive(id));
     }
+
+    @PutMapping("/save-custom-dish")
+    public void saveCustomDish(@RequestParam int id, @RequestParam boolean isPublic) {
+        dishService.customToPreset(id, isPublic);
+    }
 }

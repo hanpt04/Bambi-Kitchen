@@ -8,6 +8,7 @@ import gr1.fpt.bambikitchen.model.Recipe;
 import gr1.fpt.bambikitchen.model.dto.request.DishCreateRequest;
 import gr1.fpt.bambikitchen.model.dto.request.DishDtoRequest;
 import gr1.fpt.bambikitchen.model.dto.request.DishUpdateRequest;
+import gr1.fpt.bambikitchen.model.enums.DishType;
 import gr1.fpt.bambikitchen.repository.DishRepository;
 import gr1.fpt.bambikitchen.repository.IngredientRepository;
 import gr1.fpt.bambikitchen.repository.RecipeRepository;
@@ -38,9 +39,6 @@ public class DishService {
 
     @Transactional
     public Dish save(DishCreateRequest request) {
-
-
-
         Dish dish = Dish.builder()
                 .name(request.getName())
                 .description(request.getDescription())
@@ -182,6 +180,13 @@ public class DishService {
             return true;
         }
         return false;
+    }
+
+    public void customToPreset(int id, boolean isPublic) {
+        Dish dish = dishRepository.findById(id).orElseThrow(() -> new CustomException("Dish not found", HttpStatus.BAD_REQUEST));
+        dish.setPublic(isPublic);
+        dish.setDishType(DishType.PRESET);
+        dishRepository.save(dish);
     }
 
 }
