@@ -285,5 +285,45 @@ public class EventListenerSystem {
         return html.toString();
     }
 
+    public record SendResetPasswordMessageEvent(String email) {
+    }
 
+    @EventListener
+    @Async
+    public void sendResetPasswordMessage(SendResetPasswordMessageEvent event) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+        helper.setTo(event.email);
+        helper.setSubject("🔑 Your Password has been reset");
+
+        String htmlContent = """
+                <div style="font-family: Arial, sans-serif; max-width: 480px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                  <h2 style="color: #2c3e50; text-align: center;">🔑 Reset Your Password</h2>
+                  <p style="font-size: 16px; color: #555;">
+                    We received a request to reset the password for your account. If it was you, please ignore this email.
+                  </p>
+                  <h3 style="color: red; text-align: center;">But if wasn't you, click the button below to prevent your password from changing</h3>
+                  <div style="text-align: center; margin: 20px 30px;">
+                    <a href="%s" style="display: inline-block; background-color: #3498db; color: #fff; text-decoration: none;\s
+                        font-size: 16px; font-weight: bold; padding: 12px 24px; border-radius: 6px;">
+                      Reset Password
+                    </a>
+                  </div>
+                  <p style="font-size: 14px; color: #888; text-align: center;">
+                    This link will expire in <strong>15 minutes</strong> for your security.<br/>
+                    If you didn’t request a password reset, you can safely ignore this email.
+                  </p>
+                  <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;"/>
+                  <p style="font-size: 12px; color: #aaa; text-align: center;">
+                    If the button above doesn’t work, copy and paste this URL into your browser:<br/>
+                    <span style="color: #3498db;">%s</span>
+                  </p>
+                </div>
+               \s""";
+
+        helper.setText(htmlContent, true);
+
+        mailSender.send(message);
+    }
 }
