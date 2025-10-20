@@ -53,7 +53,7 @@ public class DishCategoryServiceServiceImpl implements DishCategoryService {
                 () -> new CustomException("Dish Category cannot be found " + dishCategory.getId(), HttpStatus.BAD_REQUEST)
         );
 
-        DishCategory newDishCategory = dishCategoryMapper.toDishCategory(dishCategory);
+        DishCategory newDishCategory = dishCategoryMapper.toDishCategory(dishCategory, oldDishCategory);
         newDishCategory.setId(oldDishCategory.getId());
 
         return dishCategoryRepository.save(newDishCategory);
