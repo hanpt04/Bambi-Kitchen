@@ -20,6 +20,8 @@ public class TestController {
     private IngredientServiceImpl  ingredientServiceImpl;
     @Autowired
     private IngredientService ingredientService;
+    @Autowired
+    DishService dishService;
 
     @GetMapping("testinventory")
     public boolean testinventory () {
@@ -46,9 +48,6 @@ public class TestController {
          return ResponseEntity.status(body.getStatusCode()).body(body);
 
     }
-
-    @Autowired
-    DishService dishService;
 
     @DeleteMapping("/demo/delete-recipe")
     public void deleteRecipe(int DishId, int IngredientId)

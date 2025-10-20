@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -187,6 +188,18 @@ public class DishService {
         dish.setPublic(isPublic);
         dish.setDishType(DishType.PRESET);
         dishRepository.save(dish);
+    }
+
+    public Dish getDishById(int id) {
+        return dishRepository.findById(id).orElseThrow(() -> new CustomException("Dish not found", HttpStatus.BAD_REQUEST));
+    }
+
+    public List<Dish> getAll(){
+        return dishRepository.findAllByIsActiveAndIsPublic(true,true);
+    }
+
+    public List<Dish> getDishedByAccount(int accountId){
+        return dishRepository.findByAccount_Id((accountId));
     }
 
 }

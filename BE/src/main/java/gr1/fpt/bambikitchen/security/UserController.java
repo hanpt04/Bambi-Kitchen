@@ -36,6 +36,11 @@ public class UserController {
     public ResponseEntity<Map<String,Object>> getMe(){
         Map<String,Object> map = new HashMap<>();
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        // Check an toàn trước khi cast
+        if (auth == null || !(auth.getPrincipal() instanceof CustomUserDetails)) {
+            throw new CustomException("Unauthorized - Invalid token", HttpStatus.UNAUTHORIZED);
+        }
+
         CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
         int id = userDetails.getUserId();
         Account account = accountService.findById(id);

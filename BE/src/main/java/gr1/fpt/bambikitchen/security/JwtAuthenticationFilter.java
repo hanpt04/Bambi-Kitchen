@@ -26,16 +26,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String path = request.getRequestURI();
 
-        if (path.equals("/api/user/login")||path.equals("/api/user/login-with-google") || path.startsWith("/oauth2/")||path.startsWith("/swagger-ui/")||path.startsWith("/api")||path.startsWith("/v3/api-docs")||path.startsWith("/ws/")||path.startsWith("/app/")||path.startsWith("/topic/")||path.equals("/dump-data")) {
+        // Bỏ qua các public endpoints (XÓA dòng path.startsWith("/api/"))
+        if (path.equals("/api/user/login")
+                || path.equals("/api/user/login-with-google")
+                || path.startsWith("/oauth2/")
+                || path.startsWith("/swagger-ui/")
+                || path.startsWith("/v3/api-docs")
+                || path.startsWith("/api/")//để tạm để test api, sau này sửa lại, để lại là fillter ko quét
+                || path.equals("/dump-data")) {
             filterChain.doFilter(request, response);
             return;
         }
+
         String jwt = parseJwtToken(request);
-        if(jwt != null && jwtUtils.validateToken(jwt)) {
+
+        // Nếu có JWT thì validate và set authentication
+        if (jwt != null && jwtUtils.validateToken(jwt)) {
             int userId = jwtUtils.getUserIdFromToken(jwt);
             List<String> roles = jwtUtils.getRolesFromToken(jwt);
             List<SimpleGrantedAuthority> authorities = roles.stream()
-                    .map(role -> new SimpleGrantedAuthority(role))
+                    .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toList());
             CustomUserDetails userDetails = new CustomUserDetails(userId, authorities);
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
@@ -46,6 +56,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
+
+        // Cho phép request tiếp tục dù không có JWT hoặc JWT không hợp lệ
         filterChain.doFilter(request, response);
     }
     private String parseJwtToken(HttpServletRequest request) {

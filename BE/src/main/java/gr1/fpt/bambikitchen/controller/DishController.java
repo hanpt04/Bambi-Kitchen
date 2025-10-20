@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @Slf4j
@@ -45,4 +46,18 @@ public class DishController {
     public void saveCustomDish(@RequestParam int id, @RequestParam boolean isPublic) {
         dishService.customToPreset(id, isPublic);
     }
+
+    @GetMapping("{id}")
+    public ResponseEntity<Dish> getDishById(@PathVariable int id) {
+        return ResponseEntity.ok(dishService.getDishById(id));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Dish>> getAllDishes() {
+        return ResponseEntity.ok(dishService.getAll());
+    }
+
+    @GetMapping("account/{accountId}")
+    public ResponseEntity<List<Dish>> getDishesByAccountId(@PathVariable int accountId) {
+        return ResponseEntity.ok(dishService.getDishedByAccount(accountId));}
 }
