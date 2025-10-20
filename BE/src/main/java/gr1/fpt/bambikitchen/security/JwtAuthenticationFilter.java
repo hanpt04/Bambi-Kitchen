@@ -32,9 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || path.startsWith("/oauth2/")
                 || path.startsWith("/swagger-ui/")
                 || path.startsWith("/v3/api-docs")
-                || path.startsWith("/ws/")
-                || path.startsWith("/app/")
-                || path.startsWith("/topic/")
+                || path.startsWith("/api/")//để tạm để test api, sau này sửa lại, để lại là fillter ko quét
                 || path.equals("/dump-data")) {
             filterChain.doFilter(request, response);
             return;
@@ -53,6 +51,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             auth.setDetails(userDetails);
             SecurityContextHolder.getContext().setAuthentication(auth);
+        }
+        else if (jwt == null || !jwtUtils.validateToken(jwt)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
         }
 
         // Cho phép request tiếp tục dù không có JWT hoặc JWT không hợp lệ

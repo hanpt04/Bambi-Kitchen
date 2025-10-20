@@ -32,7 +32,6 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration corsConfiguration = new CorsConfiguration();
-                    // Use specific origins instead of "*" for better security; remove the duplicate call
                     corsConfiguration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000", "https://bambi-kitchen-web.vercel.app", "http://localhost:8081","http://10.3.80.38:8081","http://localhost:8080"));
                     corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     corsConfiguration.setAllowedHeaders(Arrays.asList("*"));
@@ -44,11 +43,11 @@ public class SecurityConfig {
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
-                        .requestMatchers("/api/**").permitAll()
+                        .requestMatchers("/api/user/login","api/user/login-with-google","api/user/forgot-password","api/user/reset-password").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/test").hasRole("USER")
                         .requestMatchers("/test/admin").hasRole("ADMIN")
-                        .anyRequest().permitAll())
+                        .anyRequest().permitAll())//mốt sửa lại phân quyền
                 .oauth2Login(oauth2 -> oauth2.userInfoEndpoint(userInfo -> userInfo.userService(customOAuthUserService))
                         .successHandler(oAuth2AuthenticationSuccessHandler)
                 )
