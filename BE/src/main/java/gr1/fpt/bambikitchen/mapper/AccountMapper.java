@@ -5,6 +5,7 @@ import gr1.fpt.bambikitchen.model.dto.request.AccountCreateRequest;
 import gr1.fpt.bambikitchen.model.dto.request.AccountUpdateRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
 
@@ -23,8 +24,7 @@ public interface AccountMapper {
      */
     @Mappings({
             @Mapping(target = "id", ignore = true),
-            @Mapping(target = "mail", ignore = true)
     })
-    Account toEntity(AccountUpdateRequest request);
+    Account toEntity(AccountUpdateRequest request, @MappingTarget Account account);
 
 }

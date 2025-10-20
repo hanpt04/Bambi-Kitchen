@@ -18,10 +18,9 @@ public class AccountUpdateRequest {
 
     private boolean isActive;
 
-    @NotBlank(message = "Mail must not be blank")
-    @Pattern(
-            regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$",
-            message = "Invalid email format"
-    )
     private String mail;
+
+    private String phone;
+
+    private String password;
 }
