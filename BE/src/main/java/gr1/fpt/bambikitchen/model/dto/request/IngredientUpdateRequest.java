@@ -23,6 +23,10 @@ public class IngredientUpdateRequest {
 
     private Boolean active; // có thể bật/tắt
 
+    private double available;
+    private double quantity;
+    private double reserve;
+
     @Nullable
     MultipartFile file;
 }

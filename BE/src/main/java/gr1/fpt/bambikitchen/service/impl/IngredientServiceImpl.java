@@ -102,6 +102,11 @@ public class IngredientServiceImpl implements IngredientService {
         newIngredient.setName(ingredient.getName());
         newIngredient.setUnit(ingredient.getUnit());
         newIngredient.setActive(ingredient.getActive());
+        newIngredient.setQuantity(ingredient.getQuantity());
+        newIngredient.setAvailable(ingredient.getAvailable());
+        newIngredient.setReserve(ingredient.getReserve());
+        newIngredient.setLastReserveAt(oldIngredient.getLastReserveAt());
+
         //kiểm tra xem nếu đã có img rồi mà ko update lại img thì set lại img cũ
         if (oldIngredient.getImgUrl() != null) {
             newIngredient.setImgUrl(oldIngredient.getImgUrl());
