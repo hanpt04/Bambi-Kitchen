@@ -14,6 +14,7 @@ import gr1.fpt.bambikitchen.service.impl.InventoryOrderService;
 import gr1.fpt.bambikitchen.service.impl.OrderItemService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.Builder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -52,20 +54,19 @@ public class EventListenerSystem {
     @Async
     public void handleIngredientCreatedEvent(IngredientDtoRequest dto) throws IOException {
         Ingredient ingredient = ingredientRepository.findById(dto.getIngredient().getId()).orElse(null);
-        if(ingredient != null) {
-            if(ingredient.getPublicId() == null){
-            try {
-                uploadAndSave(ingredient,dto.getFile());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            }
-            else{
+        if (ingredient != null) {
+            if (ingredient.getPublicId() == null) {
+                try {
+                    uploadAndSave(ingredient, dto.getFile());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
                 //xóa trước rồi mới lưu mới
                 Map result = cloudinaryService.deleteImage(ingredient.getPublicId());
                 //nếu xóa thành công thì lưu ảnh mới upload lên
-                if(result.get("result").equals("ok")) {
-                    uploadAndSave(ingredient,dto.getFile());
+                if (result.get("result").equals("ok")) {
+                    uploadAndSave(ingredient, dto.getFile());
                 }
             }
         }
@@ -75,19 +76,17 @@ public class EventListenerSystem {
     @Async
     public void handleDishCreate(DishDtoRequest dto) throws IOException {
         Dish dish = dishRepository.findById(dto.getDish().getId()).orElse(null);
-        if(dto != null){
-            if(dish.getPublicId() == null){
-                try{
-                    uploadAndSaveDish(dish,dto.getFile());
-                }
-                catch(IOException e){
+        if (dto != null) {
+            if (dish.getPublicId() == null) {
+                try {
+                    uploadAndSaveDish(dish, dto.getFile());
+                } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            }
-            else{
+            } else {
                 Map result = cloudinaryService.deleteImage(dish.getPublicId());
-                if(result.get("result").equals("ok")) {
-                    uploadAndSaveDish(dish,dto.getFile());
+                if (result.get("result").equals("ok")) {
+                    uploadAndSaveDish(dish, dto.getFile());
                 }
             }
         }
@@ -108,33 +107,32 @@ public class EventListenerSystem {
         dishRepository.save(dish);
     }
 
-    public static record PaymentCancelEvent(int paymentId) {}
+    public static record PaymentCancelEvent(int paymentId) {
+    }
 
     @EventListener
     @Async
-    public void canclePaymentAndOrderEvent (PaymentCancelEvent paymentCancelEvent)
-    {
+    public void canclePaymentAndOrderEvent(PaymentCancelEvent paymentCancelEvent) {
         Payment payment = paymentRepository.findById(paymentCancelEvent.paymentId).orElse(null);
-        if(payment != null)
-        {
+        if (payment != null) {
             payment.setStatus("CANCELLED");
             payment.setNote("Payment timeout");
             paymentRepository.save(payment);
         }
         Orders order = orderRepository.findById(paymentCancelEvent.paymentId).orElse(null);
-        if(order != null)
-        {
+        if (order != null) {
             order.setStatus(OrderStatus.CANCELLED);
             order.setNote("Order cancelled due to payment timeout");
             orderRepository.save(order);
         }
     }
 
-    public static record CreateItemAndInventory(int ingredientId,double quantity, int orderId){}
+    public static record CreateItemAndInventory(int ingredientId, double quantity, int orderId) {
+    }
 
     @EventListener
     @Async
-    public void createItemAndInventory(CreateItemAndInventory createItemAndInventory){
+    public void createItemAndInventory(CreateItemAndInventory createItemAndInventory) {
         OrderItem orderItem = new OrderItem();
         orderItem.setIngredientId(createItemAndInventory.ingredientId);
         orderItem.setQuantity(createItemAndInventory.quantity);
@@ -144,11 +142,12 @@ public class EventListenerSystem {
         orderItemService.save(orderItem);
     }
 
-    public static record SendOTPEvent(String email, String otp){}
+    public static record SendOTPEvent(String email, String otp) {
+    }
 
     @EventListener
     @Async
-    public void sendOTP(SendOTPEvent sendOTPEvent){
+    public void sendOTP(SendOTPEvent sendOTPEvent) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -183,7 +182,21 @@ public class EventListenerSystem {
         }
     }
 
-    public static record SendOrderEvent(String email, Map<String, Map<String,Integer>> dishes){}
+    /**
+     *
+     * @param email
+     * @param dishes
+     */
+    public record SendOrderEvent(String email, List<DishInfo> dishes) {
+    }
+
+    @Builder
+    public record DishInfo(
+            String name,
+            Integer price,
+            Map<String, Integer> ingredients
+    ) {
+    }
 
     @EventListener
     @Async
@@ -203,84 +216,90 @@ public class EventListenerSystem {
     }
 
     // a helper function to build the HTML content for the bill
-    public String buildBillHtml(Map<String, Map<String, Integer>> dishes) {
+    public String buildBillHtml(List<DishInfo> dishes) {
         StringBuilder html = new StringBuilder();
 
         html.append("""
-        <html>
-        <head>
-            <style>
-                body {
-                    font-family: 'Segoe UI', sans-serif;
-                    margin: 20px;
-                    color: #333;
-                }
-                .container {
-                    max-width: 600px;
-                    margin: auto;
-                    border: 1px solid #ddd;
-                    border-radius: 10px;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                    padding: 20px;
-                }
-                h2 {
-                    text-align: center;
-                    color: #4CAF50;
-                }
-                h3 {
-                    color: #333;
-                    margin-top: 20px;
-                }
-                ul {
-                    list-style-type: none;
-                    padding-left: 15px;
-                }
-                li {
-                    margin-bottom: 5px;
-                }
-                .price {
-                    color: #888;
-                    font-size: 0.9em;
-                }
-                .total {
-                    text-align: right;
-                    margin-top: 20px;
-                    font-weight: bold;
-                }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h2>🧾 Hóa đơn nguyên liệu</h2>
-    """);
+                    <html>
+                    <head>
+                        <style>
+                            body {
+                                font-family: 'Segoe UI', sans-serif;
+                                margin: 20px;
+                                color: #333;
+                            }
+                            .container {
+                                max-width: 600px;
+                                margin: auto;
+                                border: 1px solid #ddd;
+                                border-radius: 10px;
+                                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                                padding: 20px;
+                            }
+                            h2 {
+                                text-align: center;
+                                color: #4CAF50;
+                            }
+                            h3 {
+                                color: #333;
+                                margin-top: 20px;
+                            }
+                            ul {
+                                list-style-type: none;
+                                padding-left: 15px;
+                            }
+                            li {
+                                margin-bottom: 5px;
+                            }
+                            .price {
+                                color: #888;
+                                font-size: 0.9em;
+                            }
+                            .total {
+                                text-align: right;
+                                margin-top: 20px;
+                                font-weight: bold;
+                            }
+                            .dish-price {
+                                margin-bottom: 10px;
+                                font-style: italic;
+                                color: #555;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <h2>🧾 Hóa đơn nguyên liệu</h2>
+                """);
 
         int grandTotal = 0;
         int dishIndex = 1;
 
-        for (Map.Entry<String, Map<String, Integer>> dishEntry : dishes.entrySet()) {
-            String dishName = dishEntry.getKey();
-            Map<String, Integer> ingredients = dishEntry.getValue();
+        for (DishInfo dish : dishes) {
+            html.append(String.format("<h3>%d. %s</h3>\n", dishIndex++, dish.name()));
 
-            html.append(String.format("<h3>%d. %s</h3>\n<ul>\n", dishIndex++, dishName));
+            // show base price
+            html.append(String.format("""
+                        <p class="dish-price">Giá gốc món: <b>%,d₫</b></p>
+                        <ul>
+                    """, dish.price()));
 
-            int total = 0;
-            for (Map.Entry<String, Integer> ing : ingredients.entrySet()) {
+            for (Map.Entry<String, Integer> ing : dish.ingredients().entrySet()) {
                 html.append(String.format("""
-                <li>+ %s <span class="price">(%,d₫)</span></li>
-            """, ing.getKey(), ing.getValue()));
-                total += ing.getValue();
+                            <li>+ %s <span class="price">(Số lượng: %d)</span></li>
+                        """, ing.getKey(), ing.getValue()));
             }
-
-            html.append(String.format("</ul><p><b>➥ Tổng chi phí món:</b> %,d₫</p>\n", total));
-            grandTotal += total;
+            grandTotal += dish.price();
         }
 
         html.append(String.format("""
-        <p class="total">Tổng chi phí tất cả món: <span style="color:#4CAF50">%,d₫</span></p>
-            </div>
-        </body>
-        </html>
-    """, grandTotal));
+                    <p class="total">Tổng chi phí tất cả món:
+                        <span style="color:#4CAF50">%,d₫</span>
+                    </p>
+                        </div>
+                    </body>
+                    </html>
+                """, grandTotal));
 
         return html.toString();
     }

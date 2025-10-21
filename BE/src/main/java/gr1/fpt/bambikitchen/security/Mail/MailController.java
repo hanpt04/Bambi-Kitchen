@@ -22,12 +22,9 @@ public class MailController {
 //        return ResponseEntity.ok("send mail successfully");
 //    }
 
-    private record SendMailRequest(String email, Map<String, Map<String,Integer>> dishes) {
-    }
-
     @PostMapping("/send-order-mail")
-    public void sendOrderMail(@RequestBody SendMailRequest request) {
-        eventPublisher.publishEvent(new EventListenerSystem.SendOrderEvent(request.email, request.dishes));
+    public void sendOrderMail(@RequestBody EventListenerSystem.SendOrderEvent request) {
+        eventPublisher.publishEvent(new EventListenerSystem.SendOrderEvent(request.email(), request.dishes()));
     }
 
     @GetMapping("/send-otp")
