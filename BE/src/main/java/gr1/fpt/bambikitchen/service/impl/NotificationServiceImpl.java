@@ -1,6 +1,8 @@
 package gr1.fpt.bambikitchen.service.impl;
 
+import com.google.firebase.messaging.FirebaseMessagingException;
 import gr1.fpt.bambikitchen.exception.CustomException;
+import gr1.fpt.bambikitchen.firebase.service.FCMService;
 import gr1.fpt.bambikitchen.model.Notification;
 import gr1.fpt.bambikitchen.repository.NotificationRepository;
 import gr1.fpt.bambikitchen.service.NotificationService;
@@ -9,12 +11,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
 
     @Autowired
     private NotificationRepository repo;
+    @Autowired
+    private FCMService FCMService;
 
     @Override
     public List<Notification> findAll() {
@@ -60,5 +65,10 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public List<Notification> findByAccount(int accountId) {
         return repo.findByAccount_Id(accountId);
+    }
+
+    @Override
+    public String sendNotification(String title, String message, Integer userId) throws FirebaseMessagingException, ExecutionException, InterruptedException {
+        return FCMService.sendNotificationToUser(userId, title, message);
     }
 }
