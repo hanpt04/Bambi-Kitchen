@@ -34,3 +34,4 @@ build/
 
 ### Spring ###
 src/main/resources/application.properties
+src/main/resources/firebase-service-account.json
