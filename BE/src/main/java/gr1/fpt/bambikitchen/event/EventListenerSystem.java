@@ -227,43 +227,61 @@ public class EventListenerSystem {
                                 font-family: 'Segoe UI', sans-serif;
                                 margin: 20px;
                                 color: #333;
+                                background-color: #fff;
                             }
                             .container {
-                                max-width: 600px;
+                                max-width: 650px;
                                 margin: auto;
-                                border: 1px solid #ddd;
-                                border-radius: 10px;
-                                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                                padding: 20px;
+                                border: 1px solid #f0f0f0;
+                                border-radius: 12px;
+                                box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+                                padding: 25px;
+                                background: #fff;
                             }
                             h2 {
                                 text-align: center;
-                                color: #4CAF50;
+                                color: #ff7a00;
+                                margin-bottom: 30px;
                             }
-                            h3 {
-                                color: #333;
-                                margin-top: 20px;
+                            .dish-card {
+                                border: 1px solid #ffe3cc;
+                                background: #fff7f0;
+                                padding: 15px 20px;
+                                border-radius: 10px;
+                                margin-bottom: 20px;
+                            }
+                            .dish-name {
+                                font-weight: bold;
+                                font-size: 1.05rem;
+                                margin-bottom: 10px;
+                            }
+                            .price-tag {
+                                color: #ff7a00;
+                                font-style: italic;
+                                margin-bottom: 10px;
+                                display: block;
                             }
                             ul {
                                 list-style-type: none;
-                                padding-left: 15px;
+                                padding-left: 0;
+                                margin-left: 0;
                             }
-                            li {
-                                margin-bottom: 5px;
-                            }
-                            .price {
-                                color: #888;
-                                font-size: 0.9em;
+                            ul li {
+                                display: flex;
+                                justify-content: space-between;
+                                padding: 3px 0;
+                                border-bottom: 1px dashed rgba(255,122,0,0.3);
+                                font-size: 0.95em;
                             }
                             .total {
                                 text-align: right;
-                                margin-top: 20px;
                                 font-weight: bold;
-                            }
-                            .dish-price {
-                                margin-bottom: 10px;
-                                font-style: italic;
-                                color: #555;
+                                padding: 10px;
+                                margin-top: 25px;
+                                border-radius: 8px;
+                                background: #ff7a00;
+                                color: white;
+                                font-size: 1.05rem;
                             }
                         </style>
                     </head>
@@ -271,6 +289,7 @@ public class EventListenerSystem {
                         <div class="container">
                             <h2>🧾 Hóa đơn nguyên liệu</h2>
                 """);
+
 
         int grandTotal = 0;
         int dishIndex = 1;
@@ -317,29 +336,29 @@ public class EventListenerSystem {
         helper.setSubject("🔑 Your Password has been reset");
 
         String htmlContent = """
-                <div style="font-family: Arial, sans-serif; max-width: 480px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-                  <h2 style="color: #2c3e50; text-align: center;">🔑 Reset Your Password</h2>
-                  <p style="font-size: 16px; color: #555;">
-                    We received a request to reset the password for your account. If it was you, please ignore this email.
-                  </p>
-                  <h3 style="color: red; text-align: center;">But if wasn't you, click the button below to prevent your password from changing</h3>
-                  <div style="text-align: center; margin: 20px 30px;">
-                    <a href="%s" style="display: inline-block; background-color: #3498db; color: #fff; text-decoration: none;\s
-                        font-size: 16px; font-weight: bold; padding: 12px 24px; border-radius: 6px;">
-                      Reset Password
-                    </a>
-                  </div>
-                  <p style="font-size: 14px; color: #888; text-align: center;">
-                    This link will expire in <strong>15 minutes</strong> for your security.<br/>
-                    If you didn’t request a password reset, you can safely ignore this email.
-                  </p>
-                  <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;"/>
-                  <p style="font-size: 12px; color: #aaa; text-align: center;">
-                    If the button above doesn’t work, copy and paste this URL into your browser:<br/>
-                    <span style="color: #3498db;">%s</span>
-                  </p>
-                </div>
-               \s""";
+                 <div style="font-family: Arial, sans-serif; max-width: 480px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                   <h2 style="color: #2c3e50; text-align: center;">🔑 Reset Your Password</h2>
+                   <p style="font-size: 16px; color: #555;">
+                     We received a request to reset the password for your account. If it was you, please ignore this email.
+                   </p>
+                   <h3 style="color: red; text-align: center;">But if wasn't you, click the button below to prevent your password from changing</h3>
+                   <div style="text-align: center; margin: 20px 30px;">
+                     <a href="%s" style="display: inline-block; background-color: #3498db; color: #fff; text-decoration: none;\s
+                         font-size: 16px; font-weight: bold; padding: 12px 24px; border-radius: 6px;">
+                       Reset Password
+                     </a>
+                   </div>
+                   <p style="font-size: 14px; color: #888; text-align: center;">
+                     This link will expire in <strong>15 minutes</strong> for your security.<br/>
+                     If you didn’t request a password reset, you can safely ignore this email.
+                   </p>
+                   <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;"/>
+                   <p style="font-size: 12px; color: #aaa; text-align: center;">
+                     If the button above doesn’t work, copy and paste this URL into your browser:<br/>
+                     <span style="color: #3498db;">%s</span>
+                   </p>
+                 </div>
+                \s""";
 
         helper.setText(htmlContent, true);
 
