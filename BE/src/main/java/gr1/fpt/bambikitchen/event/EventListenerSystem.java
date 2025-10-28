@@ -220,82 +220,301 @@ public class EventListenerSystem {
         StringBuilder html = new StringBuilder();
 
         html.append("""
+                    <!DOCTYPE html>
                     <html>
                     <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
                         <style>
+                            * {
+                                margin: 0;
+                                padding: 0;
+                                box-sizing: border-box;
+                            }
                             body {
-                                font-family: 'Segoe UI', sans-serif;
-                                margin: 20px;
-                                color: #333;
+                                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                                background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
+                                padding: 40px 20px;
+                                line-height: 1.6;
                             }
-                            .container {
-                                max-width: 600px;
-                                margin: auto;
-                                border: 1px solid #ddd;
-                                border-radius: 10px;
-                                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                                padding: 20px;
+                            .email-wrapper {
+                                max-width: 700px;
+                                margin: 0 auto;
+                                background: #ffffff;
+                                border-radius: 20px;
+                                overflow: hidden;
                             }
-                            h2 {
+                            .header {
+                                background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
+                                padding: 40px 30px;
                                 text-align: center;
-                                color: #4CAF50;
+                                color: white;
+                                position: relative;
                             }
-                            h3 {
-                                color: #333;
-                                margin-top: 20px;
+                            .header::after {
+                                content: '';
+                                position: absolute;
+                                bottom: -20px;
+                                left: 0;
+                                right: 0;
+                                height: 40px;
+                                background: white;
+                                border-radius: 50% 50% 0 0 / 100% 100% 0 0;
                             }
-                            ul {
-                                list-style-type: none;
-                                padding-left: 15px;
-                            }
-                            li {
-                                margin-bottom: 5px;
-                            }
-                            .price {
-                                color: #888;
-                                font-size: 0.9em;
-                            }
-                            .total {
-                                text-align: right;
-                                margin-top: 20px;
-                                font-weight: bold;
-                            }
-                            .dish-price {
+                            .header h1 {
+                                font-size: 32px;
                                 margin-bottom: 10px;
-                                font-style: italic;
-                                color: #555;
+                                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+                            }
+                            .header p {
+                                font-size: 16px;
+                                opacity: 0.95;
+                            }
+                            .content {
+                                padding: 40px 30px;
+                            }
+                            .dish-card {
+                                background: linear-gradient(135deg, #fff5e6 0%, #ffe6cc 100%);
+                                border-radius: 15px;
+                                padding: 25px;
+                                margin-bottom: 25px;
+                                border: 2px solid #ffc299;
+                            }
+                            .dish-header {
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                                margin-bottom: 20px;
+                                padding-bottom: 15px;
+                                border-bottom: 2px solid #ff8c42;
+                            }
+                            .dish-name {
+                                font-size: 22px;
+                                font-weight: bold;
+                                color: #ff6b35;
+                                display: flex;
+                                align-items: center;
+                            }
+                            .dish-number {
+                                display: inline-flex;
+                                align-items: center;
+                                justify-content: center;
+                                width: 35px;
+                                height: 35px;
+                                background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
+                                color: white;
+                                border-radius: 50%;
+                                font-size: 16px;
+                                font-weight: bold;
+                                margin-right: 12px;
+                                box-shadow: 0 4px 10px rgba(255, 107, 53, 0.3);
+                            }
+                            .dish-price-tag {
+                                background: linear-gradient(135deg, #ff6b35 0%, #ff4500 100%);
+                                color: white;
+                                padding: 8px 20px;
+                                border-radius: 25px;
+                                font-weight: bold;
+                                font-size: 18px;
+                                box-shadow: 0 4px 10px rgba(255, 69, 0, 0.3);
+                            }
+                            .ingredients-section {
+                                background: white;
+                                border-radius: 12px;
+                                padding: 0;
+                                overflow: hidden;
+                            }
+                            .ingredients-title {
+                                font-size: 16px;
+                                font-weight: 600;
+                                color: white;
+                                background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
+                                padding: 12px 20px;
+                                display: flex;
+                                align-items: center;
+                            }
+                            .ingredients-title::before {
+                                content: '📋';
+                                margin-right: 8px;
+                                font-size: 18px;
+                            }
+                            .ingredient-table {
+                                width: 100%;
+                                border-collapse: collapse;
+                            }
+                            .ingredient-table thead {
+                                background: #fff5e6;
+                            }
+                            .ingredient-table th {
+                                padding: 12px 15px;
+                                text-align: left;
+                                font-weight: 600;
+                                color: #ff6b35;
+                                border-bottom: 2px solid #ff8c42;
+                                font-size: 14px;
+                            }
+                            .ingredient-table th:last-child {
+                                text-align: center;
+                                width: 120px;
+                            }
+                            .ingredient-table td {
+                                padding: 12px 15px;
+                                border-bottom: 1px solid #ffe6cc;
+                                color: #374151;
+                                font-size: 15px;
+                            }
+                            .ingredient-table tr:last-child td {
+                                border-bottom: none;
+                            }
+                            .ingredient-table tbody tr:hover {
+                                background: #fffaf5;
+                            }
+                            .ingredient-table td:first-child::before {
+                                content: '▪';
+                                color: #ff8c42;
+                                margin-right: 10px;
+                                font-size: 18px;
+                            }
+                            .ingredient-table td:last-child {
+                                text-align: center;
+                            }
+                            .quantity-badge {
+                                background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
+                                color: white;
+                                padding: 4px 12px;
+                                border-radius: 12px;
+                                font-size: 13px;
+                                font-weight: 600;
+                                display: inline-block;
+                            }
+                            .total-section {
+                                background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
+                                color: white;
+                                padding: 30px;
+                                border-radius: 15px;
+                                margin-top: 30px;
+                                text-align: center;
+                                box-shadow: 0 10px 25px rgba(255, 107, 53, 0.4);
+                            }
+                            .total-label {
+                                font-size: 18px;
+                                margin-bottom: 12px;
+                                opacity: 0.95;
+                                font-weight: 500;
+                            }
+                            .total-amount {
+                                font-size: 36px;
+                                font-weight: bold;
+                                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+                                letter-spacing: 1px;
+                            }
+                            .footer {
+                                text-align: center;
+                                padding: 30px;
+                                color: #6b7280;
+                                font-size: 14px;
+                                border-top: 1px solid #e5e7eb;
+                            }
+                            .footer-icon {
+                                font-size: 24px;
+                                margin-bottom: 10px;
+                            }
+                            @media only screen and (max-width: 600px) {
+                                body {
+                                    padding: 20px 10px;
+                                }
+                                .content {
+                                    padding: 30px 20px;
+                                }
+                                .dish-header {
+                                    flex-direction: column;
+                                    align-items: flex-start;
+                                    gap: 10px;
+                                }
+                                .dish-name {
+                                    font-size: 18px;
+                                }
+                                .dish-price-tag {
+                                    align-self: flex-end;
+                                }
+                                .total-amount {
+                                    font-size: 28px;
+                                }
+                                .ingredient-table th,
+                                .ingredient-table td {
+                                    padding: 8px 10px;
+                                    font-size: 13px;
+                                }
                             }
                         </style>
                     </head>
                     <body>
-                        <div class="container">
-                            <h2>🧾 Hóa đơn nguyên liệu</h2>
+                        <div class="email-wrapper">
+                            <div class="header">
+                                <h1>🧾 Hóa Đơn Nguyên Liệu</h1>
+                                <p>Chi tiết các món ăn và nguyên liệu</p>
+                            </div>
+                            
+                            <div class="content">
                 """);
 
         int grandTotal = 0;
         int dishIndex = 1;
 
         for (DishInfo dish : dishes) {
-            html.append(String.format("<h3>%d. %s</h3>\n", dishIndex++, dish.name()));
-
-            // show base price
             html.append(String.format("""
-                        <p class="dish-price">Giá gốc món: <b>%,d₫</b></p>
-                        <ul>
-                    """, dish.price()));
+                                <div class="dish-card">
+                                    <div class="dish-header">
+                                        <div class="dish-name">
+                                            <span class="dish-number">%d</span>
+                                            <span>%s</span>
+                                        </div>
+                                        <div class="dish-price-tag">%,d₫</div>
+                                    </div>
+                                    
+                                    <div class="ingredients-section">
+                                        <div class="ingredients-title">Danh sách nguyên liệu</div>
+                                        <table class="ingredient-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Tên Nguyên Liệu</th>
+                                                    <th>Số Lượng</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                """, dishIndex++, dish.name(), dish.price()));
 
             for (Map.Entry<String, Integer> ing : dish.ingredients().entrySet()) {
                 html.append(String.format("""
-                            <li>+ %s <span class="price">(Số lượng: %d)</span></li>
-                        """, ing.getKey(), ing.getValue()));
+                                                <tr>
+                                                    <td>%s</td>
+                                                    <td><span class="quantity-badge">%d</span></td>
+                                                </tr>
+                """, ing.getKey(), ing.getValue()));
             }
+
+            html.append("""
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                """);
+
             grandTotal += dish.price();
         }
 
         html.append(String.format("""
-                    <p class="total">Tổng chi phí tất cả món:
-                        <span style="color:#4CAF50">%,d₫</span>
-                    </p>
+                                <div class="total-section">
+                                    <div class="total-label">💰 Tổng Chi Phí Tất Cả Món</div>
+                                    <div class="total-amount">%,d₫</div>
+                                </div>
+                            </div>
+                            
+                            <div class="footer">
+                                <div class="footer-icon">🍽️</div>
+                                <p><strong>Bambi Kitchen</strong></p>
+                                <p>Cảm ơn quý khách đã sử dụng dịch vụ!</p>
+                            </div>
                         </div>
                     </body>
                     </html>
@@ -317,27 +536,50 @@ public class EventListenerSystem {
         helper.setSubject("🔑 Your Password has been reset");
 
         String htmlContent = """
-                <div style="font-family: Arial, sans-serif; max-width: 480px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-                  <h2 style="color: #2c3e50; text-align: center;">🔑 Reset Your Password</h2>
-                  <p style="font-size: 16px; color: #555;">
+                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; padding: 0; background: linear-gradient(135deg, #fff5e6 0%, #ffe0b3 100%); border-radius: 15px; overflow: hidden;">
+                  <div style="background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%); padding: 30px 20px; text-align: center;">
+                    <h2 style="color: white; margin: 0; font-size: 28px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">🔐 Reset Your Password</h2>
+                  </div>
+                  
+                  <div style="padding: 30px; background: white; margin: 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(255, 140, 66, 0.2);">
+                    <div style="background: #fff5e6; border-left: 4px solid #ff8c42; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                      <p style="margin: 0; font-size: 16px; color: #555; line-height: 1.6;">
                     We received a request to reset the password for your account. If it was you, please ignore this email.
                   </p>
-                  <h3 style="color: red; text-align: center;">But if wasn't you, click the button below to prevent your password from changing</h3>
-                  <div style="text-align: center; margin: 20px 30px;">
-                    <a href="%s" style="display: inline-block; background-color: #3498db; color: #fff; text-decoration: none;\s
-                        font-size: 16px; font-weight: bold; padding: 12px 24px; border-radius: 6px;">
-                      Reset Password
+                    </div>
+                    
+                    <div style="background: linear-gradient(135deg, #fff5e6 0%, #ffe6cc 100%); border: 2px solid #ff8c42; border-radius: 10px; padding: 20px; margin: 25px 0; text-align: center;">
+                      <p style="margin: 0 0 15px 0; font-size: 18px; color: #ff6b35; font-weight: bold;">⚠️ Security Alert</p>
+                      <p style="margin: 0 0 20px 0; font-size: 15px; color: #d9534f; font-weight: 600;">
+                        If this wasn't you, click the button below to prevent your password from changing
+                      </p>
+                      <a href="%s" style="display: inline-block; background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%); color: white; text-decoration: none; font-size: 16px; font-weight: bold; padding: 14px 32px; border-radius: 8px; box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3); transition: all 0.3s;">
+                        🔒 Prevent Password Reset
                     </a>
                   </div>
-                  <p style="font-size: 14px; color: #888; text-align: center;">
-                    This link will expire in <strong>15 minutes</strong> for your security.<br/>
-                    If you didn’t request a password reset, you can safely ignore this email.
+                    
+                    <div style="background: #fffaf5; padding: 15px; border-radius: 8px; border-left: 3px solid #ffc299; margin-top: 20px;">
+                      <p style="margin: 0; font-size: 14px; color: #666; text-align: center; line-height: 1.6;">
+                        ⏰ This link will expire in <strong style="color: #ff6b35;">15 minutes</strong> for your security.<br/>
+                        If you didn't request a password reset, you can safely ignore this email.
                   </p>
-                  <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;"/>
-                  <p style="font-size: 12px; color: #aaa; text-align: center;">
-                    If the button above doesn’t work, copy and paste this URL into your browser:<br/>
-                    <span style="color: #3498db;">%s</span>
+                    </div>
+                    
+                    <hr style="margin: 25px 0; border: none; border-top: 2px solid #ffe6cc;"/>
+                    
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 6px;">
+                      <p style="margin: 0 0 8px 0; font-size: 12px; color: #888; text-align: center;">
+                        If the button above doesn't work, copy and paste this URL into your browser:
                   </p>
+                      <p style="margin: 0; font-size: 11px; color: #ff8c42; text-align: center; word-break: break-all; font-family: monospace;">
+                        %s
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div style="text-align: center; padding: 20px; color: #999; font-size: 12px;">
+                    <p style="margin: 0;">© 2024 Bambi Kitchen. All rights reserved.</p>
+                  </div>
                 </div>
                \s""";
 
