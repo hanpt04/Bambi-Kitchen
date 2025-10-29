@@ -23,6 +23,7 @@ public class IngredientCategory {
     private String name;
     @Nationalized
     private String description;
+    private int priority;//đánh dấu step để hiển thị nguyên liệu theo step cho người dùng chọn
 
     public IngredientCategory(String name, String description) {
         this.name = name;

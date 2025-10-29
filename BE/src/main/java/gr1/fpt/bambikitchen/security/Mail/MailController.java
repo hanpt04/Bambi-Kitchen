@@ -12,6 +12,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/mail")
 @RequiredArgsConstructor
+@CrossOrigin("*")
 public class MailController {
     private final MailService mailService;
     private final ApplicationEventPublisher eventPublisher;
