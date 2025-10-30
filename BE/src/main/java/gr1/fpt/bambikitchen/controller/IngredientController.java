@@ -46,6 +46,12 @@ public class IngredientController {
         return ResponseEntity.ok(ingredientService.update(ingredient));
     }
 
+    @GetMapping("toggle-active/{id}")
+    public ResponseEntity<?> toggleActive(@PathVariable int id) throws IOException {
+        ingredientService.toggleActive(id);
+        return ResponseEntity.ok().build();
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable Integer id) {
         return ResponseEntity.ok(ingredientService.delete(id));

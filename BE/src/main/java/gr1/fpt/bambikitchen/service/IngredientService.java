@@ -20,4 +20,5 @@ public interface IngredientService {
     public void minusInventory(int orderId);
     public void resetReserve(int orderId);
     public void saveOrder(int orderId);
+    public void toggleActive(int id);
 }

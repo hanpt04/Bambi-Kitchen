@@ -229,4 +229,15 @@ public class IngredientServiceImpl implements IngredientService {
         }
     }
 
+    public void toggleActive(int id){
+        Ingredient ingredient = ingredientRepository.findById(id).orElseThrow(
+                () -> new CustomException("Ingredient cannot be found " + id, HttpStatus.BAD_REQUEST)
+        );
+        if(ingredient.isActive()){
+            ingredient.setActive(false);
+        } else {
+            ingredient.setActive(true);
+        }
+        ingredientRepository.save(ingredient);
+    }
 }
