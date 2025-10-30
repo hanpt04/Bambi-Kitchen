@@ -57,6 +57,7 @@ public class Ingredient {
     @Column(name = "available_quantity")
     private Double available;
 
+    @Column(name = "price_per_unit")
     private double pricePerUnit;//giá nhập vào theo đơn vị
 
     //số lượng mà khả dụng cho các order tiếp theo

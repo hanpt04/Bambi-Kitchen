@@ -73,6 +73,7 @@ public class IngredientServiceImpl implements IngredientService {
         newIngredient.setCategory(category);
         newIngredient.setQuantity(ingredient.getQuantity());
         newIngredient.setAvailable(ingredient.getQuantity());
+        newIngredient.setPricePerUnit(ingredient.getPricePerUnit());
         Ingredient ingredientSave = ingredientRepository.save(newIngredient);
 
         // publisher

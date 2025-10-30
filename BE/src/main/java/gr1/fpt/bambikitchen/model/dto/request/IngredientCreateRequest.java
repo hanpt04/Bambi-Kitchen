@@ -19,6 +19,7 @@ public class IngredientCreateRequest {
     double quantity;
     @NotNull(message = "Unit is required")
     private Unit unit;
+    private double pricePerUnit;//giá nhập vào theo đơn vị
 
     @Nullable
     MultipartFile file  ;
