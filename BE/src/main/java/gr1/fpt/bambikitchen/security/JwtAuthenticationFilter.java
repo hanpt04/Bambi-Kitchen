@@ -32,6 +32,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || path.startsWith("/oauth2/")
                 || path.startsWith("/swagger-ui/")
                 || path.startsWith("/v3/api-docs")
+                || path.startsWith("/api/user/reset-password")
+                || path.startsWith("/api/user/forgot-password")
+                || path.startsWith("/api/account/register")
               //  || path.startsWith("/api/")//để tạm để test api, sau này sửa lại, để lại là fillter ko quét
                 || path.equals("/dump-data")) {
             filterChain.doFilter(request, response);

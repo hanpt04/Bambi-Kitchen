@@ -51,6 +51,10 @@ public class AccountServiceImpl implements AccountService {
         if(account.getPhone() == null || account.getPhone().isEmpty()) {
             throw new CustomException("Phone must not be empty !!",HttpStatus.BAD_REQUEST);
         }
+        if(accountRepository.existsByPhone(account.getPhone())) {
+            throw new CustomException("Account's phone already exists",
+                    HttpStatus.CONFLICT);
+        }
         return accountRepository.save(account);
     }
 
