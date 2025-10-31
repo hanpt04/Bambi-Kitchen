@@ -24,7 +24,7 @@ public class    DishCreateRequest {
     @NotBlank(message = "Name must not be blank")
     private String name;
 
-    private String description;
+        private String description;
 
     private int price;
 

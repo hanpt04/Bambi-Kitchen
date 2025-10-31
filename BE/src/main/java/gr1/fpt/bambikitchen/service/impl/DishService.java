@@ -112,6 +112,7 @@ public class DishService {
         dish.setPublic(dto.isPublic());
         dish.setUsedQuantity(dto.getUsedQuantity());
         if(dishExist.getImageUrl() != null){
+            System.out.println("Img"+dishExist.getImageUrl());
             dish.setImageUrl(dishExist.getImageUrl());
             dish.setPublicId(dishExist.getPublicId());
         }
