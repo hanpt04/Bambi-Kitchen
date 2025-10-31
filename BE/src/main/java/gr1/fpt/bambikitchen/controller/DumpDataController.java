@@ -5,7 +5,9 @@ import gr1.fpt.bambikitchen.model.DishTemplate;
 import gr1.fpt.bambikitchen.model.IngredientCategory;
 import gr1.fpt.bambikitchen.model.Nutrition;
 import gr1.fpt.bambikitchen.model.dto.request.AccountCreateRequest;
+import gr1.fpt.bambikitchen.model.dto.request.DishCreateRequest;
 import gr1.fpt.bambikitchen.model.dto.request.IngredientCreateRequest;
+import gr1.fpt.bambikitchen.model.enums.DishType;
 import gr1.fpt.bambikitchen.model.enums.SizeCode;
 import gr1.fpt.bambikitchen.model.enums.Unit;
 import gr1.fpt.bambikitchen.repository.*;
@@ -25,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 @CrossOrigin(origins = "*")
 @RestController
@@ -60,8 +63,8 @@ public class DumpDataController {
         }
         dumpIngreCate();
         ingredientCategoryRepository.flush();
-//        dumpAccount();
-//        accountRepository.flush();
+        dumpAccount();
+        accountRepository.flush();
         dumpIngre();
         ingredientRepository.flush();
         dumpDishTemplate();
@@ -88,13 +91,13 @@ public class DumpDataController {
         ingredientCategoryRepository.saveAll( categories );
     }
 
-//    public void dumpAccount(){
-//        accountService.save(new AccountCreateRequest() {{
-//            setName("Khang");
-//            setPassword("12345678");
-//            setMail("wtfbro@gmail.com");
-//        }});
-//    }
+    public void dumpAccount(){
+        accountService.save(new AccountCreateRequest() {{
+            setName("Khang");
+            setPassword("12345678");
+            setMail("wtfbro@gmail.com");
+        }});
+    }
 
     public void dumpIngre() throws IOException {
 
@@ -396,335 +399,341 @@ public class DumpDataController {
         dishTemplateService.saveDishTemplate( new DishTemplate(SizeCode.L,"Tô Khủng Long",1.3,1.3, 3,6,4) );
     }
 
-//    public void dumpDish() {
-//        // Món ăn ví dụ ban đầu
-//        dishService.save(new DishCreateRequest() {{
-//            setName("Cơm Mực ăn kèm cà chua");
-//            setDescription("Phá Hủy Làng Chài");
-//            setPrice(59000);
-//            setImageUrl("string");
-//            setAccount(accountService.findById(1));
-//            setDishType(DishType.PRESET);
-//            setPublic(true);
-//            setIngredients(new HashMap<Integer, Integer>() {{
-//                put(2, 200); // Mực
-//                put(15, 200); // Cơm
-//                put(12, 100); // Cà chua
-//            }});
-//        }});
-//
-//        // Món 1: Mì Bò Xào Rau Cải
-//        dishService.save(new DishCreateRequest() {{
-//            setName("Mì Bò Xào Rau Cải");
-//            setDescription("Mì dai giòn kết hợp bò mềm và rau cải tươi");
-//            setPrice(65000);
-//            setImageUrl("string");
-//            setAccount(accountService.findById(1));
-//            setDishType(DishType.PRESET);
-//            setPublic(true);
-//            setIngredients(new HashMap<Integer, Integer>() {{
-//                put(3, 150); // Bò
-//                put(16, 200); // Mì
-//                put(7, 100); // Cải thìa
-//            }});
-//        }});
-//
-//        // Món 2: Cơm Gà Nướng Dưa Leo
-//        dishService.save(new DishCreateRequest() {{
-//            setName("Cơm Gà Nướng Dưa Leo");
-//            setDescription("Cơm dẻo với gà nướng thơm lừng và dưa leo giòn");
-//            setPrice(55000);
-//            setImageUrl("string");
-//            setAccount(accountService.findById(1));
-//            setDishType(DishType.PRESET);
-//            setPublic(true);
-//            setIngredients(new HashMap<Integer, Integer>() {{
-//                put(4, 150); // Gà
-//                put(15, 200); // Cơm
-//                put(13, 100); // Dưa leo
-//            }});
-//        }});
-//
-//        // Món 3: Tôm Rim Nấm Hương
-//        dishService.save(new DishCreateRequest() {{
-//            setName("Tôm Rim Nấm Hương");
-//            setDescription("Tôm tươi rim đậm đà với nấm hương thơm nồng");
-//            setPrice(70000);
-//            setImageUrl("string");
-//            setAccount(accountService.findById(1));
-//            setDishType(DishType.PRESET);
-//            setPublic(true);
-//            setIngredients(new HashMap<Integer, Integer>() {{
-//                put(1, 200); // Tôm
-//                put(20, 100); // Nấm Hương
-//            }});
-//        }});
-//
-//        // Món 4: Cá Hồi Áp Chảo Xà Lách
-//        dishService.save(new DishCreateRequest() {{
-//            setName("Cá Hồi Áp Chảo Xà Lách");
-//            setDescription("Cá hồi áp chảo vàng ươm ăn kèm xà lách tươi");
-//            setPrice(85000);
-//            setImageUrl("string");
-//            setAccount(accountService.findById(1));
-//            setDishType(DishType.PRESET);
-//            setPublic(true);
-//            setIngredients(new HashMap<Integer, Integer>() {{
-//                put(5, 150); // Cá hồi
-//                put(11, 100); // Xà lách
-//            }});
-//        }});
-//
-//        // Món 5: Thịt Heo Kho Bí Đỏ
-//        dishService.save(new DishCreateRequest() {{
-//            setName("Thịt Heo Kho Bí Đỏ");
-//            setDescription("Thịt heo kho mềm béo với bí đỏ ngọt tự nhiên");
-//            setPrice(60000);
-//            setImageUrl("string");
-//            setAccount(accountService.findById(1));
-//            setDishType(DishType.PRESET);
-//            setPublic(true);
-//            setIngredients(new HashMap<Integer, Integer>() {{
-//                put(25, 200); // Thịt Heo
-//                put(28, 150); // Bí Đỏ
-//            }});
-//        }});
-//
-//        // Món 6: Mì Trộn Đậu Hà Lan và Nấm Kim Châm
-//        dishService.save(new DishCreateRequest() {{
-//            setName("Mì Trộn Đậu Hà Lan và Nấm Kim Châm");
-//            setDescription("Mì trộn hấp dẫn với đậu Hà Lan và nấm kim châm giòn");
-//            setPrice(52000);
-//            setImageUrl("string");
-//            setAccount(accountService.findById(1));
-//            setDishType(DishType.PRESET);
-//            setPublic(true);
-//            setIngredients(new HashMap<Integer, Integer>() {{
-//                put(16, 200); // Mì
-//                put(17, 100); // Đậu Hà Lan
-//                put(19, 100); // Nấm Kim Châm
-//            }});
-//        }});
-//
-//        // Món 7: Cơm Chiên Hải Sản
-//        dishService.save(new DishCreateRequest() {{
-//            setName("Cơm Chiên Hải Sản");
-//            setDescription("Cơm chiên thơm ngon với tôm và mực tươi");
-//            setPrice(68000);
-//            setImageUrl("string");
-//            setAccount(accountService.findById(1));
-//            setDishType(DishType.PRESET);
-//            setPublic(true);
-//            setIngredients(new HashMap<Integer, Integer>() {{
-//                put(1, 100); // Tôm
-//                put(2, 100); // Mực
-//                put(15, 200); // Cơm
-//            }});
-//        }});
-//
-//        // Món 8: Gà Chiên Nước Dừa
-//        dishService.save(new DishCreateRequest() {{
-//            setName("Gà Chiên Nước Dừa");
-//            setDescription("Gà chiên giòn tan với hương vị nước dừa đặc trưng");
-//            setPrice(62000);
-//            setImageUrl("string");
-//            setAccount(accountService.findById(1));
-//            setDishType(DishType.PRESET);
-//            setPublic(true);
-//            setIngredients(new HashMap<Integer, Integer>() {{
-//                put(4, 200); // Gà
-//                put(24, 300); // Nước Dừa
-//            }});
-//        }});
-//
-//        // Món 9: Rau Cải Xào Nấm Bào Ngư
-//        dishService.save(new DishCreateRequest() {{
-//            setName("Rau Cải Xào Nấm Bào Ngư");
-//            setDescription("Rau cải ngọt xào cùng nấm bào ngư thơm ngon");
-//            setPrice(45000);
-//            setImageUrl("string");
-//            setAccount(accountService.findById(1));
-//            setDishType(DishType.PRESET);
-//            setPublic(true);
-//            setIngredients(new HashMap<Integer, Integer>() {{
-//                put(9, 150); // Cải ngọt
-//                put(21, 100); // Nấm Bào Ngư
-//            }});
-//        }});
-//
-//        // Món 10: Cơm Tấm Sườn Nướng
-//        dishService.save(new DishCreateRequest() {{
-//            setName("Cơm Tấm Sườn Nướng");
-//            setDescription("Cơm tấm dẻo thơm với sườn nướng đậm đà");
-//            setPrice(60000);
-//            setImageUrl("string");
-//            setAccount(accountService.findById(1));
-//            setDishType(DishType.PRESET);
-//            setPublic(true);
-//            setIngredients(new HashMap<Integer, Integer>() {{
-//                put(25, 200); // Thịt Heo
-//                put(15, 200); // Cơm
-//            }});
-//        }});
-//
-//        // Món 11: Mì Cá Ngừ Xào Cải Thảo
-//        dishService.save(new DishCreateRequest() {{
-//            setName("Mì Cá Ngừ Xào Cải Thảo");
-//            setDescription("Mì thơm ngon xào với cá ngừ và cải thảo giòn ngọt");
-//            setPrice(67000);
-//            setImageUrl("string");
-//            setAccount(accountService.findById(1));
-//            setDishType(DishType.PRESET);
-//            setPublic(true);
-//            setIngredients(new HashMap<Integer, Integer>() {{
-//                put(6, 150); // Cá ngừ
-//                put(16, 200); // Mì
-//                put(10, 100); // Cải thảo
-//            }});
-//        }});
-//
-//        // Món 12: Cơm Thịt Cừu Nướng Bí Xanh
-//        dishService.save(new DishCreateRequest() {{
-//            setName("Cơm Thịt Cừu Nướng Bí Xanh");
-//            setDescription("Cơm dẻo với thịt cừu nướng thơm và bí xanh tươi");
-//            setPrice(75000);
-//            setImageUrl("string");
-//            setAccount(accountService.findById(1));
-//            setDishType(DishType.PRESET);
-//            setPublic(true);
-//            setIngredients(new HashMap<Integer, Integer>() {{
-//                put(26, 150); // Thịt Cừu
-//                put(15, 200); // Cơm
-//                put(29, 100); // Bí Xanh
-//            }});
-//        }});
-//
-//        // Món 13: Tôm Xào Hạt Điều
-//        dishService.save(new DishCreateRequest() {{
-//            setName("Tôm Xào Hạt Điều");
-//            setDescription("Tôm tươi xào với hạt điều béo bùi");
-//            setPrice(72000);
-//            setImageUrl("string");
-//            setAccount(accountService.findById(1));
-//            setDishType(DishType.PRESET);
-//            setPublic(true);
-//            setIngredients(new HashMap<Integer, Integer>() {{
-//                put(1, 200); // Tôm
-//                put(38, 100); // Hạt Điều
-//            }});
-//        }});
-//
-//        // Món 14: Gà Kho Nấm Rơm
-//        dishService.save(new DishCreateRequest() {{
-//            setName("Gà Kho Nấm Rơm");
-//            setDescription("Gà kho đậm đà với nấm rơm thơm ngon");
-//            setPrice(58000);
-//            setImageUrl("string");
-//            setAccount(accountService.findById(1));
-//            setDishType(DishType.PRESET);
-//            setPublic(true);
-//            setIngredients(new HashMap<Integer, Integer>() {{
-//                put(4, 200); // Gà
-//                put(22, 100); // Nấm Rơm
-//            }});
-//        }});
-//
-//        // Món 15: Cơm Chiên Đậu Đen và Cà Chua
-//        dishService.save(new DishCreateRequest() {{
-//            setName("Cơm Chiên Đậu Đen và Cà Chua");
-//            setDescription("Cơm chiên với đậu đen bùi và cà chua tươi");
-//            setPrice(51000);
-//            setImageUrl("string");
-//            setAccount(accountService.findById(1));
-//            setDishType(DishType.PRESET);
-//            setPublic(true);
-//            setIngredients(new HashMap<Integer, Integer>() {{
-//                put(18, 100); // Đậu Đen
-//                put(15, 200); // Cơm
-//                put(12, 100); // Cà chua
-//            }});
-//        }});
-//
-//        // Món 16: Thịt Vịt Nướng Xà Lách
-//        dishService.save(new DishCreateRequest() {{
-//            setName("Thịt Vịt Nướng Xà Lách");
-//            setDescription("Thịt vịt nướng thơm lừng ăn kèm xà lách giòn");
-//            setPrice(69000);
-//            setImageUrl("string");
-//            setAccount(accountService.findById(1));
-//            setDishType(DishType.PRESET);
-//            setPublic(true);
-//            setIngredients(new HashMap<Integer, Integer>() {{
-//                put(27, 200); // Thịt Vịt
-//                put(11, 100); // Xà Lách
-//            }});
-//        }});
-//
-//        // Món 17: Mì Xào Khoai Tây và Nấm Kim Châm
-//        dishService.save(new DishCreateRequest() {{
-//            setName("Mì Xào Khoai Tây và Nấm Kim Châm");
-//            setDescription("Mì xào với khoai tây bùi và nấm kim châm giòn");
-//            setPrice(53000);
-//            setImageUrl("string");
-//            setAccount(accountService.findById(1));
-//            setDishType(DishType.PRESET);
-//            setPublic(true);
-//            setIngredients(new HashMap<Integer, Integer>() {{
-//                put(16, 200); // Mì
-//                put(14, 150); // Khoai Tây
-//                put(19, 100); // Nấm Kim Châm
-//            }});
-//        }});
-//
-//        // Món 18: Bò Xào Hạt Hạnh Nhân
-//        dishService.save(new DishCreateRequest() {{
-//            setName("Bò Xào Hạt Hạnh Nhân");
-//            setDescription("Bò mềm xào với hạt hạnh nhân béo giòn");
-//            setPrice(74000);
-//            setImageUrl("string");
-//            setAccount(accountService.findById(1));
-//            setDishType(DishType.PRESET);
-//            setPublic(true);
-//            setIngredients(new HashMap<Integer, Integer>() {{
-//                put(3, 150); // Bò
-//                put(37, 100); // Hạt Hạnh Nhân
-//            }});
-//        }});
-//
-//        // Món 19: Cơm Tấm Cá Hồi và Dưa Leo
-//        dishService.save(new DishCreateRequest() {{
-//            setName("Cơm Tấm Cá Hồi và Dưa Leo");
-//            setDescription("Cơm tấm với cá hồi áp chảo và dưa leo tươi mát");
-//            setPrice(82000);
-//            setImageUrl("string");
-//            setAccount(accountService.findById(1));
-//            setDishType(DishType.PRESET);
-//            setPublic(true);
-//            setIngredients(new HashMap<Integer, Integer>() {{
-//                put(5, 150); // Cá Hồi
-//                put(15, 200); // Cơm
-//                put(13, 100); // Dưa Leo
-//            }});
-//        }});
-//
-//        // Món 20: Rau Cải Bó Xôi Xào Nấm Hương
-//        dishService.save(new DishCreateRequest() {{
-//            setName("Rau Cải Bó Xôi Xào Nấm Hương");
-//            setDescription("Cải bó xôi xào với nấm hương thơm ngon bổ dưỡng");
-//            setPrice(47000);
-//            setImageUrl("string");
-//            setAccount(accountService.findById(1));
-//            setDishType(DishType.PRESET);
-//            setPublic(true);
-//            setIngredients(new HashMap<Integer, Integer>() {{
-//                put(8, 150); // Cải Bó Xôi
-//                put(20, 100); // Nấm Hương
-//            }});
-//        }});
-//
-//
-//
-//    }
+    public void dumpDish() {
+        MultipartFile dummyFile = new MockMultipartFile(
+                "file",
+                "ingredient.jpg",
+                "image/jpeg",
+                new byte[0]
+        );
+        // Món ăn ví dụ ban đầu
+        dishService.save(new DishCreateRequest() {{
+            setName("Cơm Mực ăn kèm cà chua");
+            setDescription("Phá Hủy Làng Chài");
+            setPrice(59000);
+            setFile(dummyFile);
+            setAccount(accountService.findById(1));
+            setDishType(DishType.PRESET);
+            setPublic(true);
+            setIngredients(new HashMap<Integer, Integer>() {{
+                put(2, 200); // Mực
+                put(15, 200); // Cơm
+                put(12, 100); // Cà chua
+            }});
+        }});
+
+        // Món 1: Mì Bò Xào Rau Cải
+        dishService.save(new DishCreateRequest() {{
+            setName("Mì Bò Xào Rau Cải");
+            setDescription("Mì dai giòn kết hợp bò mềm và rau cải tươi");
+            setPrice(65000);
+            setFile(dummyFile);
+            setAccount(accountService.findById(1));
+            setDishType(DishType.PRESET);
+            setPublic(true);
+            setIngredients(new HashMap<Integer, Integer>() {{
+                put(3, 150); // Bò
+                put(16, 200); // Mì
+                put(7, 100); // Cải thìa
+            }});
+        }});
+
+        // Món 2: Cơm Gà Nướng Dưa Leo
+        dishService.save(new DishCreateRequest() {{
+            setName("Cơm Gà Nướng Dưa Leo");
+            setDescription("Cơm dẻo với gà nướng thơm lừng và dưa leo giòn");
+            setPrice(55000);
+            setFile(dummyFile);
+            setAccount(accountService.findById(1));
+            setDishType(DishType.PRESET);
+            setPublic(true);
+            setIngredients(new HashMap<Integer, Integer>() {{
+                put(4, 150); // Gà
+                put(15, 200); // Cơm
+                put(13, 100); // Dưa leo
+            }});
+        }});
+
+        // Món 3: Tôm Rim Nấm Hương
+        dishService.save(new DishCreateRequest() {{
+            setName("Tôm Rim Nấm Hương");
+            setDescription("Tôm tươi rim đậm đà với nấm hương thơm nồng");
+            setPrice(70000);
+            setFile(dummyFile);
+            setAccount(accountService.findById(1));
+            setDishType(DishType.PRESET);
+            setPublic(true);
+            setIngredients(new HashMap<Integer, Integer>() {{
+                put(1, 200); // Tôm
+                put(20, 100); // Nấm Hương
+            }});
+        }});
+
+        // Món 4: Cá Hồi Áp Chảo Xà Lách
+        dishService.save(new DishCreateRequest() {{
+            setName("Cá Hồi Áp Chảo Xà Lách");
+            setDescription("Cá hồi áp chảo vàng ươm ăn kèm xà lách tươi");
+            setPrice(85000);
+            setFile(dummyFile);
+            setAccount(accountService.findById(1));
+            setDishType(DishType.PRESET);
+            setPublic(true);
+            setIngredients(new HashMap<Integer, Integer>() {{
+                put(5, 150); // Cá hồi
+                put(11, 100); // Xà lách
+            }});
+        }});
+
+        // Món 5: Thịt Heo Kho Bí Đỏ
+        dishService.save(new DishCreateRequest() {{
+            setName("Thịt Heo Kho Bí Đỏ");
+            setDescription("Thịt heo kho mềm béo với bí đỏ ngọt tự nhiên");
+            setPrice(60000);
+            setFile(dummyFile);
+            setAccount(accountService.findById(1));
+            setDishType(DishType.PRESET);
+            setPublic(true);
+            setIngredients(new HashMap<Integer, Integer>() {{
+                put(25, 200); // Thịt Heo
+                put(28, 150); // Bí Đỏ
+            }});
+        }});
+
+        // Món 6: Mì Trộn Đậu Hà Lan và Nấm Kim Châm
+        dishService.save(new DishCreateRequest() {{
+            setName("Mì Trộn Đậu Hà Lan và Nấm Kim Châm");
+            setDescription("Mì trộn hấp dẫn với đậu Hà Lan và nấm kim châm giòn");
+            setPrice(52000);
+            setFile(dummyFile);
+            setAccount(accountService.findById(1));
+            setDishType(DishType.PRESET);
+            setPublic(true);
+            setIngredients(new HashMap<Integer, Integer>() {{
+                put(16, 200); // Mì
+                put(17, 100); // Đậu Hà Lan
+                put(19, 100); // Nấm Kim Châm
+            }});
+        }});
+
+        // Món 7: Cơm Chiên Hải Sản
+        dishService.save(new DishCreateRequest() {{
+            setName("Cơm Chiên Hải Sản");
+            setDescription("Cơm chiên thơm ngon với tôm và mực tươi");
+            setPrice(68000);
+            setFile(dummyFile);
+            setAccount(accountService.findById(1));
+            setDishType(DishType.PRESET);
+            setPublic(true);
+            setIngredients(new HashMap<Integer, Integer>() {{
+                put(1, 100); // Tôm
+                put(2, 100); // Mực
+                put(15, 200); // Cơm
+            }});
+        }});
+
+        // Món 8: Gà Chiên Nước Dừa
+        dishService.save(new DishCreateRequest() {{
+            setName("Gà Chiên Nước Dừa");
+            setDescription("Gà chiên giòn tan với hương vị nước dừa đặc trưng");
+            setPrice(62000);
+            setFile(dummyFile);
+            setAccount(accountService.findById(1));
+            setDishType(DishType.PRESET);
+            setPublic(true);
+            setIngredients(new HashMap<Integer, Integer>() {{
+                put(4, 200); // Gà
+                put(24, 300); // Nước Dừa
+            }});
+        }});
+
+        // Món 9: Rau Cải Xào Nấm Bào Ngư
+        dishService.save(new DishCreateRequest() {{
+            setName("Rau Cải Xào Nấm Bào Ngư");
+            setDescription("Rau cải ngọt xào cùng nấm bào ngư thơm ngon");
+            setPrice(45000);
+            setFile(dummyFile);
+            setAccount(accountService.findById(1));
+            setDishType(DishType.PRESET);
+            setPublic(true);
+            setIngredients(new HashMap<Integer, Integer>() {{
+                put(9, 150); // Cải ngọt
+                put(21, 100); // Nấm Bào Ngư
+            }});
+        }});
+
+        // Món 10: Cơm Tấm Sườn Nướng
+        dishService.save(new DishCreateRequest() {{
+            setName("Cơm Tấm Sườn Nướng");
+            setDescription("Cơm tấm dẻo thơm với sườn nướng đậm đà");
+            setPrice(60000);
+            setFile(dummyFile);
+            setAccount(accountService.findById(1));
+            setDishType(DishType.PRESET);
+            setPublic(true);
+            setIngredients(new HashMap<Integer, Integer>() {{
+                put(25, 200); // Thịt Heo
+                put(15, 200); // Cơm
+            }});
+        }});
+
+        // Món 11: Mì Cá Ngừ Xào Cải Thảo
+        dishService.save(new DishCreateRequest() {{
+            setName("Mì Cá Ngừ Xào Cải Thảo");
+            setDescription("Mì thơm ngon xào với cá ngừ và cải thảo giòn ngọt");
+            setPrice(67000);
+            setFile(dummyFile);
+            setAccount(accountService.findById(1));
+            setDishType(DishType.PRESET);
+            setPublic(true);
+            setIngredients(new HashMap<Integer, Integer>() {{
+                put(6, 150); // Cá ngừ
+                put(16, 200); // Mì
+                put(10, 100); // Cải thảo
+            }});
+        }});
+
+        // Món 12: Cơm Thịt Cừu Nướng Bí Xanh
+        dishService.save(new DishCreateRequest() {{
+            setName("Cơm Thịt Cừu Nướng Bí Xanh");
+            setDescription("Cơm dẻo với thịt cừu nướng thơm và bí xanh tươi");
+            setPrice(75000);
+            setFile(dummyFile);
+            setAccount(accountService.findById(1));
+            setDishType(DishType.PRESET);
+            setPublic(true);
+            setIngredients(new HashMap<Integer, Integer>() {{
+                put(26, 150); // Thịt Cừu
+                put(15, 200); // Cơm
+                put(29, 100); // Bí Xanh
+            }});
+        }});
+
+        // Món 13: Tôm Xào Hạt Điều
+        dishService.save(new DishCreateRequest() {{
+            setName("Tôm Xào Hạt Điều");
+            setDescription("Tôm tươi xào với hạt điều béo bùi");
+            setPrice(72000);
+            setFile(dummyFile);
+            setAccount(accountService.findById(1));
+            setDishType(DishType.PRESET);
+            setPublic(true);
+            setIngredients(new HashMap<Integer, Integer>() {{
+                put(1, 200); // Tôm
+                put(38, 100); // Hạt Điều
+            }});
+        }});
+
+        // Món 14: Gà Kho Nấm Rơm
+        dishService.save(new DishCreateRequest() {{
+            setName("Gà Kho Nấm Rơm");
+            setDescription("Gà kho đậm đà với nấm rơm thơm ngon");
+            setPrice(58000);
+            setFile(dummyFile);
+            setAccount(accountService.findById(1));
+            setDishType(DishType.PRESET);
+            setPublic(true);
+            setIngredients(new HashMap<Integer, Integer>() {{
+                put(4, 200); // Gà
+                put(22, 100); // Nấm Rơm
+            }});
+        }});
+
+        // Món 15: Cơm Chiên Đậu Đen và Cà Chua
+        dishService.save(new DishCreateRequest() {{
+            setName("Cơm Chiên Đậu Đen và Cà Chua");
+            setDescription("Cơm chiên với đậu đen bùi và cà chua tươi");
+            setPrice(51000);
+            setFile(dummyFile);
+            setAccount(accountService.findById(1));
+            setDishType(DishType.PRESET);
+            setPublic(true);
+            setIngredients(new HashMap<Integer, Integer>() {{
+                put(18, 100); // Đậu Đen
+                put(15, 200); // Cơm
+                put(12, 100); // Cà chua
+            }});
+        }});
+
+        // Món 16: Thịt Vịt Nướng Xà Lách
+        dishService.save(new DishCreateRequest() {{
+            setName("Thịt Vịt Nướng Xà Lách");
+            setDescription("Thịt vịt nướng thơm lừng ăn kèm xà lách giòn");
+            setPrice(69000);
+            setFile(dummyFile);
+            setAccount(accountService.findById(1));
+            setDishType(DishType.PRESET);
+            setPublic(true);
+            setIngredients(new HashMap<Integer, Integer>() {{
+                put(27, 200); // Thịt Vịt
+                put(11, 100); // Xà Lách
+            }});
+        }});
+
+        // Món 17: Mì Xào Khoai Tây và Nấm Kim Châm
+        dishService.save(new DishCreateRequest() {{
+            setName("Mì Xào Khoai Tây và Nấm Kim Châm");
+            setDescription("Mì xào với khoai tây bùi và nấm kim châm giòn");
+            setPrice(53000);
+            setFile(dummyFile);
+            setAccount(accountService.findById(1));
+            setDishType(DishType.PRESET);
+            setPublic(true);
+            setIngredients(new HashMap<Integer, Integer>() {{
+                put(16, 200); // Mì
+                put(14, 150); // Khoai Tây
+                put(19, 100); // Nấm Kim Châm
+            }});
+        }});
+
+        // Món 18: Bò Xào Hạt Hạnh Nhân
+        dishService.save(new DishCreateRequest() {{
+            setName("Bò Xào Hạt Hạnh Nhân");
+            setDescription("Bò mềm xào với hạt hạnh nhân béo giòn");
+            setPrice(74000);
+            setFile(dummyFile);
+            setAccount(accountService.findById(1));
+            setDishType(DishType.PRESET);
+            setPublic(true);
+            setIngredients(new HashMap<Integer, Integer>() {{
+                put(3, 150); // Bò
+                put(37, 100); // Hạt Hạnh Nhân
+            }});
+        }});
+
+        // Món 19: Cơm Tấm Cá Hồi và Dưa Leo
+        dishService.save(new DishCreateRequest() {{
+            setName("Cơm Tấm Cá Hồi và Dưa Leo");
+            setDescription("Cơm tấm với cá hồi áp chảo và dưa leo tươi mát");
+            setPrice(82000);
+            setFile(dummyFile);
+            setAccount(accountService.findById(1));
+            setDishType(DishType.PRESET);
+            setPublic(true);
+            setIngredients(new HashMap<Integer, Integer>() {{
+                put(5, 150); // Cá Hồi
+                put(15, 200); // Cơm
+                put(13, 100); // Dưa Leo
+            }});
+        }});
+
+        // Món 20: Rau Cải Bó Xôi Xào Nấm Hương
+        dishService.save(new DishCreateRequest() {{
+            setName("Rau Cải Bó Xôi Xào Nấm Hương");
+            setDescription("Cải bó xôi xào với nấm hương thơm ngon bổ dưỡng");
+            setPrice(47000);
+            setFile(dummyFile);
+            setAccount(accountService.findById(1));
+            setDishType(DishType.PRESET);
+            setPublic(true);
+            setIngredients(new HashMap<Integer, Integer>() {{
+                put(8, 150); // Cải Bó Xôi
+                put(20, 100); // Nấm Hương
+            }});
+        }});
+
+
+
+    }
 
     public void dumpNutrition() {
         List<Nutrition> nutritions = new ArrayList<>();
