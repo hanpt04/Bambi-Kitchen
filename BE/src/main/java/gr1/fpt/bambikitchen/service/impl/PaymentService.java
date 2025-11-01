@@ -111,4 +111,8 @@ public class PaymentService {
                 ));
     }
 
+
+    public List<Payment> getAllByAccount(int accountId) {
+        return paymentRepository.findAllByAccountId(accountId);
+    }
 }

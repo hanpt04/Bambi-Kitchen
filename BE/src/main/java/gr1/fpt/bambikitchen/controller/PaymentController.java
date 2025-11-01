@@ -1,6 +1,7 @@
 package gr1.fpt.bambikitchen.controller;
 
 import gr1.fpt.bambikitchen.Factory.PaymentFactory;
+import gr1.fpt.bambikitchen.model.Payment;
 import gr1.fpt.bambikitchen.service.IngredientService;
 import gr1.fpt.bambikitchen.service.impl.PaymentService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController()
@@ -28,7 +30,6 @@ public class PaymentController {
 
         paymentFactory.getPaymentMethod(paymentMethodName).pay(20);
       return  paymentFactory.getPaymentMethod(paymentMethodName).createPaymentRequest(198000,1);
-
     }
 
 
@@ -139,5 +140,10 @@ public class PaymentController {
 
 //        httpResponse.sendRedirect(redirectUrl);
         return response.toString();
+    }
+
+    @GetMapping("to-account/{accountId}")
+    public ResponseEntity<List<Payment>> getTotalRevenueToAccount(@PathVariable int accountId) {
+        return ResponseEntity.ok(paymentService.getAllByAccount(accountId));
     }
 }
