@@ -6,6 +6,7 @@ import gr1.fpt.bambikitchen.Payment.PaymentMethod;
 import gr1.fpt.bambikitchen.exception.CustomException;
 import gr1.fpt.bambikitchen.model.*;
 import gr1.fpt.bambikitchen.model.dto.request.*;
+import gr1.fpt.bambikitchen.model.dto.response.FeedbackDto;
 import gr1.fpt.bambikitchen.model.enums.DishType;
 import gr1.fpt.bambikitchen.model.enums.OrderStatus;
 import gr1.fpt.bambikitchen.model.enums.SizeCode;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -274,4 +276,31 @@ public class OrderService {
            throw new CustomException("Order not paid", HttpStatus.BAD_REQUEST);
     }
 
+
+    public List<Orders> getAllOrders() {
+        return orderRepository.findAll();
+    }
+
+    public List<Orders> getOrderByUser(int userId) {
+        return orderRepository.findByUserId(userId);
+    }
+
+    public Orders getOrderById(int orderId) {
+        return orderRepository.findById(orderId).orElseThrow(() -> new CustomException("Order not found", HttpStatus.NOT_FOUND));
+    }
+
+    public List<FeedbackDto> getFeedback(){
+        List<FeedbackDto> feedbacks = new ArrayList<>();
+        for( Orders order : orderRepository.findAll()){
+            FeedbackDto feedback = new FeedbackDto();
+            Account account = accountService.findById(order.getUserId());
+            feedback.setAccountId(account.getId());
+            feedback.setAccountName(account.getName());
+            feedback.setOrderId(order.getId());
+            feedback.setRanking(order.getRanking());
+            feedback.setComment(order.getComment());
+            feedbacks.add(feedback);
+        }
+        return feedbacks;
+    }
 }

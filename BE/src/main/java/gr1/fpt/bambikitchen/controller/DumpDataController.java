@@ -1,6 +1,7 @@
 package gr1.fpt.bambikitchen.controller;
 
 import gr1.fpt.bambikitchen.exception.CustomException;
+import gr1.fpt.bambikitchen.model.Account;
 import gr1.fpt.bambikitchen.model.DishTemplate;
 import gr1.fpt.bambikitchen.model.IngredientCategory;
 import gr1.fpt.bambikitchen.model.Nutrition;
@@ -8,6 +9,7 @@ import gr1.fpt.bambikitchen.model.dto.request.AccountCreateRequest;
 import gr1.fpt.bambikitchen.model.dto.request.DishCreateRequest;
 import gr1.fpt.bambikitchen.model.dto.request.IngredientCreateRequest;
 import gr1.fpt.bambikitchen.model.enums.DishType;
+import gr1.fpt.bambikitchen.model.enums.Role;
 import gr1.fpt.bambikitchen.model.enums.SizeCode;
 import gr1.fpt.bambikitchen.model.enums.Unit;
 import gr1.fpt.bambikitchen.repository.*;
@@ -92,11 +94,7 @@ public class DumpDataController {
     }
 
     public void dumpAccount(){
-        accountService.save(new AccountCreateRequest() {{
-            setName("Khang");
-            setPassword("12345678");
-            setMail("wtfbro@gmail.com");
-        }});
+       accountRepository.save(new Account(0,"Thu Hà",Role.USER,null,null,true,"1234","thuha@gmail.com","0987654321"));
     }
 
     public void dumpIngre() throws IOException {
