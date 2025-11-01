@@ -225,4 +225,7 @@ public class DishService {
         return dishRepository.findByAccount_Id((accountId));
     }
 
+    public List<Dish> getAllDish(){
+        return dishRepository.findAll();
+    }
 }

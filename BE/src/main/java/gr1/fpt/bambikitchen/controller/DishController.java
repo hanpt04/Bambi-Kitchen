@@ -52,6 +52,7 @@ public class DishController {
         return ResponseEntity.ok(dishService.getDishById(id));
     }
 
+    @Operation(summary = "Menu", description = "Cái endpoint này hiển thị bên menu, chỉ bao gồm những dish active và public")
     @GetMapping
     public ResponseEntity<List<Dish>> getAllDishes() {
         return ResponseEntity.ok(dishService.getAll());
@@ -60,4 +61,10 @@ public class DishController {
     @GetMapping("account/{accountId}")
     public ResponseEntity<List<Dish>> getDishesByAccountId(@PathVariable int accountId) {
         return ResponseEntity.ok(dishService.getDishedByAccount(accountId));}
+
+    @Operation(summary = "Get Tất cả các dish", description = "Cái endpoint này hiển thị bên admin, bao gồm cả những dish không active và public")
+    @GetMapping("get-all")
+    public ResponseEntity<List<Dish>> getAllDishAdmin() {
+        return ResponseEntity.ok(dishService.getAllDish());
+    }
 }
