@@ -71,7 +71,7 @@ public class DumpDataController {
         ingredientRepository.flush();
         dumpDishTemplate();
         dishTemplateRepository.flush();
-        //dumpDish();
+        dumpDish();
         dishRepository.flush();
         dumpNutrition();
 

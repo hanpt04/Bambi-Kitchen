@@ -65,7 +65,8 @@ public class DishService {
 
     @Transactional
     public Dish saveMenu(DishCreateRequest request) throws IOException {
-
+        Dish dishExist = dishRepository.findById(request.getId()).get();
+        if(dishExist==null){
         Dish dish = Dish.builder()
                 .name(request.getName())
                 .description(request.getDescription())
@@ -75,12 +76,6 @@ public class DishService {
                 .isPublic(request.isPublic())
                 .account(request.getAccount())
                 .build();
-
-        if ( request.getId() != null ) {
-            dish.setId(request.getId());
-            dish.setActive(request.isActive());
-            deleteRecipeWithDishId(request.getId());
-        }
         Dish savedDish = dishRepository.save(dish);
         saveRecipe(request.getIngredients(), savedDish);
 
@@ -92,11 +87,38 @@ public class DishService {
             file.delete();
             applicationEventPublisher.publishEvent(new DishDtoRequest(savedDish, multipartFile));
         }
-        return savedDish;
+        return savedDish;}
+        else{
+            Dish dish = new Dish();
+            dish.setId(dishExist.getId());
+            dish.setName(request.getName());
+            dish.setDescription(request.getDescription());
+            dish.setPrice(request.getPrice());
+            dish.setDishType(request.getDishType());
+            dish.setActive(request.isActive());
+            dish.setAccount(request.getAccount());
+            dish.setPublic(request.isPublic());
+            dish.setUsedQuantity(request.getUsedQuantity());
+            deleteRecipeWithDishId(request.getId());
+            if(dishExist.getImageUrl() != null){
+                System.out.println("Img"+dishExist.getImageUrl());
+                dish.setImageUrl(dishExist.getImageUrl());
+                dish.setPublicId(dishExist.getPublicId());
+            }
+            Dish savedDish = dishRepository.save(dish);
+            if (!request.getFile().isEmpty()) {
+                String path = FileUtil.saveFile(request.getFile());
+                File file = FileUtil.getFileByPath(path);
+                MultipartFile multipartFile = FileUtil.convertFileToMultipart(file);
+                file.delete();
+                applicationEventPublisher.publishEvent(new DishDtoRequest(savedDish, multipartFile));
+            }
+            saveRecipe(request.getIngredients(), savedDish);
+            return savedDish;
+        }
     }
 
     public Dish update(DishUpdateRequest dto) throws IOException {
-        System.out.println(dto.isPublic());;
         Dish dishExist = dishRepository.findById(dto.getId()).get();
         if ( dishExist == null ) {
             throw new CustomException("Dish not found", HttpStatus.BAD_REQUEST);
