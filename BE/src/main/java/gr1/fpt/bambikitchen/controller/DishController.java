@@ -1,12 +1,16 @@
 package gr1.fpt.bambikitchen.controller;
 
+import gr1.fpt.bambikitchen.exception.CustomException;
 import gr1.fpt.bambikitchen.model.Dish;
 import gr1.fpt.bambikitchen.model.dto.request.DishCreateRequest;
 import gr1.fpt.bambikitchen.model.dto.request.DishUpdateRequest;
+import gr1.fpt.bambikitchen.repository.IngredientRepository;
 import gr1.fpt.bambikitchen.service.impl.DishService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,10 +25,17 @@ import java.util.List;
 public class DishController {
 
     private final DishService dishService;
+    private final IngredientRepository ingredientRepository;
 
     @Operation(summary = "Sài chung cho create & update, nếu update thì gửi id, còn create thì ko cần", description = "Tạo món ăn mới kèm nguyên liệu và thông tin chi tiết, gửi kèm 1 map chứa Id Ingredient và số lượng. Account chỉ cần gửi Id, mấy field khác để trống")
     @PostMapping
     public ResponseEntity<Dish> save(@ModelAttribute DishCreateRequest request) throws IOException {
+        for(Integer i : request.getIngredients().keySet()){
+            System.out.println(i);
+            if(!ingredientRepository.existsById(i)){
+                throw new CustomException("Ingredient with id "+ i +" not found", HttpStatus.BAD_REQUEST);
+            }
+        }
         System.out.println(request);
         return ResponseEntity.ok(dishService.saveMenu(request));
     }

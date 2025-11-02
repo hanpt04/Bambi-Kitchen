@@ -1,10 +1,12 @@
 package gr1.fpt.bambikitchen.security;
 
+import gr1.fpt.bambikitchen.exception.CustomException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -57,6 +59,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         else if (jwt == null || !jwtUtils.validateToken(jwt)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Invalid or missing JWT token\"}");
             return;
         }
 

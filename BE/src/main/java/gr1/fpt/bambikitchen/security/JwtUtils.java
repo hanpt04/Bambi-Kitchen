@@ -66,7 +66,7 @@ public class JwtUtils {
             return true;
         }
         catch(ExpiredJwtException | SignatureException | MalformedJwtException | IllegalArgumentException e){
-            throw new CustomException("Invalid Token", HttpStatus.UNAUTHORIZED);
+            return false;
         }
     }
 }
