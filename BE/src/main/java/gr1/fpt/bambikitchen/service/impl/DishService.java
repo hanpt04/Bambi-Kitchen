@@ -65,8 +65,7 @@ public class DishService {
 
     @Transactional
     public Dish saveMenu(DishCreateRequest request) throws IOException {
-        Dish dishExist = dishRepository.findById(request.getId()).get();
-        if(dishExist==null){
+        if(request.getId()==null){
         Dish dish = Dish.builder()
                 .name(request.getName())
                 .description(request.getDescription())
@@ -89,6 +88,7 @@ public class DishService {
         }
         return savedDish;}
         else{
+            Dish dishExist = dishRepository.findById(request.getId()).get();
             Dish dish = new Dish();
             dish.setId(dishExist.getId());
             dish.setName(request.getName());
