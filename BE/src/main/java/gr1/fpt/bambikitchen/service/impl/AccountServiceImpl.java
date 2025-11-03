@@ -84,6 +84,14 @@ public class AccountServiceImpl implements AccountService {
         Account oldAccount = accountRepository.findById(account.getId()).orElseThrow(
                 () -> new CustomException("Account not found " + account.getId(), HttpStatus.BAD_REQUEST)
         );
+        if (accountRepository.existsByMail(account.getMail())) {
+            throw new CustomException("Account's email already exists",
+                    HttpStatus.CONFLICT);
+        }
+        if(accountRepository.existsByPhone(account.getPhone())) {
+            throw new CustomException("Account's phone already exists",
+                    HttpStatus.CONFLICT);
+        }
 
         // Encode password before updating
         account.setPassword(passwordEncoder.encode(account.getPassword()));
