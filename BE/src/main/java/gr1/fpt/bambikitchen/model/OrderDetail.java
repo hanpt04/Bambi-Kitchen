@@ -24,11 +24,13 @@ public class OrderDetail {
 
 
 
-    public OrderDetail(Dish dish, Orders order, String note, String size) {
+    public OrderDetail(Dish dish, Orders order, String note, String size,int totalCalories) {
         this.dish = dish;
         this.orders = order;
         this.notes = note;
         this.size = size;
+        this.totalCalories= totalCalories;
     }
+
 
 }

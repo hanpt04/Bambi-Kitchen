@@ -148,6 +148,9 @@ public class IngredientServiceImpl implements IngredientService {
             //entityManager.clear();
             entityManager.getEntityManagerFactory().getCache().evict(Ingredient.class);
             Ingredient locked = ingredientRepository.lockById(ingredientId);
+            if(locked == null){
+               throw new CustomException("Ingredient cannot be found " + ingredientId, HttpStatus.BAD_REQUEST);
+            }
             if (locked.availableIngredient() < quantity) {
                 return false;
             }

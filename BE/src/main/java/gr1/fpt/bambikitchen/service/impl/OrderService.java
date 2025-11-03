@@ -12,6 +12,7 @@ import gr1.fpt.bambikitchen.model.enums.OrderStatus;
 import gr1.fpt.bambikitchen.model.enums.SizeCode;
 import gr1.fpt.bambikitchen.model.enums.SourceType;
 import gr1.fpt.bambikitchen.repository.DishRepository;
+import gr1.fpt.bambikitchen.repository.NutritionRepository;
 import gr1.fpt.bambikitchen.repository.OrderDetailRepository;
 import gr1.fpt.bambikitchen.repository.OrderRepository;
 import gr1.fpt.bambikitchen.service.AccountService;
@@ -47,6 +48,8 @@ public class OrderService {
     private DishRepository dishRepository;
     @Autowired
     PaymentService paymentService;
+    @Autowired
+    private NutritionRepository nutritionRepository;
 
     public Orders findById(int id) {
         return orderRepository.findById(id)
@@ -175,7 +178,15 @@ public class OrderService {
 
     void createOrderDetail (Dish dish, Orders order,String note, String size )
     {
-        orderDetailRepository.save(new OrderDetail(dish,order, note, size) );
+
+        //last update 3/11: tính calo tổng dựa trên công thức món ăn
+        int totalCalo = 0;
+        Map<Integer,Integer> ingredientMap = dishService.getIngredientsByDishId(dish.getId());
+        for(Map.Entry<Integer, Integer> entry : ingredientMap.entrySet()){
+            int quantity = entry.getValue();
+            totalCalo += (int) (quantity * dishTemplateService.findBySizeCode(SizeCode.valueOf(size)).getQuantityRatio());
+        }
+        orderDetailRepository.save(new OrderDetail(dish,order, note, size,totalCalo) );
     }
 
 

@@ -39,6 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || path.startsWith("/api/account/register")
                 || path.startsWith("/api/mail/verify-otp")
                 || path.startsWith("/api/mail/send-otp")
+                || path.equals("/api/order/getFeedbacks")
               //  || path.startsWith("/api/")//để tạm để test api, sau này sửa lại, để lại là fillter ko quét
                 || path.equals("/dump-data")) {
             filterChain.doFilter(request, response);
