@@ -11,4 +11,5 @@ public interface DishRepository extends JpaRepository<Dish,Integer> {
     List<Dish> findByAccount_Id(int accountId);
 
     List<Dish> findAllByIsActiveAndIsPublic(boolean active, boolean isPublic);
+    List<Dish> findTop5ByUsedQuantityDesc();
 }

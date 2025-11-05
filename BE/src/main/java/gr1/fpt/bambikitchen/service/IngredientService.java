@@ -21,4 +21,5 @@ public interface IngredientService {
     public void resetReserve(int orderId);
     public void saveOrder(int orderId);
     public void toggleActive(int id);
+    public List<Ingredient> getLowInventoryIngredients();
 }

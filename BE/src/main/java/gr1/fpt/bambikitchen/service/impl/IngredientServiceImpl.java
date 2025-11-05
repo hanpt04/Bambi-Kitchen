@@ -243,4 +243,9 @@ public class IngredientServiceImpl implements IngredientService {
         }
         ingredientRepository.save(ingredient);
     }
+
+    @Override
+    public List<Ingredient> getLowInventoryIngredients() {
+        return ingredientRepository.findAllByAvailableLessThan(100.0);
+    }
 }

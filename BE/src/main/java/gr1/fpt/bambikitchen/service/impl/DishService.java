@@ -228,4 +228,8 @@ public class DishService {
     public List<Dish> getAllDish(){
         return dishRepository.findAll();
     }
+
+    public List<Dish> getTop5Dish(){
+        return dishRepository.findTop5ByUsedQuantityDesc();
+    }
 }

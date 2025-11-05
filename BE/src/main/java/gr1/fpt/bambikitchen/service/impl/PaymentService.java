@@ -115,4 +115,8 @@ public class PaymentService {
     public List<Payment> getAllByAccount(int accountId) {
         return paymentRepository.findAllByAccountId(accountId);
     }
+
+    public List<Payment> getAll(){
+        return paymentRepository.findAllByStatus("SUCCESS");
+    }
 }
