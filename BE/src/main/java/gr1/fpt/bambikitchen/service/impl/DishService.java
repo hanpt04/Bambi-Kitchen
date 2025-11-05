@@ -230,6 +230,6 @@ public class DishService {
     }
 
     public List<Dish> getTop5Dish(){
-        return dishRepository.findTop5ByUsedQuantityDesc();
+        return dishRepository.findTop5ByOrderByUsedQuantityDesc();
     }
 }
