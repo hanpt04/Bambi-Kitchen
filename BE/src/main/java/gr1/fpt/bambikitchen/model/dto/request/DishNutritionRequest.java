@@ -47,22 +47,22 @@ public class DishNutritionRequest {
 
         @NotNull
         @PositiveOrZero
-        private Double cal;
+        private Float cal;
 
         @NotNull
         @PositiveOrZero
-        private Double pro;
+        private Float pro;
 
         @NotNull
         @PositiveOrZero
-        private Double carb;
+        private Float carb;
 
         @NotNull
         @PositiveOrZero
-        private Double fat;
+        private Float fat;
 
         @NotNull
         @PositiveOrZero
-        private Double fiber;
+        private Float fiber;
     }
 }
