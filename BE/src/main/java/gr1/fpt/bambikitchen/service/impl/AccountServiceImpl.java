@@ -84,11 +84,11 @@ public class AccountServiceImpl implements AccountService {
         Account oldAccount = accountRepository.findById(account.getId()).orElseThrow(
                 () -> new CustomException("Account not found " + account.getId(), HttpStatus.BAD_REQUEST)
         );
-        if (accountRepository.existsByMail(account.getMail())) {
+        if (accountRepository.existsByMailAndIdNot(account.getMail(),account.getId())) {
             throw new CustomException("Account's email already exists",
                     HttpStatus.CONFLICT);
         }
-        if(accountRepository.existsByPhone(account.getPhone())) {
+        if(accountRepository.existsByPhoneAndIdNot(account.getPhone(),account.getId())) {
             throw new CustomException("Account's phone already exists",
                     HttpStatus.CONFLICT);
         }
