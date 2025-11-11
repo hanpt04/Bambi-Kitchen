@@ -35,6 +35,8 @@ public class PaymentService {
     private ApplicationEventPublisher applicationEventPublisher;
     @Autowired
     private AccountRepository accountRepository;
+    @Autowired
+    private NutritionRepository nutritionRepository;
 
 
     public void savePayment(Payment payment) {
@@ -102,11 +104,16 @@ public class PaymentService {
                         ).collect(Collectors.toList());
     }
 
-    private Map<String, Integer> fromDishToIngredientsInfo(Dish dish) {
+    private Map<EventListenerSystem.IngredientInfo, Integer> fromDishToIngredientsInfo(Dish dish) {
         return recipeRepository.getIngredientsByDish_Id(dish.getId())
                 .parallelStream()
                 .collect(Collectors.toMap(
-                        recipe -> recipe.getIngredient().getName(),
+                        recipe -> {
+                            return EventListenerSystem.IngredientInfo.builder()
+                                    .ingredient(recipe.getIngredient())
+                                    .nutrition(nutritionRepository.findByIngredient_Id(recipe.getIngredient().getId()))
+                                    .build();
+                        },
                         Recipe::getQuantity
                 ));
     }

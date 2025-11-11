@@ -30,6 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Bỏ qua các public endpoints (XÓA dòng path.startsWith("/api/"))
         if (path.equals("/api/user/login")
+                || path.equals("/api/mail/calculate-calories")
                 || path.equals("/api/user/login-with-google")
                 || path.startsWith("/oauth2/")
                 || path.startsWith("/swagger-ui/")

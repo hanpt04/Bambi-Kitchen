@@ -43,6 +43,7 @@ public class SecurityConfig {
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/mail/calculate_calories").permitAll() //tính calories
                         .requestMatchers("/api/user/login","api/user/login-with-google","api/user/forgot-password","api/user/reset-password").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/test").hasRole("USER")
