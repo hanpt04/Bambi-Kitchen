@@ -29,4 +29,7 @@ public class IngredientUpdateRequest {
 
     @Nullable
     MultipartFile file;
+
+    private double pricePerUnit;//giá nhập vào theo đơn vị
+
 }

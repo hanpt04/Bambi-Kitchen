@@ -107,6 +107,7 @@ public class IngredientServiceImpl implements IngredientService {
         newIngredient.setAvailable(ingredient.getAvailable());
         newIngredient.setReserve(ingredient.getReserve());
         newIngredient.setLastReserveAt(oldIngredient.getLastReserveAt());
+        newIngredient.setPricePerUnit(ingredient.getPricePerUnit());
 
         //kiểm tra xem nếu đã có img rồi mà ko update lại img thì set lại img cũ
         if (oldIngredient.getImgUrl() != null) {
