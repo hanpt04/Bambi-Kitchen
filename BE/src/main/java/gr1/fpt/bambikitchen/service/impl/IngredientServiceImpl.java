@@ -6,8 +6,10 @@ import gr1.fpt.bambikitchen.exception.CustomException;
 import gr1.fpt.bambikitchen.mapper.IngredientMapper;
 import gr1.fpt.bambikitchen.model.*;
 import gr1.fpt.bambikitchen.model.dto.request.*;
+import gr1.fpt.bambikitchen.model.dto.response.IngredientWithNutritionResponse;
 import gr1.fpt.bambikitchen.repository.IngredientCategoryRepository;
 import gr1.fpt.bambikitchen.repository.IngredientRepository;
+import gr1.fpt.bambikitchen.repository.NutritionRepository;
 import gr1.fpt.bambikitchen.service.IngredientService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -25,6 +27,7 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +40,7 @@ public class IngredientServiceImpl implements IngredientService {
     private final IngredientRepository ingredientRepository;
     private final IngredientMapper ingredientMapper;
     private final IngredientCategoryRepository ingredientCategoryRepository;
+    private final NutritionRepository nutritionRepository;
     final ApplicationEventPublisher eventPublisher;
     final InventoryOrderService inventoryOrderService;
     final OrderItemService orderItemService;
@@ -64,7 +68,7 @@ public class IngredientServiceImpl implements IngredientService {
     }
 
     @Override
-    public Ingredient save(IngredientCreateRequest ingredient) throws IOException {
+    public IngredientWithNutritionResponse save(IngredientCreateRequest ingredient) throws IOException {
 
         IngredientCategory category = ingredientCategoryRepository.findById(ingredient.getCategoryId()).orElseThrow(
                 () -> new CustomException("Ingredient category cannot be found " + ingredient.getCategoryId(), HttpStatus.BAD_REQUEST)
@@ -76,6 +80,21 @@ public class IngredientServiceImpl implements IngredientService {
         newIngredient.setPricePerUnit(ingredient.getPricePerUnit());
         Ingredient ingredientSave = ingredientRepository.save(newIngredient);
 
+        Nutrition nutrition = new Nutrition();
+        nutrition.setIngredient(ingredientSave);
+        nutrition.setCalories(ingredient.getCalories());
+        nutrition.setProtein(ingredient.getProtein());
+        nutrition.setCarb(ingredient.getCarb());
+        nutrition.setFiber(ingredient.getFiber());
+        nutrition.setIron(ingredient.getIron());
+        nutrition.setSodium(ingredient.getSodium());
+        nutrition.setCalcium(ingredient.getCalcium());
+        nutrition.setSugar(ingredient.getSugar());
+        nutrition.setSat_fat(ingredient.getSat_fat());
+        nutrition.setPer_unit(ingredient.getPer_unit());
+
+        nutritionRepository.save(nutrition);
+
         // publisher
         if (!ingredient.getFile().isEmpty()) {
             String absolutePath = FileUtil.saveFile(ingredient.getFile());
@@ -84,7 +103,10 @@ public class IngredientServiceImpl implements IngredientService {
             file.delete(); // xóa file gốc trong uploads/
             eventPublisher.publishEvent(new IngredientDtoRequest(ingredientSave, multipartFile));
         }
-        return ingredientSave;
+        return IngredientWithNutritionResponse.builder()
+                .ingredient(ingredientSave)
+                .nutrition(nutrition)
+                .build();
     }
 
     @Override
@@ -164,6 +186,18 @@ public class IngredientServiceImpl implements IngredientService {
     @Override
     public boolean checkAvailable(Map<Integer, Double> ingredientMap, int orderId) {
         if (!isEnoughIngredient(ingredientMap, orderId)) {
+            List<Ingredient> inactiveIngredients = new ArrayList<>();
+            for (Map.Entry<Integer, Double> entry : ingredientMap.entrySet()) {
+                int ingredientId = entry.getKey();
+                Ingredient ingredient = ingredientRepository.findById(ingredientId).orElseThrow();
+                if (ingredient.isActive()) {
+                    ingredient.setActive(false);
+                    inactiveIngredients.add(ingredient);
+                }
+            }
+            // Batch saving để tránh việc trỏ quá nhiều vào repo
+            ingredientRepository.saveAll(inactiveIngredients);
+
             return false;
         } else {
             //lưu lại các orderitem ( luư nguyên liệu + quantity để sau này trừ kho và gỡ kho
@@ -233,11 +267,12 @@ public class IngredientServiceImpl implements IngredientService {
         }
     }
 
+    @Override
     public void toggleActive(int id){
         Ingredient ingredient = ingredientRepository.findById(id).orElseThrow(
                 () -> new CustomException("Ingredient cannot be found " + id, HttpStatus.BAD_REQUEST)
         );
-        if(ingredient.isActive()){
+        if (ingredient.isActive()){
             ingredient.setActive(false);
         } else {
             ingredient.setActive(true);
@@ -246,6 +281,9 @@ public class IngredientServiceImpl implements IngredientService {
     }
 
     @Override
+    public List<Ingredient> findAllActive() { return ingredientRepository.findAllByActive(true); }
+
+     @Override
     public List<Ingredient> getLowInventoryIngredients() {
         return ingredientRepository.findAllByAvailableLessThan(100.0);
     }

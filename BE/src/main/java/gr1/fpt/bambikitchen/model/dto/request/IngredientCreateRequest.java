@@ -1,8 +1,10 @@
 package gr1.fpt.bambikitchen.model.dto.request;
 
+import gr1.fpt.bambikitchen.model.Nutrition;
 import gr1.fpt.bambikitchen.model.enums.Unit;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.lang.Nullable;
@@ -23,4 +25,15 @@ public class IngredientCreateRequest {
 
     @Nullable
     MultipartFile file  ;
+
+    private int calories;
+    private float protein;
+    private float carb;
+    private float fiber;
+    private float iron;
+    private float sodium;
+    private float calcium;
+    private float sugar;
+    private float sat_fat;
+    private String per_unit;
 }

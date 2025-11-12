@@ -3,6 +3,7 @@ package gr1.fpt.bambikitchen.controller;
 import gr1.fpt.bambikitchen.model.Nutrition;
 import gr1.fpt.bambikitchen.service.impl.NutritionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,5 +27,10 @@ public class NutritionController {
     @PutMapping
     public Nutrition updateNutrition (@RequestBody Nutrition nutrition){
         return nutritionService.updateNutrition(nutrition);
+    }
+
+    @GetMapping("/{ingredientId}/ingredient")
+    public ResponseEntity<Nutrition> getNutritionByIngredientId(@PathVariable int ingredientId){
+        return ResponseEntity.ok(nutritionService.getNutritionByIngredientId(ingredientId));
     }
 }

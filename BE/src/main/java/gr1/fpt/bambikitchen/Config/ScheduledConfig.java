@@ -12,12 +12,12 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 public class ScheduledConfig {
 
     /**
-     * Multiple threading scheduler
+     * Cấu hình Task Scheduler cho các công việc lập lịch
      */
 //    @Bean
 //    public TaskScheduler taskScheduler() {
 //        ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
-//        scheduler.setPoolSize(5);
+//        scheduler.setPoolSize(1);
 //        scheduler.setThreadNamePrefix("scheduled-task-");
 //        scheduler.setWaitForTasksToCompleteOnShutdown(true);
 //        scheduler.setAwaitTerminationSeconds(30);

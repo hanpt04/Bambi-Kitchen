@@ -22,4 +22,8 @@ public class NutritionService {
     public Nutrition updateNutrition(Nutrition nutrition) {
         return nutritionRepository.save(nutrition);
     }
+
+    public Nutrition getNutritionByIngredientId(int ingredientId){
+        return nutritionRepository.findByIngredient_Id(ingredientId);
+    }
 }

@@ -9,7 +9,6 @@ public class NotificationSendingRequest {
     private String title;
     @NonNull
     private String message;
-
     private String deviceToken;
     private Integer userId;
 }
