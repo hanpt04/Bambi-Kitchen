@@ -6,10 +6,10 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import java.util.List;
 import io.swagger.v3.oas.models.servers.Server;
 
 
-import java.util.List;
 
 @Configuration
 public class SwaggerConfig {
@@ -19,7 +19,7 @@ public class SwaggerConfig {
         return new OpenAPI()
                 .servers(List.of(
                         new Server().url("https://bambi.kdz.asia").description("Production Server"),
-                        new Server().url("http://localhost:8080").description("Local Dev")
+                        new Server().url("http://localhost:8085").description("Local Dev")
                 ))
                 .components(new Components().addSecuritySchemes("bearerAuth",
                         new SecurityScheme()

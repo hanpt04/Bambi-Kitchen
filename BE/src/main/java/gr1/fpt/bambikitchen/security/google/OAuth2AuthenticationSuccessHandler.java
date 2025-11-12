@@ -53,12 +53,16 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         //xét xem đang gửi là web hay mobile
         String userAgent = request.getHeader("User-Agent");
-        String redirectUri = frontendUrl; // default
-        if(userAgent!=null){
-            String ua = userAgent.toLowerCase();
-            if (ua.contains("okhttp") || ua.contains("android")) {
-                redirectUri = mobileUrl;
-            }
+       // String redirectUri = frontendUrl; // default
+//        if(userAgent!=null){
+//            String ua = userAgent.toLowerCase();
+//            if (ua.contains("okhttp") || ua.contains("android")) {
+//                redirectUri = mobileUrl;
+//            }
+//        }
+        String redirectUri = request.getParameter("redirect_uri");
+        if (redirectUri == null || redirectUri.isEmpty()) {
+            redirectUri = frontendUrl; // fallback cho web
         }
         String redirectUrl = UriComponentsBuilder.fromUriString(redirectUri + "/oauth2/callback")
                 .queryParam("token", jwt)
