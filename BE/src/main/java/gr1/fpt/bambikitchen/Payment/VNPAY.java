@@ -21,7 +21,7 @@ public class VNPAY implements PaymentMethod {
 
 
     @Override
-    public String createPaymentRequest( long price, int orderIdreal) throws UnsupportedEncodingException {
+    public String createPaymentRequest( long price, int orderIdreal, int paymentId) throws UnsupportedEncodingException {
         String vnp_Version = "2.1.0";
         String vnp_Command = "pay";
         String orderType = "other";
