@@ -314,4 +314,22 @@ public class OrderService {
         }
         return feedbacks;
     }
+
+    public Orders prepareOrder(int id) {
+        Orders order = orderRepository.findById(id).orElseThrow(
+                () -> new CustomException("Order not found", HttpStatus.NOT_FOUND)
+        );
+
+        order.setStatus(OrderStatus.PREPARING);
+        return orderRepository.save(order);
+    }
+
+    public Orders completeOrder(int id) {
+        Orders order = orderRepository.findById(id).orElseThrow(
+                () -> new CustomException("Order not found", HttpStatus.NOT_FOUND)
+        );
+
+        order.setStatus(OrderStatus.COMPLETED);
+        return orderRepository.save(order);
+    }
 }
