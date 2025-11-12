@@ -60,12 +60,8 @@ public class EventListenerSystem {
     @Value("${server.port:8080}")
     private int serverPort;
 
-    @Value("${frontend.url:http://localhost:3000}")
-    private String frontendUrl;
-
-    @Value("${mobile.url:http://localhost:8081}")
-    private String mobileUrl;
-
+    @Value("${server.url:http://localhost}")
+    private String serverUrl;
 
     //update img url sau khi hoàn tất tạo ingredient
     @EventListener
@@ -299,7 +295,7 @@ public class EventListenerSystem {
                 String encoded = Base64.getUrlEncoder().withoutPadding()
                         .encodeToString(json.getBytes(StandardCharsets.UTF_8));
 
-                String appBaseUrl = frontendUrl + ":" + serverPort;
+                String appBaseUrl = serverUrl + ":" + serverPort;
                 viewLink = appBaseUrl + "/api/mail/calculate-calories?q=" + encoded;
 
                 log.info(viewLink);
