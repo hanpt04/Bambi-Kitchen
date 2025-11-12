@@ -25,12 +25,12 @@ public class PaymentController {
     @Autowired
     IngredientService ingredientService;
 
-    @GetMapping("/test-payment")
-    public String testPayment(@RequestParam String paymentMethodName) throws Exception {
-
-        paymentFactory.getPaymentMethod(paymentMethodName).pay(20);
-      return  paymentFactory.getPaymentMethod(paymentMethodName).createPaymentRequest(198000,1);
-    }
+//    @GetMapping("/test-payment")
+//    public String testPayment(@RequestParam String paymentMethodName) throws Exception {
+//
+//        paymentFactory.getPaymentMethod(paymentMethodName).pay(20);
+//      return  paymentFactory.getPaymentMethod(paymentMethodName).createPaymentRequest(198000,1);
+//    }
 
 
     @GetMapping("momo-return")

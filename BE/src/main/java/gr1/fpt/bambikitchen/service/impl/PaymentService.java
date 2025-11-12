@@ -39,8 +39,9 @@ public class PaymentService {
     private NutritionRepository nutritionRepository;
 
 
-    public void savePayment(Payment payment) {
-        paymentRepository.save(payment);
+    public Payment savePayment(Payment payment) {
+      Payment saved = paymentRepository.save(payment);
+      return saved;
     }
 
     public Payment getPaymentById(int id) {

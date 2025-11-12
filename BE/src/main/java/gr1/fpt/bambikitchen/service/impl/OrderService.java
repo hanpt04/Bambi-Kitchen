@@ -80,11 +80,11 @@ public class OrderService {
         }
         // lưu dish custom vô table dish & tạo order Detail
         saveCustomDish( TongMonAn, makeOrderRequest.getAccountId(), savedOrder);
-        makePayment( makeOrderRequest.getTotalPrice().longValue(), savedOrder.getId(), makeOrderRequest.getPaymentMethod(), makeOrderRequest.getAccountId() );
+       Payment paymentSaved= makePayment( makeOrderRequest.getTotalPrice().longValue(), savedOrder.getId(), makeOrderRequest.getPaymentMethod(), makeOrderRequest.getAccountId() );
 
         PaymentMethod payment = paymentFactory.getPaymentMethod(makeOrderRequest.getPaymentMethod());
         Long price = makeOrderRequest.getTotalPrice().longValue();
-        String url = payment.createPaymentRequest(price, savedOrder.getId());
+        String url = payment.createPaymentRequest(price, savedOrder.getId(), paymentSaved.getOrderId());
         return url;
     }
 
@@ -99,8 +99,8 @@ public class OrderService {
     }
 
     // Hàm save payment
-    void makePayment( Long amount, int orderId, String method, int accountId ) {
-        paymentService .savePayment(new Payment(orderId, accountId, method, amount));
+    Payment makePayment( Long amount, int orderId, String method, int accountId ) {
+       return paymentService .savePayment(new Payment(orderId, accountId, method, amount));
     }
 
     boolean checkInventory (Map< Integer, Double> ingredientMap, int orderId) {

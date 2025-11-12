@@ -37,7 +37,7 @@ public class Momo implements PaymentMethod {
     }
 
 
-    public String createPaymentRequest(long amount, int orderIdreal) throws Exception {
+    public String createPaymentRequest(long amount, int orderIdreal, int paymentId) throws Exception {
 
         // Generate requestId and orderId
         String requestId = UUID.randomUUID().toString();
