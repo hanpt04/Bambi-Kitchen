@@ -6,6 +6,7 @@ import gr1.fpt.bambikitchen.service.IngredientService;
 import gr1.fpt.bambikitchen.service.impl.PaymentService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +25,9 @@ public class PaymentController {
     PaymentService paymentService;
     @Autowired
     IngredientService ingredientService;
+
+    @Value("${frontend.url}") // Lấy giá trị từ application.properties
+    private String frontendUrl;
 
 //    @GetMapping("/test-payment")
 //    public String testPayment(@RequestParam String paymentMethodName) throws Exception {
@@ -70,13 +74,13 @@ public class PaymentController {
             paymentService.paymentFail( Integer.parseInt(paymentId), "MOMO");
         }
 
-//        String redirectUrl = "http://localhost:3000/order/status?"
-//                + "orderId=" + extraData
-//                + "&amount=" + amount
-//                + "&status=" + (message.equals("Successful.") ? "SUCCESS" : "FAILED")
-//                + "&method=MOMO";
-//
-//        httpResponse.sendRedirect(redirectUrl);
+        String redirectUrl = frontendUrl + "/order/status?"
+                + "orderId=" + extraData
+                + "&amount=" + amount
+                + "&status=" + (message.equals("Successful.") ? "SUCCESS" : "FAILED")
+                + "&method=MOMO";
+
+        httpResponse.sendRedirect(redirectUrl);
 
         //o day redirect ve FE voi parameter de hien thi hoa don
         return ResponseEntity.ok(response);
@@ -130,15 +134,15 @@ public class PaymentController {
             paymentService.paymentFail( Integer.parseInt(paymentId), "VNPAY");
         }
 
-//        Payment payment = paymentService.getPaymentById(Integer.parseInt(paymentId));
-//        // Redirect về frontend với thông tin giao dịch qua query parameters
-//        String redirectUrl = "http://localhost:3000/order/status?"
-//                + "orderId=" + payment.getOrderId()
-//                + "&amount=" + (Integer.parseInt(vnp_Amount) / 100)
-//                + "&status=" + (isSuccess ? "SUCCESS" : "FAILED")
-//                + "&method=VNPAY";
+        Payment payment = paymentService.getPaymentById(Integer.parseInt(paymentId));
+        // Redirect về frontend với thông tin giao dịch qua query parameters
+        String redirectUrl = frontendUrl + "/order/status?"
+                + "orderId=" + payment.getOrderId()
+                + "&amount=" + (Integer.parseInt(vnp_Amount) / 100)
+                + "&status=" + (isSuccess ? "SUCCESS" : "FAILED")
+                + "&method=VNPAY";
 
-//        httpResponse.sendRedirect(redirectUrl);
+        httpResponse.sendRedirect(redirectUrl);
         return response.toString();
     }
 
