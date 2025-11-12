@@ -16,6 +16,7 @@ import gr1.fpt.bambikitchen.repository.NutritionRepository;
 import gr1.fpt.bambikitchen.repository.OrderDetailRepository;
 import gr1.fpt.bambikitchen.repository.OrderRepository;
 import gr1.fpt.bambikitchen.service.AccountService;
+import gr1.fpt.bambikitchen.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -50,6 +51,8 @@ public class OrderService {
     PaymentService paymentService;
     @Autowired
     private NutritionRepository nutritionRepository;
+    @Autowired
+    private NotificationService notificationService;
 
     public Orders findById(int id) {
         return orderRepository.findById(id)
@@ -319,8 +322,12 @@ public class OrderService {
         Orders order = orderRepository.findById(id).orElseThrow(
                 () -> new CustomException("Order not found", HttpStatus.NOT_FOUND)
         );
-
         order.setStatus(OrderStatus.PREPARING);
+        Notification noti = new Notification();
+        noti.setTitle("Đơn hàng đang được chuẩn bị !!");
+        noti.setMessage("Đơn hàng của bạn đang được làm, vui lòng chờ ít phút.");
+        noti.setAccount(accountService.findById(order.getUserId()));
+        notificationService.save(noti);
         return orderRepository.save(order);
     }
 
@@ -328,7 +335,11 @@ public class OrderService {
         Orders order = orderRepository.findById(id).orElseThrow(
                 () -> new CustomException("Order not found", HttpStatus.NOT_FOUND)
         );
-
+        Notification noti = new Notification();
+        noti.setTitle("Đơn hàng đã hoàn tất !!");
+        noti.setMessage("Đơn hàng của bạn đã làm xong, vui lòng đến quầy nhận đơn nhé.");
+        noti.setAccount(accountService.findById(order.getUserId()));
+        notificationService.save(noti);
         order.setStatus(OrderStatus.COMPLETED);
         return orderRepository.save(order);
     }
