@@ -50,10 +50,10 @@ public class DishService {
                 .account(request.getAccount())
                 .build();
 
-        if ( request.getId() != null ) {
-            dish.setId( request.getId() );
+        if (request.getId() != null) {
+            dish.setId(request.getId());
             dish.setActive(request.isActive());
-            deleteRecipeWithDishId( request.getId() );
+            deleteRecipeWithDishId(request.getId());
         }
 
 
@@ -65,29 +65,30 @@ public class DishService {
 
     @Transactional
     public Dish saveMenu(DishCreateRequest request) throws IOException {
-        if(request.getId()==null){
-        Dish dish = Dish.builder()
-                .name(request.getName())
-                .description(request.getDescription())
-                .price(request.getPrice())
-                .dishType(request.getDishType())
-                .isActive(true)
-                .isPublic(request.isPublic())
-                .account(request.getAccount())
-                .build();
-        Dish savedDish = dishRepository.save(dish);
-        saveRecipe(request.getIngredients(), savedDish);
+        if (request.getId() == null) {
+            Dish dish = Dish.builder()
+                    .name(request.getName())
+                    .description(request.getDescription())
+                    .price(request.getPrice())
+                    .dishType(request.getDishType())
+                    .isActive(true)
+                    .isPublic(request.isPublic())
+                    .account(request.getAccount())
+                    .usedQuantity(request.getUsedQuantity())
+                    .build();
+            Dish savedDish = dishRepository.save(dish);
+            saveRecipe(request.getIngredients(), savedDish);
 
-        //publisher
-        if(!request.getFile().isEmpty()){
-            String absolutePath = FileUtil.saveFile(request.getFile());
-            File file = FileUtil.getFileByPath(absolutePath);
-            MultipartFile multipartFile = FileUtil.convertFileToMultipart(file);
-            file.delete();
-            applicationEventPublisher.publishEvent(new DishDtoRequest(savedDish, multipartFile));
-        }
-        return savedDish;}
-        else{
+            //publisher
+            if (!request.getFile().isEmpty()) {
+                String absolutePath = FileUtil.saveFile(request.getFile());
+                File file = FileUtil.getFileByPath(absolutePath);
+                MultipartFile multipartFile = FileUtil.convertFileToMultipart(file);
+                file.delete();
+                applicationEventPublisher.publishEvent(new DishDtoRequest(savedDish, multipartFile));
+            }
+            return savedDish;
+        } else {
             Dish dishExist = dishRepository.findById(request.getId()).get();
             Dish dish = new Dish();
             dish.setId(dishExist.getId());
@@ -100,8 +101,8 @@ public class DishService {
             dish.setPublic(request.isPublic());
             dish.setUsedQuantity(request.getUsedQuantity());
             deleteRecipeWithDishId(request.getId());
-            if(dishExist.getImageUrl() != null){
-                System.out.println("Img"+dishExist.getImageUrl());
+            if (dishExist.getImageUrl() != null) {
+                System.out.println("Img" + dishExist.getImageUrl());
                 dish.setImageUrl(dishExist.getImageUrl());
                 dish.setPublicId(dishExist.getPublicId());
             }
@@ -133,8 +134,8 @@ public class DishService {
         dish.setAccount(dto.getAccount());
         dish.setPublic(dto.isPublic());
         dish.setUsedQuantity(dto.getUsedQuantity());
-        if(dishExist.getImageUrl() != null){
-            System.out.println("Img"+dishExist.getImageUrl());
+        if (dishExist.getImageUrl() != null) {
+            System.out.println("Img" + dishExist.getImageUrl());
             dish.setImageUrl(dishExist.getImageUrl());
             dish.setPublicId(dishExist.getPublicId());
         }
@@ -149,27 +150,24 @@ public class DishService {
         return savedDish;
     }
 
-    public void saveRecipe (Map<Integer, Integer> ingredients, Dish dish)
-    {
+    public void saveRecipe(Map<Integer, Integer> ingredients, Dish dish) {
         ingredients.forEach((ingredientId, quantity) -> {
 
             Recipe recipe = Recipe.builder()
-                    .ingredient(ingredientRepository.getById(ingredientId))
+                    .ingredient(ingredientRepository.findById(ingredientId).orElseThrow(() -> new CustomException("Ingredient not found", HttpStatus.BAD_REQUEST)))
                     .quantity(quantity)
                     .dish(dish)
                     .build();
-            recipeRepository.save( recipe);
+            recipeRepository.save(recipe);
         });
     }
 
-    public void deleteRecipeWithDishId(int dishId)
-    {
+    public void deleteRecipeWithDishId(int dishId) {
         recipeRepository.deleteByDish_Id(dishId);
     }
 
 
-    public Map<Integer,Integer> getIngredientsByDishId(int dishId)
-    {
+    public Map<Integer, Integer> getIngredientsByDishId(int dishId) {
         Map<Integer, Integer> ingredients = new HashMap<>();
         for (Recipe recipe : recipeRepository.getIngredientsByDish_Id(dishId)) {
             ingredients.put(recipe.getIngredient().getId(), recipe.getQuantity());
@@ -177,13 +175,12 @@ public class DishService {
         return ingredients;
     }
 
-    public boolean togglePublic(int dishId){
+    public boolean togglePublic(int dishId) {
         Dish dish = dishRepository.findById(dishId).orElse(null);
-        if(dish!=null){
-            if(dish.isPublic()){
+        if (dish != null) {
+            if (dish.isPublic()) {
                 dish.setPublic(false);
-            }
-            else{
+            } else {
                 dish.setPublic(true);
             }
             dishRepository.save(dish);
@@ -191,13 +188,13 @@ public class DishService {
         }
         return false;
     }
-    public boolean toggleActive(int dishId){
+
+    public boolean toggleActive(int dishId) {
         Dish dish = dishRepository.findById(dishId).orElse(null);
-        if(dish!=null){
-            if(dish.isActive()){
+        if (dish != null) {
+            if (dish.isActive()) {
                 dish.setActive(false);
-            }
-            else{
+            } else {
                 dish.setActive(true);
             }
             dishRepository.save(dish);
@@ -217,19 +214,19 @@ public class DishService {
         return dishRepository.findById(id).orElseThrow(() -> new CustomException("Dish not found", HttpStatus.BAD_REQUEST));
     }
 
-    public List<Dish> getAll(){
-        return dishRepository.findAllByIsActiveAndIsPublic(true,true);
+    public List<Dish> getAll() {
+        return dishRepository.findAllByIsActiveAndIsPublic(true, true);
     }
 
-    public List<Dish> getDishedByAccount(int accountId){
+    public List<Dish> getDishedByAccount(int accountId) {
         return dishRepository.findByAccount_Id((accountId));
     }
 
-    public List<Dish> getAllDish(){
+    public List<Dish> getAllDish() {
         return dishRepository.findAll();
     }
 
-    public List<Dish> getTop5Dish(){
+    public List<Dish> getTop5Dish() {
         return dishRepository.findTop5ByOrderByUsedQuantityDesc();
     }
 }
