@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @CrossOrigin("*")
 @RequiredArgsConstructor
+@RequestMapping ("api/nutrition")
 public class NutritionController {
     private final NutritionService nutritionService;
 
