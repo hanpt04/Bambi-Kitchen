@@ -1,6 +1,5 @@
 package gr1.fpt.bambikitchen.mapper;
 
-import gr1.fpt.bambikitchen.model.DishCategory;
 import gr1.fpt.bambikitchen.model.dto.request.DishCategoryCreateRequest;
 import gr1.fpt.bambikitchen.model.dto.request.DishCategoryUpdateRequest;
 import org.mapstruct.Mapper;
