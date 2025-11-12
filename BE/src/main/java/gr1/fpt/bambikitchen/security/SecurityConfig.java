@@ -15,6 +15,8 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.Arrays;
@@ -29,6 +31,8 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, CustomOAuthUserService customOAuthUserService) throws Exception {
+        RequestMatcher dishIdMatcher = new RegexRequestMatcher("^/api/dish/\\d+$", "GET");
+
         http
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration corsConfiguration = new CorsConfiguration();
@@ -44,6 +48,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS,"/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/mail/calculate_calories").permitAll() //tính calories
+                        .requestMatchers(dishIdMatcher).permitAll() // GET /api/dish/{id} cho nó public để người dùng chưa đăng nhập còn xem món được
                         .requestMatchers("/api/user/login","api/user/login-with-google","api/user/forgot-password","api/user/reset-password").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/test").hasRole("USER")

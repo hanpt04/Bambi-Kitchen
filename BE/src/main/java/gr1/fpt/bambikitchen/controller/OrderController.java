@@ -53,4 +53,14 @@ public class OrderController {
     public ResponseEntity<List<FeedbackDto>> getFeedbacks() {
         return ResponseEntity.ok(orderService.getFeedback());
     }
+
+    @PutMapping("/{id}/prepare")
+    public ResponseEntity<Orders> prepareOrder(@PathVariable int id) {
+        return ResponseEntity.ok(orderService.prepareOrder(id));
+    }
+
+    @PutMapping("/{id}/complete")
+    public ResponseEntity<Orders> completeOrder(@PathVariable int id) {
+        return ResponseEntity.ok(orderService.completeOrder(id));
+    }
 }
