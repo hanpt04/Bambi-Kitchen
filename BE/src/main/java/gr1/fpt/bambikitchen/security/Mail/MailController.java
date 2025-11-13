@@ -31,10 +31,10 @@ public class MailController {
 //        return ResponseEntity.ok("send mail successfully");
 //    }
 
-    @PostMapping("/send-order-mail")
-    public void sendOrderMail(@RequestBody EventListenerSystem.SendOrderEvent request) {
-        eventPublisher.publishEvent(new EventListenerSystem.SendOrderEvent(request.email(), request.dishes()));
-    }
+//    @PostMapping("/send-order-mail")
+//    public void sendOrderMail(@RequestBody EventListenerSystem.SendOrderEvent request) {
+//        eventPublisher.publishEvent(new EventListenerSystem.SendOrderEvent(request.email(), request.dishes()));
+//    }
 
     @GetMapping("/send-otp")
     public ResponseEntity<String> sendOTP(@RequestParam String email) {
