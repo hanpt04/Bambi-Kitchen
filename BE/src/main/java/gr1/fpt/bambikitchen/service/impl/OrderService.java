@@ -283,7 +283,7 @@ public class OrderService {
 
     public Orders feedbackOrder(OrderUpdateDto dto) {
         Orders orders = orderRepository.findById(dto.getOrderId()).orElseThrow(() -> new CustomException("Order not found", HttpStatus.NOT_FOUND));
-        if(orders.getStatus().equals(OrderStatus.PAID)){
+        if(orders.getStatus().equals(OrderStatus.COMPLETED)){
             orders.setComment(dto.getComment());
             orders.setRanking(dto.getRanking());
             return orderRepository.save(orders);
