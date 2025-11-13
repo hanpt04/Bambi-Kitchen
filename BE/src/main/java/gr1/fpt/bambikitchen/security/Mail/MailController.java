@@ -51,7 +51,7 @@ public class MailController {
     }
 
     // Test tính calories bằng Gemini rồi hiển thị kết quả trong trang HTML server-side rendering (cút)
-    @GetMapping(value = "/calculate-calories", produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping(value = "/mail-calculate-calories", produces = MediaType.TEXT_HTML_VALUE)
     public ResponseEntity<String> calculateCalories(@RequestParam("q") String q) {
         try {
             byte[] decoded = Base64.getUrlDecoder().decode(q);
@@ -89,15 +89,6 @@ public class MailController {
         } catch (IOException e) {
             return ResponseEntity.badRequest().body("<html><body><h3>Invalid or expired link</h3></body></html>");
         }
-    }
-
-    // API để frontend fetch response của Gemini lên
-    @GetMapping("/calculate-calories")
-    public ResponseEntity<?> calculateCalories(@RequestBody DishNutritionRequest request) {
-        log.info("Received request: {}", request);
-        String result = Gemini.roastDish(request);
-
-        return ResponseEntity.ok(result);
     }
 
 //     escape HTML special characters to prevent XSS attacks
