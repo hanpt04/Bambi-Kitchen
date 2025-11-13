@@ -351,6 +351,13 @@ public class OrderService {
 
         applicationEventPublisher.publishEvent(new EventListenerSystem.SendNotificationToUserEvent(id, noti.getTitle(), noti.getMessage()));
 
+        //set usedquantity
+        List<OrderDetail> details = orderDetailRepository.findAllByOrders_Id(order.getId());
+        for(OrderDetail detail : details){
+            Dish dish = dishRepository.findById(detail.getDish().getId()).orElseThrow();
+            dish.setUsedQuantity(dish.getUsedQuantity()+1);
+            dishRepository.save(dish);
+        }
         order.setStatus(OrderStatus.COMPLETED);
         return orderRepository.save(order);
     }
