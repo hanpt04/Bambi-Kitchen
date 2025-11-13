@@ -1,7 +1,6 @@
 package gr1.fpt.bambikitchen.firebase.service;
 
-import com.google.api.core.ApiFuture;
-import com.google.firebase.messaging.*;
+import com.google.gson.Gson;
 import gr1.fpt.bambikitchen.exception.CustomException;
 import gr1.fpt.bambikitchen.firebase.model.DeviceToken;
 import gr1.fpt.bambikitchen.firebase.model.dto.DeviceTokenRegisterRequest;
@@ -10,47 +9,45 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @RequiredArgsConstructor
 public class FCMService {
 
-    // wired bean
     private final DeviceTokenRepository deviceTokenRepository;
+    private final RestTemplate restTemplate = new RestTemplate();
+    private final Gson gson = new Gson();
 
-    // constraints - tránh hardcode
-    private final int RETRY_COUNT = 3;
+    // Expo Push API endpoint
+    private static final String EXPO_PUSH_URL = "https://exp.host/--/api/v2/push/send";
+    private static final int RETRY_COUNT = 3;
+    private static final int BATCH_SIZE = 100; // Expo giới hạn 100 notifications/request
 
-    public String sendNotificationToTheExactDevice(Integer userId, String token, String title, String body) throws FirebaseMessagingException {
+    public String sendNotificationToTheExactDevice(Integer userId, String token, String title, String body) {
         DeviceToken deviceToken = deviceTokenRepository.findByUserIdAndToken(userId, token).orElseThrow(
                 () -> new CustomException("Token not found", HttpStatus.BAD_REQUEST)
         );
 
-        Notification notification = Notification.builder()
-                .setTitle(title)
-                .setBody(body)
+        ExpoMessage message = ExpoMessage.builder()
+                .to(deviceToken.getToken())
+                .title(title)
+                .body(body)
+                .sound("default")
                 .build();
 
-        Message message = Message.builder()
-                .setToken(deviceToken.getToken())
-                .setNotification(notification)
-                .build();
-
-        return FirebaseMessaging.getInstance().send(message);
+        return sendToExpo(Collections.singletonList(message));
     }
 
-    public String sendNotificationToUser(Integer userId, String title, String body) throws ExecutionException, InterruptedException {
-        // một người dùng có thể có nhiều thiết bị
+    public String sendNotificationToUser(Integer userId, String title, String body) {
         List<String> tokens = deviceTokenRepository.findByUserId(userId).parallelStream()
                 .map(DeviceToken::getToken)
                 .toList();
@@ -62,7 +59,7 @@ public class FCMService {
         return sendMultipleNotification(title, body, tokens);
     }
 
-    public String sendNotificationToAllUser(String title, String body) throws FirebaseMessagingException, ExecutionException, InterruptedException {
+    public String sendNotificationToAllUser(String title, String body) {
         List<String> tokens = deviceTokenRepository.findAll().parallelStream()
                 .map(DeviceToken::getToken)
                 .toList();
@@ -74,9 +71,26 @@ public class FCMService {
         return sendMultipleNotification(title, body, tokens);
     }
 
-    public String registerDeviceToken(DeviceTokenRegisterRequest request) {
-        // Check xem token đã tồn tại cho user này chưa
-        DeviceToken token = deviceTokenRepository.findByToken(request.getToken()).orElse(new DeviceToken());
+    public String sendNotificationToListUsers(String title, String body, List<Integer> userIds) {
+        List<String> tokens = deviceTokenRepository.findAll().parallelStream()
+                .filter(dt -> userIds.contains(dt.getUserId()))
+                .map(DeviceToken::getToken)
+                .toList();
+
+        if (tokens.isEmpty()) {
+            throw new CustomException("No tokens found", HttpStatus.BAD_REQUEST);
+        }
+
+        return sendMultipleNotification(title, body, tokens);
+    }
+
+    public String registerDeviceToken(DeviceTokenRegisterRequest request) {// Validate Expo push token format
+        if (!isValidExpoToken(request.getToken())) {
+            throw new CustomException("Invalid Expo push token format", HttpStatus.BAD_REQUEST);
+        }
+
+        DeviceToken token = deviceTokenRepository.findByToken(request.getToken())
+                .orElse(new DeviceToken());
         token.setToken(request.getToken());
         token.setPlatform(request.getPlatform());
         token.setUserId(request.getUserId());
@@ -86,86 +100,139 @@ public class FCMService {
         return "OK";
     }
 
-    private String sendMultipleNotification(String title, String body, List<String> tokens) throws ExecutionException, InterruptedException {
-        Notification notification = Notification.builder()
-                .setTitle(title)
-                .setBody(body)
-                .build();
+    private String sendMultipleNotification(String title, String body, List<String> tokens) {
+        // Chia tokens thành các batch nhỏ (Expo giới hạn 100 notifications/request)
+        List<List<String>> batches = partitionList(tokens, BATCH_SIZE);
 
-        // lấy những token gửi thất bại
-        List<String> failedTokens = new ArrayList<>();
-        CompletableFuture<BatchResponse> completableFuture = sendBatchResponseWithCompletableFuture(tokens, notification);
+        List<String> allFailedTokens = new ArrayList<>();
+        AtomicInteger successCount = new AtomicInteger(0);
 
-        // handle async
-        completableFuture.thenAccept(batchResponse -> {
-            List<SendResponse> responses = batchResponse.getResponses();
-            for (int i = 0; i < responses.size(); i++) {
-                if (!responses.get(i).isSuccessful()) {
-                    failedTokens.add(tokens.get(i));
+        // Gửi từng batch
+        for (List<String> batch : batches) {
+            List<ExpoMessage> messages = batch.stream()
+                    .map(token -> ExpoMessage.builder()
+                            .to(token)
+                            .title(title)
+                            .body(body)
+                            .sound("default")
+                            .priority("high")
+                            .build())
+                    .toList();
+
+            try {
+                ExpoResponse response = sendToExpoWithResponse(messages);
+
+                // Xử lý kết quả
+                for (int i = 0; i < response.getData().size(); i++) {
+                    ExpoTicket ticket = response.getData().get(i);
+                    if ("ok".equals(ticket.getStatus())) {
+                        successCount.incrementAndGet();
+                    } else {
+                        allFailedTokens.add(batch.get(i));
+                        // Log lỗi nếu có
+                        if (ticket.getDetails() != null) {
+                            System.err.println("Failed to send to " + batch.get(i) + ": " +
+                                    ticket.getDetails().getError());
+                        }
+                    }
                 }
+            } catch (Exception e) {
+                System.err.println("Batch sending failed: " + e.getMessage());
+                allFailedTokens.addAll(batch);
+            }
+        }
+
+        // Retry failed tokens
+        SendingResult retryResult = new SendingResult();
+        if (!allFailedTokens.isEmpty()) {
+            retryResult = retrySending(allFailedTokens, title, body);
+        }
+
+        // Tính toán kết quả cuối cùng
+        AtomicInteger finalSuccessCount = new AtomicInteger(successCount.get());
+        AtomicInteger finalFailedCount = new AtomicInteger(0);
+
+        retryResult.getResults().forEach((token, isSuccess) -> {
+            if (!isSuccess) {finalFailedCount.incrementAndGet();
+                eliminateInvalidTokens(token);
+            } else {
+                finalSuccessCount.incrementAndGet();
             }
         });
 
-        // chờ kết quả của future
-        completableFuture.join();
-
-        // nếu có thất bại thì thử send lại 3 lần nữa
-        SendingResult result = new SendingResult();
-        if (!failedTokens.isEmpty()) {
-            result = retrySending(failedTokens, notification);
-        }
-
-        // để response
-        AtomicInteger successfulTasksCount = new AtomicInteger(tokens.size() - failedTokens.size());
-        AtomicInteger failedTasksCount = new AtomicInteger();
-
-        // xóa nếu token không thực hiện được gửi notification sau 3 lần gửi lại
-        result.getResults().forEach((token, isSuccess) -> {
-            if (!isSuccess) {
-                failedTasksCount.getAndAdd(1);
-                eliminateInvalidTokens(token);
-            } else successfulTasksCount.getAndAdd(1);
-        });
-
-        return "Successfully sent message to " + successfulTasksCount.get() + " devices\n" +
-                "Failed to send message to " + failedTasksCount.get() + " devices";
+        return "Successfully sent message to " + finalSuccessCount.get() + " devices\n" +
+                "Failed to send message to " + finalFailedCount.get() + " devices";
     }
 
-    private SendingResult retrySending(List<String> tokens, Notification notification) {
+    private SendingResult retrySending(List<String> tokens, String title, String body) {
         SendingResult result = new SendingResult();
         tokens.forEach(token -> result.getResults().put(token, false));
 
         for (int i = 0; i < RETRY_COUNT; i++) {
-            // nếu là vòng lặp đầu thì lấy toàn bộ failedTokens, không thì lấy những tokens bị failed thôi
-            CompletableFuture<BatchResponse> completableFuture;
-            List<String> failedTokens;
-            if (i == 0) {
-                failedTokens = new ArrayList<>(tokens);
-            } else {
-                failedTokens = result.getResults().entrySet().stream()
-                        .filter(e -> !e.getValue())
-                        .map(Map.Entry::getKey)
-                        .toList();
-            }
+            List<String> failedTokens = i == 0 ? new ArrayList<>(tokens) :
+                    result.getResults().entrySet().stream()
+                            .filter(e -> !e.getValue())
+                            .map(Map.Entry::getKey)
+                            .toList();
 
-            // nếu không còn token hỏng nữa thì break
             if (failedTokens.isEmpty()) {
                 break;
             }
 
-            completableFuture = sendBatchResponseWithCompletableFuture(failedTokens, notification);
+            List<ExpoMessage> messages = failedTokens.stream()
+                    .map(token -> ExpoMessage.builder()
+                            .to(token)
+                            .title(title)
+                            .body(body)
+                            .sound("default")
+                            .build())
+                    .toList();
 
-            completableFuture.thenAccept(batchResponse -> {
-                List<SendResponse> responses = batchResponse.getResponses();
-                for (int j = 0; j < responses.size(); j++) {
-                    // nếu đã gửi thành công thì xóa nó ra khỏi failed list
-                    if (responses.get(j).isSuccessful()) {
+            try {
+                ExpoResponse response = sendToExpoWithResponse(messages);
+                for (int j = 0; j < response.getData().size(); j++) {
+                    if ("ok".equals(response.getData().get(j).getStatus())) {
                         result.getResults().put(failedTokens.get(j), true);
                     }
                 }
-            }).join();
+            } catch (Exception e) {
+                System.err.println("Retry failed: " + e.getMessage());
+            }
         }
+
         return result;
+    }
+
+    private String sendToExpo(List<ExpoMessage> messages) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+
+            String jsonPayload = gson.toJson(messages);
+            HttpEntity<String> request = new HttpEntity<>(jsonPayload, headers);
+
+            String response = restTemplate.postForObject(EXPO_PUSH_URL, request, String.class);
+            return response != null ? response : "Sent successfully";
+        } catch (Exception e) {
+            throw new CustomException("Failed to send notification: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private ExpoResponse sendToExpoWithResponse(List<ExpoMessage> messages) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+
+            String jsonPayload = gson.toJson(messages);HttpEntity<String> request = new HttpEntity<>(jsonPayload, headers);
+
+            return restTemplate.postForObject(EXPO_PUSH_URL, request, ExpoResponse.class);
+        } catch (Exception e) {
+            throw new CustomException("Failed to send notification: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     private void eliminateInvalidTokens(String token) {
@@ -175,29 +242,51 @@ public class FCMService {
         });
     }
 
-    // đổi sang CompletableFuture để dễ handle async result
-    private CompletableFuture<BatchResponse> sendBatchResponseWithCompletableFuture(List<String> tokens, Notification notification) {
-        MulticastMessage message = MulticastMessage.builder()
-                .addAllTokens(tokens)
-                .setNotification(notification)
-                .build();
+    private boolean isValidExpoToken(String token) {
+        // Expo push token format: ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]
+        return token != null && token.startsWith("ExponentPushToken[") && token.endsWith("]");
+    }
 
-        ApiFuture<BatchResponse> response = FirebaseMessaging.getInstance().sendEachForMulticastAsync(message);
+    private <T> List<List<T>> partitionList(List<T> list, int size) {
+        List<List<T>> partitions = new ArrayList<>();
+        for (int i = 0; i < list.size(); i += size) {
+            partitions.add(list.subList(i, Math.min(i + size, list.size())));
+        }
+        return partitions;
+    }
 
-        CompletableFuture<BatchResponse> completableFuture = new CompletableFuture<>();
-        response.addListener(() -> {
-            try {
-                completableFuture.complete(response.get());
-            } catch (InterruptedException | ExecutionException e) {
-                completableFuture.completeExceptionally(e);
-            }
-        }, Runnable::run);
-        return completableFuture;
+    // DTOs for Expo Push API
+    @Data
+    @lombok.Builder
+    private static class ExpoMessage {
+        private String to;
+        private String title;
+        private String body;
+        private String sound;
+        private String priority;
+        private Map<String, Object> data;
+    }
+
+    @Data
+    private static class ExpoResponse {
+        private List<ExpoTicket> data;
+    }
+
+    @Data
+    private static class ExpoTicket {
+        private String status; // "ok" or "error"
+        private String id;
+        private ExpoError details;
+    }
+
+    @Data
+    private static class ExpoError {
+        private String error;
+        private String message;
     }
 
     @Data
     private static class SendingResult {
-        // key: token, value: isSuccess
-        Map<String, Boolean> results = new HashMap<>();
+        private Map<String, Boolean> results = new HashMap<>();
     }
 }

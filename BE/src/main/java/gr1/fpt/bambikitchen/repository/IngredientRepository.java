@@ -19,4 +19,6 @@ public interface IngredientRepository extends JpaRepository<Ingredient,Integer> 
     Ingredient lockById(@Param("id") int id);
 
     List<Ingredient> findAllByAvailableLessThan(Double availableIsLessThan);
+
+    List<Ingredient> findAllByActive(boolean active);
 }
