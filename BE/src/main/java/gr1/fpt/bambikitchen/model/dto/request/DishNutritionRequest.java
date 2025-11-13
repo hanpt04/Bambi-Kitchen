@@ -1,8 +1,5 @@
 package gr1.fpt.bambikitchen.model.dto.request;
 
-
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -14,6 +11,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DishNutritionRequest {
+
+    private int id;
 
     @Size(max = 100)
     private String name;
@@ -32,7 +31,7 @@ public class DishNutritionRequest {
 
         @NotNull
         @Positive(message = "Số lượng phải > 0 nha!")
-        private Double amount;
+        private Integer amount;
 
         @NotBlank
         @Pattern(regexp = "g|kg|ml|l|pcs", message = "Unit chỉ được: g, kg, ml, l, pcs")

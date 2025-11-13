@@ -1,7 +1,9 @@
 package gr1.fpt.bambikitchen.Gemini;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import gr1.fpt.bambikitchen.Utils.JsonExtractor;
 import gr1.fpt.bambikitchen.model.dto.request.DishNutritionRequest;
+import gr1.fpt.bambikitchen.service.impl.DishService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.ai.chat.client.ChatClient;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,6 +32,7 @@ public class Gemini {
 
     private static ChatClient chatClient;
     private static ToolCallback getAllDishesTool;
+    private final DishService dishService;
 
     @Autowired
     public void init(
@@ -71,13 +75,21 @@ public class Gemini {
 
     // API để frontend fetch response của Gemini lên
     @GetMapping("/calculate-calories")
-    public ResponseEntity<?> calculateCalories(@RequestBody DishNutritionRequest request) {
-        String result = Gemini.roastDish(request);
+    public ResponseEntity<Map<Integer, String>> calculateCalories(@RequestBody List<Integer> dishIds) {
+        List<DishNutritionRequest> request = dishIds.stream()
+                .map(dishService::fromDishesToNutrition)
+                .toList();
+
+        Map<Integer, String> result = request.stream()
+                .collect(Collectors.toMap(
+                        DishNutritionRequest::getId,
+                        r -> JsonExtractor.extractJsonFromGemini(Gemini.roastDish(r))
+                ));
 
         return ResponseEntity.ok(result);
     }
 
-        public record ChatRequest(String message) {}
+    public record ChatRequest(String message) {}
 
     static String systemPrompt2 = "Bạn là siêu đầu bếp " +
             " có khả năng đề xuất món ăn "+

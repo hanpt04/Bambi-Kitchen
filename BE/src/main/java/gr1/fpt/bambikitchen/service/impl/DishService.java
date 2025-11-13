@@ -4,9 +4,11 @@ package gr1.fpt.bambikitchen.service.impl;
 import gr1.fpt.bambikitchen.Utils.FileUtil;
 import gr1.fpt.bambikitchen.exception.CustomException;
 import gr1.fpt.bambikitchen.model.Dish;
+import gr1.fpt.bambikitchen.model.Ingredient;
 import gr1.fpt.bambikitchen.model.Recipe;
 import gr1.fpt.bambikitchen.model.dto.request.DishCreateRequest;
 import gr1.fpt.bambikitchen.model.dto.request.DishDtoRequest;
+import gr1.fpt.bambikitchen.model.dto.request.DishNutritionRequest;
 import gr1.fpt.bambikitchen.model.dto.request.DishUpdateRequest;
 import gr1.fpt.bambikitchen.model.enums.DishType;
 import gr1.fpt.bambikitchen.repository.DishRepository;
@@ -228,5 +230,27 @@ public class DishService {
 
     public List<Dish> getTop5Dish() {
         return dishRepository.findTop5ByOrderByUsedQuantityDesc();
+    }
+
+    public DishNutritionRequest fromDishesToNutrition(Integer dishId) {
+        Dish dish = dishRepository.findById(dishId).orElseThrow(() -> new CustomException("Không có dish này!", HttpStatus.BAD_REQUEST));
+
+        List<Recipe> ingredients = recipeRepository.getIngredientsByDish_Id(dishId);
+
+        return DishNutritionRequest.builder()
+                .id(dishId)
+                .name(dish.getName())
+                .ingredients(
+                        toIngredients(ingredients)
+                )
+                .build();
+    }
+
+    private List<DishNutritionRequest.Ingredient> toIngredients(List<Recipe> recipes) {
+        return recipes.stream().map(recipe -> DishNutritionRequest.Ingredient.builder()
+                .name(recipe.getIngredient().getName())
+                .amount(recipe.getQuantity())
+                .unit(recipe.getIngredient().getUnit().getName())
+                .build()).toList();
     }
 }
