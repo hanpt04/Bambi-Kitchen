@@ -1,28 +1,24 @@
 package gr1.fpt.bambikitchen.Gemini;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gr1.fpt.bambikitchen.Utils.JsonExtractor;
+import gr1.fpt.bambikitchen.exception.CustomException;
 import gr1.fpt.bambikitchen.model.dto.request.DishNutritionRequest;
+import gr1.fpt.bambikitchen.model.dto.response.DishNutritionResponse;
+import gr1.fpt.bambikitchen.model.dto.response.GeminiResponseDto;
 import gr1.fpt.bambikitchen.service.impl.DishService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.model.ChatModel;
-import org.springframework.ai.chat.model.ChatResponse;
-import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.google.genai.GoogleGenAiChatOptions;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/gemini")
@@ -44,10 +40,10 @@ public class Gemini {
     }
 
     @GetMapping("/chat")
-    public String chat (String message) {
+    public String chat(String message) {
         return chatClient.prompt()
                 .user(message)
-                .system( systemPrompt2)
+                .system(systemPrompt2)
                 .call()
                 .content();
     }
@@ -63,7 +59,6 @@ public class Gemini {
     }
 
 
-
     @PostMapping("/agent")
     public String agentChat(@RequestBody ChatRequest request) {
         return chatClient.prompt()
@@ -75,16 +70,25 @@ public class Gemini {
 
     // API để frontend fetch response của Gemini lên
     @PostMapping("/calculate-calories")
-    public ResponseEntity<Map<Integer, String>> calculateCalories(@RequestBody List<Integer> dishIds) {
+    public ResponseEntity<List<DishNutritionResponse<Object>>> calculateCalories(@RequestBody List<Integer> dishIds) {
+        ObjectMapper objectMapper = new ObjectMapper();
+
         List<DishNutritionRequest> request = dishIds.stream()
                 .map(dishService::fromDishesToNutrition)
                 .toList();
 
-        Map<Integer, String> result = request.stream()
-                .collect(Collectors.toMap(
-                        DishNutritionRequest::getId,
-                        r -> JsonExtractor.extractJsonFromGemini(Gemini.roastDish(r))
-                ));
+        List<DishNutritionResponse<Object>> result = request.stream()
+                .map(r -> {
+                            try {
+                                return DishNutritionResponse.builder()
+                                        .dishId(r.getId())
+                                        .response(objectMapper.readValue(JsonExtractor.extractJsonFromGemini(Gemini.roastDish(r)), GeminiResponseDto.class))
+                                        .build();
+                            } catch (JsonProcessingException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                ).toList();
 
         return ResponseEntity.ok(result);
     }
@@ -92,9 +96,9 @@ public class Gemini {
     public record ChatRequest(String message) {}
 
     static String systemPrompt2 = "Bạn là siêu đầu bếp " +
-            " có khả năng đề xuất món ăn "+
+            " có khả năng đề xuất món ăn " +
             " đồng thời là chuyên gia về dinh dưỡng " +
-            " giúp người dùng xây dựng thực đơn hàng ngày " ;
+            " giúp người dùng xây dựng thực đơn hàng ngày ";
 
     static String systemPrompt1 = "Bạn là Nutrition ROAST Master – thằng bạn thân siêu lầy, chuyên \"nướng\" tô cơm custom của khách bằng tiếng Việt dí dóm, hài hước kiểu TikTok viral. Vai trò: Phân tích dinh dưỡng → tự đánh giá cân bằng → chấm điểm 0-10 → roast 2 câu lầy lội → gợi ý thêm nguyên liệu. Luôn nghĩ như chuyên gia dinh dưỡng vui tính: cân bằng macro (carb ~45-65%, pro ~10-35%, fat ~20-35% tổng calo), calo bữa chính ~500-800, fiber ≥5g, tránh thiếu rau/protein hoặc ngập mỡ/đường.\n" +
             "\n" +
