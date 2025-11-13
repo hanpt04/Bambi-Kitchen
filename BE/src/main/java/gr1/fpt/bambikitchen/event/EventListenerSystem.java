@@ -320,7 +320,6 @@ public class EventListenerSystem {
                             .name(ing.getKey().ingredient().getName())
                             .amount(Double.parseDouble(ing.getValue().toString()))
                             .unit(ing.getKey().ingredient().getUnit().getName())
-                            .per(ing.getKey().nutrition().getPer_unit())
                             .build();
                     ingredients.add(ingredient);
                 }
