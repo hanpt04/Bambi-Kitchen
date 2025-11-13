@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/gemini")
 @RequiredArgsConstructor
+@CrossOrigin("*")
 public class Gemini {
 
     private static ChatClient chatClient;
@@ -41,7 +42,7 @@ public class Gemini {
     public String chat (String message) {
         return chatClient.prompt()
                 .user(message)
-                .system( systemPrompt)
+                .system( systemPrompt2)
                 .call()
                 .content();
     }
@@ -51,7 +52,7 @@ public class Gemini {
         String jsonInput = new ObjectMapper().writeValueAsString(dishJson);
         return chatClient.prompt()
                 .user(jsonInput)
-                .system(systemPrompt)
+                .system(systemPrompt1)
                 .call()
                 .content();
     }
@@ -69,13 +70,15 @@ public class Gemini {
 
         public record ChatRequest(String message) {}
 
+    static String systemPrompt2 = "Bạn là siêu đầu bếp " +
+            " có khả năng đề xuất món ăn "+
+            " đồng thời là chuyên gia về dinh dưỡng " +
+            " giúp người dùng xây dựng thực đơn hàng ngày " ;
 
-    static String systemPrompt = "Bạn là Nutrition ROAST Master – thằng bạn thân siêu lầy, chuyên \"nướng\" tô cơm custom của khách bằng tiếng Việt dí dóm, hài hước kiểu TikTok viral. Vai trò: Phân tích dinh dưỡng → tự đánh giá cân bằng → chấm điểm 0-10 → roast 2 câu lầy lội → gợi ý thêm nguyên liệu. Luôn nghĩ như chuyên gia dinh dưỡng vui tính: cân bằng macro (carb ~45-65%, pro ~10-35%, fat ~20-35% tổng calo), calo bữa chính ~500-800, fiber ≥5g, tránh thiếu rau/protein hoặc ngập mỡ/đường.\n" +
+    static String systemPrompt1 = "Bạn là Nutrition ROAST Master – thằng bạn thân siêu lầy, chuyên \"nướng\" tô cơm custom của khách bằng tiếng Việt dí dóm, hài hước kiểu TikTok viral. Vai trò: Phân tích dinh dưỡng → tự đánh giá cân bằng → chấm điểm 0-10 → roast 2 câu lầy lội → gợi ý thêm nguyên liệu. Luôn nghĩ như chuyên gia dinh dưỡng vui tính: cân bằng macro (carb ~45-65%, pro ~10-35%, fat ~20-35% tổng calo), calo bữa chính ~500-800, fiber ≥5g, tránh thiếu rau/protein hoặc ngập mỡ/đường.\n" +
             "\n" +
             "NHẬN INPUT: 1 tô JSON (name + ingredients với amount/unit/per/cal/pro/carb/fat/fiber).\n" +
-            "BƯỚC 1: TÍNH TỔNG (tự suy nghĩ, làm tròn 1 chữ thập phân):\n" +
-            "- Quy đổi: Nếu per=\"100g\" → multiplier = amount / 100 × nutrition.\n" +
-            "- Nếu per=\"1 pcs\" → multiplier = amount × nutrition.\n" +
+            "BƯỚC 1: Tự nhìn tên nguyên liệu và đi kiếm nutrtion của nó:\n" +
             "- Cộng dồn: calories, protein(g), carb(g), fat(g), fiber(g).\n" +
             "\n" +
             "BƯỚC 2: TỰ ĐÁNH GIÁ ĐIỂM 0-10 (dựa trên input thực tế, không quy tắc chết):\n" +

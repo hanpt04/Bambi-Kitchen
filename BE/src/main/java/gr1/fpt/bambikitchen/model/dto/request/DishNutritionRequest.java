@@ -15,12 +15,9 @@ import java.util.List;
 @AllArgsConstructor
 public class DishNutritionRequest {
 
-    @NotBlank(message = "Tên tô không được để trống nha quý zị!")
     @Size(max = 100)
     private String name;
 
-    @NotEmpty(message = "Phải có ít nhất 1 nguyên liệu chứ bro!")
-    @Size(max = 20, message = "Tô nhiều quá, ăn không hết đâu!")
     private List<Ingredient> ingredients;
 
     @Data
@@ -45,24 +42,5 @@ public class DishNutritionRequest {
         @Pattern(regexp = "100g|1 pcs", message = "per chỉ được: 100g hoặc 1 pcs")
         private String per;
 
-        @NotNull
-        @PositiveOrZero
-        private Float cal;
-
-        @NotNull
-        @PositiveOrZero
-        private Float pro;
-
-        @NotNull
-        @PositiveOrZero
-        private Float carb;
-
-        @NotNull
-        @PositiveOrZero
-        private Float fat;
-
-        @NotNull
-        @PositiveOrZero
-        private Float fiber;
     }
 }
