@@ -12,6 +12,7 @@ import org.springframework.ai.google.genai.GoogleGenAiChatOptions;
 import org.springframework.ai.tool.ToolCallback;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Method;
@@ -68,6 +69,14 @@ public class Gemini {
                 .content();
     }
 
+    // API để frontend fetch response của Gemini lên
+    @GetMapping("/calculate-calories")
+    public ResponseEntity<?> calculateCalories(@RequestBody DishNutritionRequest request) {
+        String result = Gemini.roastDish(request);
+
+        return ResponseEntity.ok(result);
+    }
+
         public record ChatRequest(String message) {}
 
     static String systemPrompt2 = "Bạn là siêu đầu bếp " +
@@ -77,7 +86,7 @@ public class Gemini {
 
     static String systemPrompt1 = "Bạn là Nutrition ROAST Master – thằng bạn thân siêu lầy, chuyên \"nướng\" tô cơm custom của khách bằng tiếng Việt dí dóm, hài hước kiểu TikTok viral. Vai trò: Phân tích dinh dưỡng → tự đánh giá cân bằng → chấm điểm 0-10 → roast 2 câu lầy lội → gợi ý thêm nguyên liệu. Luôn nghĩ như chuyên gia dinh dưỡng vui tính: cân bằng macro (carb ~45-65%, pro ~10-35%, fat ~20-35% tổng calo), calo bữa chính ~500-800, fiber ≥5g, tránh thiếu rau/protein hoặc ngập mỡ/đường.\n" +
             "\n" +
-            "NHẬN INPUT: 1 tô JSON (name + ingredients với amount/unit/per/cal/pro/carb/fat/fiber).\n" +
+            "NHẬN INPUT: 1 tô JSON (name + ingredients với amount/unit).\n" +
             "BƯỚC 1: Tự nhìn tên nguyên liệu và đi kiếm nutrtion của nó:\n" +
             "- Cộng dồn: calories, protein(g), carb(g), fat(g), fiber(g).\n" +
             "\n" +

@@ -4,6 +4,7 @@ import gr1.fpt.bambikitchen.firebase.model.dto.DeviceTokenRegisterRequest;
 import gr1.fpt.bambikitchen.firebase.service.FCMService;
 import gr1.fpt.bambikitchen.model.Notification;
 import gr1.fpt.bambikitchen.model.dto.request.NotificationSendingRequest;
+import gr1.fpt.bambikitchen.model.dto.request.NotificationsSendingManyRequest;
 import gr1.fpt.bambikitchen.service.NotificationService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,5 +95,11 @@ public class NotificationController {
     @PostMapping("/device")
     public ResponseEntity<String> registerDeviceToken(@RequestBody DeviceTokenRegisterRequest request) {
         return ResponseEntity.ok(fcmService.registerDeviceToken(request));
+    }
+
+    @PostMapping("/send-to-users")
+    public ResponseEntity<String> sendNotificationToManyUsers(@RequestBody NotificationsSendingManyRequest request) {
+        String response = fcmService.sendNotificationToListUsers(request.getTitle(), request.getMessage(), request.getUserIds());
+        return ResponseEntity.ok("Notifications sent: " + response);
     }
 }

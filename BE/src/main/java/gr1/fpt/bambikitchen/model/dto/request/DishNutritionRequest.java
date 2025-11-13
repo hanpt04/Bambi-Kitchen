@@ -38,9 +38,5 @@ public class DishNutritionRequest {
         @Pattern(regexp = "g|kg|ml|l|pcs", message = "Unit chỉ được: g, kg, ml, l, pcs")
         private String unit;
 
-        @NotBlank
-        @Pattern(regexp = "100g|1 pcs", message = "per chỉ được: 100g hoặc 1 pcs")
-        private String per;
-
     }
 }
