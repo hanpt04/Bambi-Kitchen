@@ -7,9 +7,11 @@ import gr1.fpt.bambikitchen.service.impl.PaymentService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,8 +28,8 @@ public class PaymentController {
     @Autowired
     IngredientService ingredientService;
 
-    @Value("${frontend.url}") // Lấy giá trị từ application.properties
-    private String frontendUrl;
+
+    private String frontendUrl = "http://localhost:3000";
 
 //    @GetMapping("/test-payment")
 //    public String testPayment(@RequestParam String paymentMethodName) throws Exception {
@@ -38,7 +40,7 @@ public class PaymentController {
 
 
     @GetMapping("momo-return")
-    public ResponseEntity<Map<String, Object>> handleMomoReturn(@RequestParam Map<String, String> params, HttpServletResponse httpResponse) throws Exception {
+    public void handleMomoReturn(@RequestParam Map<String, String> params, HttpServletResponse httpResponse) throws Exception {
         Map<String, Object> response = new HashMap<>(params);
 
         // Trích xuất các thuộc tính từ params
@@ -79,16 +81,16 @@ public class PaymentController {
                 + "&amount=" + amount
                 + "&status=" + (message.equals("Successful.") ? "SUCCESS" : "FAILED")
                 + "&method=MOMO";
-
+        System.out.println("Redirect URL: " + redirectUrl);
         httpResponse.sendRedirect(redirectUrl);
 
         //o day redirect ve FE voi parameter de hien thi hoa don
-        return ResponseEntity.ok(response);
+
     }
 
 
     @GetMapping("/vnpay-return")
-    public String handleVnPayReturn(@RequestParam Map<String, String> params, HttpServletResponse httpResponse) throws Exception {
+    public ResponseEntity<Void> handleVnPayReturn(@RequestParam Map<String, String> params, HttpServletResponse httpResponse) throws Exception {
         Map<String, Object> response = new HashMap<>();
 
         // Lấy các thông tin quan trọng từ VNPay
@@ -136,14 +138,19 @@ public class PaymentController {
 
         Payment payment = paymentService.getPaymentById(Integer.parseInt(paymentId));
         // Redirect về frontend với thông tin giao dịch qua query parameters
+// === TẠO URL REDIRECT VỀ FRONTEND ===
         String redirectUrl = frontendUrl + "/order/status?"
                 + "orderId=" + payment.getOrderId()
                 + "&amount=" + (Integer.parseInt(vnp_Amount) / 100)
                 + "&status=" + (isSuccess ? "SUCCESS" : "FAILED")
-                + "&method=VNPAY";
+                + "&method=VNPAY"
+                + "&transactionNo=" + vnp_TransactionNo;
 
-        httpResponse.sendRedirect(redirectUrl);
-        return response.toString();
+        System.out.println("Redirect URL: " + redirectUrl);
+        // === TRẢ VỀ 302 + Location header ===
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create(redirectUrl))
+                .build();
     }
 
     @GetMapping("to-account/{accountId}")

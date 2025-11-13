@@ -321,11 +321,6 @@ public class EventListenerSystem {
                             .amount(Double.parseDouble(ing.getValue().toString()))
                             .unit(ing.getKey().ingredient().getUnit().getName())
                             .per(ing.getKey().nutrition().getPer_unit())
-                            .cal(ing.getKey().nutrition().getCalcium())
-                            .pro(ing.getKey().nutrition().getProtein())
-                            .carb(ing.getKey().nutrition().getCarb())
-                            .fat(ing.getKey().nutrition().getSat_fat())
-                            .fiber(ing.getKey().nutrition().getFiber())
                             .build();
                     ingredients.add(ingredient);
                 }
