@@ -3,6 +3,7 @@ package gr1.fpt.bambikitchen.service;
 import gr1.fpt.bambikitchen.model.Ingredient;
 import gr1.fpt.bambikitchen.model.dto.request.IngredientCreateRequest;
 import gr1.fpt.bambikitchen.model.dto.request.IngredientUpdateRequest;
+import gr1.fpt.bambikitchen.model.dto.response.IngredientWithNutritionResponse;
 
 import java.io.IOException;
 import java.util.List;
@@ -22,4 +23,5 @@ public interface IngredientService {
     public void saveOrder(int orderId);
     public void toggleActive(int id);
     public List<Ingredient> getLowInventoryIngredients();
+    List<Ingredient> findAllActive();
 }

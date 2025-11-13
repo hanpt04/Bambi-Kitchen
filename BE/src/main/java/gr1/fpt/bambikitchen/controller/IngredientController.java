@@ -3,6 +3,7 @@ package gr1.fpt.bambikitchen.controller;
 import gr1.fpt.bambikitchen.model.Ingredient;
 import gr1.fpt.bambikitchen.model.dto.request.IngredientCreateRequest;
 import gr1.fpt.bambikitchen.model.dto.request.IngredientUpdateRequest;
+import gr1.fpt.bambikitchen.model.dto.response.IngredientWithNutritionResponse;
 import gr1.fpt.bambikitchen.service.IngredientService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,11 @@ public class IngredientController {
     @GetMapping
     public ResponseEntity<List<Ingredient>> findAll() {
         return ResponseEntity.ok(ingredientService.findAll());
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<List<Ingredient>> findAllActive() {
+        return ResponseEntity.ok(ingredientService.findAllActive());
     }
 
     @GetMapping("/{id}")

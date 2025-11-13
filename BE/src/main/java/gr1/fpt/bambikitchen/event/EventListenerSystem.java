@@ -2,15 +2,13 @@ package gr1.fpt.bambikitchen.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gr1.fpt.bambikitchen.cloudinary.CloudinaryService;
+import gr1.fpt.bambikitchen.firebase.service.FCMService;
 import gr1.fpt.bambikitchen.model.*;
 import gr1.fpt.bambikitchen.model.dto.request.DishDtoRequest;
 import gr1.fpt.bambikitchen.model.dto.request.DishNutritionRequest;
 import gr1.fpt.bambikitchen.model.dto.request.IngredientDtoRequest;
 import gr1.fpt.bambikitchen.model.enums.OrderStatus;
-import gr1.fpt.bambikitchen.repository.DishRepository;
-import gr1.fpt.bambikitchen.repository.IngredientRepository;
-import gr1.fpt.bambikitchen.repository.OrderRepository;
-import gr1.fpt.bambikitchen.repository.PaymentRepository;
+import gr1.fpt.bambikitchen.repository.*;
 import gr1.fpt.bambikitchen.service.IngredientService;
 import gr1.fpt.bambikitchen.service.impl.InventoryOrderService;
 import gr1.fpt.bambikitchen.service.impl.OrderItemService;
@@ -34,6 +32,8 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 @Slf4j
@@ -56,6 +56,14 @@ public class EventListenerSystem {
     private DishRepository dishRepository;
     @Autowired
     private JavaMailSender mailSender;
+    @Autowired
+    private FCMService fcmService;
+    @Autowired
+    private OrderDetailRepository orderDetailRepository;
+    @Autowired
+    private RecipeRepository recipeRepository;
+    @Autowired
+    private NutritionRepository nutritionRepository;
 
     @Value("${server.port:8080}")
     private int serverPort;
@@ -196,6 +204,44 @@ public class EventListenerSystem {
         }
     }
 
+    public record MailDetails(String email, int orderId) {
+    }
+
+    @EventListener
+    @Async
+    public void mailBillToUser(MailDetails mailDetails) throws MessagingException {
+        List<OrderDetail> orderDetails = orderDetailRepository.findByOrders_Id(mailDetails.orderId);
+        sendOrder(new SendOrderEvent(mailDetails.email, toOrderDetailsMap(orderDetails)));
+    }
+
+    private List<DishInfo> toOrderDetailsMap(List<OrderDetail> orderDetails) {
+        return orderDetails.parallelStream()
+                .flatMap(orderDetail -> Stream.of(orderDetail.getDish()))
+                .distinct()
+                .flatMap(dish -> Stream.of(
+                                DishInfo.builder()
+                                        .name(dish.getName())
+                                        .price(dish.getPrice())
+                                        .ingredients(fromDishToIngredientsInfo(dish))
+                                        .build()
+                        )
+                ).collect(Collectors.toList());
+    }
+
+    private Map<EventListenerSystem.IngredientInfo, Integer> fromDishToIngredientsInfo(Dish dish) {
+        return recipeRepository.getIngredientsByDish_Id(dish.getId())
+                .parallelStream()
+                .collect(Collectors.toMap(
+                        recipe -> {
+                            return EventListenerSystem.IngredientInfo.builder()
+                                    .ingredient(recipe.getIngredient())
+                                    .nutrition(nutritionRepository.findByIngredient_Id(recipe.getIngredient().getId()))
+                                    .build();
+                        },
+                        Recipe::getQuantity
+                ));
+    }
+
     /**
      *
      * @param email
@@ -220,8 +266,6 @@ public class EventListenerSystem {
     ) {
     }
 
-    @EventListener
-    @Async
     public void sendOrder(SendOrderEvent event) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -469,5 +513,23 @@ public class EventListenerSystem {
         helper.setText(htmlContent, true);
 
         mailSender.send(message);
+    }
+
+    public record SendNotificationToListUserEvent(List<Integer> userIds, String title, String body) {
+    }
+
+    @EventListener
+    @Async
+    public void sendNotificationToListUsers(SendNotificationToListUserEvent event) {
+        fcmService.sendNotificationToListUsers(event.title, event.body, event.userIds);
+    }
+
+    public record SendNotificationToUserEvent(Integer userId, String title, String body) {
+    }
+
+    @EventListener
+    @Async
+    public void sendNotificationToUsers(SendNotificationToUserEvent event) {
+        fcmService.sendNotificationToUser(event.userId, event.title, event.body);
     }
 }

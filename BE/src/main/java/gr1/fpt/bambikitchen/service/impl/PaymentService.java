@@ -37,6 +37,8 @@ public class PaymentService {
     private AccountRepository accountRepository;
     @Autowired
     private NutritionRepository nutritionRepository;
+    @Autowired
+    private EventListenerSystem eventListenerSystem;
 
 
     public Payment savePayment(Payment payment) {
@@ -79,46 +81,14 @@ public class PaymentService {
         }
         orderRepository.save(order);
 
-        mailBillToUser(accountRepository.findById(order.getUserId())
-                        .orElseThrow(() -> new CustomException("Email not found", HttpStatus.BAD_REQUEST))
+        // Event task không block cái hàm này, không block payment
+        applicationEventPublisher.publishEvent(new EventListenerSystem.MailDetails(
+                accountRepository.findById(order.getUserId())
+                        .orElseThrow()
                         .getMail(),
-                order.getId());
+                order.getId()
+        ));
     }
-
-    @Async
-    protected void mailBillToUser(String email, int orderId) {
-        List<OrderDetail> orderDetails = orderDetailRepository.findByOrders_Id(orderId);
-        applicationEventPublisher.publishEvent(new EventListenerSystem.SendOrderEvent(email, toOrderDetailsMap(orderDetails)));
-    }
-
-    private List<EventListenerSystem.DishInfo> toOrderDetailsMap(List<OrderDetail> orderDetails) {
-        return orderDetails.parallelStream()
-                        .flatMap(orderDetail -> Stream.of(orderDetail.getDish()))
-                        .distinct()
-                        .flatMap(dish -> Stream.of(
-                                EventListenerSystem.DishInfo.builder()
-                                        .name(dish.getName())
-                                        .price(dish.getPrice())
-                                        .ingredients(fromDishToIngredientsInfo(dish))
-                                        .build()
-                                )
-                        ).collect(Collectors.toList());
-    }
-
-    private Map<EventListenerSystem.IngredientInfo, Integer> fromDishToIngredientsInfo(Dish dish) {
-        return recipeRepository.getIngredientsByDish_Id(dish.getId())
-                .parallelStream()
-                .collect(Collectors.toMap(
-                        recipe -> {
-                            return EventListenerSystem.IngredientInfo.builder()
-                                    .ingredient(recipe.getIngredient())
-                                    .nutrition(nutritionRepository.findByIngredient_Id(recipe.getIngredient().getId()))
-                                    .build();
-                        },
-                        Recipe::getQuantity
-                ));
-    }
-
 
     public List<Payment> getAllByAccount(int accountId) {
         return paymentRepository.findAllByAccountId(accountId);

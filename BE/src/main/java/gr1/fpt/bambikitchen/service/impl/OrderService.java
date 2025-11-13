@@ -3,7 +3,9 @@ package gr1.fpt.bambikitchen.service.impl;
 
 import gr1.fpt.bambikitchen.Factory.PaymentFactory;
 import gr1.fpt.bambikitchen.Payment.PaymentMethod;
+import gr1.fpt.bambikitchen.event.EventListenerSystem;
 import gr1.fpt.bambikitchen.exception.CustomException;
+import gr1.fpt.bambikitchen.firebase.service.FCMService;
 import gr1.fpt.bambikitchen.model.*;
 import gr1.fpt.bambikitchen.model.dto.request.*;
 import gr1.fpt.bambikitchen.model.dto.response.FeedbackDto;
@@ -18,6 +20,7 @@ import gr1.fpt.bambikitchen.repository.OrderRepository;
 import gr1.fpt.bambikitchen.service.AccountService;
 import gr1.fpt.bambikitchen.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +56,8 @@ public class OrderService {
     private NutritionRepository nutritionRepository;
     @Autowired
     private NotificationService notificationService;
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
 
     public Orders findById(int id) {
         return orderRepository.findById(id)
@@ -327,6 +332,9 @@ public class OrderService {
         noti.setTitle("Đơn hàng đang được chuẩn bị !!");
         noti.setMessage("Đơn hàng của bạn đang được làm, vui lòng chờ ít phút.");
         noti.setAccount(accountService.findById(order.getUserId()));
+
+        applicationEventPublisher.publishEvent(new EventListenerSystem.SendNotificationToUserEvent(id, noti.getTitle(), noti.getMessage()));
+
         notificationService.save(noti);
         return orderRepository.save(order);
     }
@@ -340,6 +348,16 @@ public class OrderService {
         noti.setMessage("Đơn hàng của bạn đã làm xong, vui lòng đến quầy nhận đơn nhé.");
         noti.setAccount(accountService.findById(order.getUserId()));
         notificationService.save(noti);
+
+        applicationEventPublisher.publishEvent(new EventListenerSystem.SendNotificationToUserEvent(id, noti.getTitle(), noti.getMessage()));
+
+        //set usedquantity
+        List<OrderDetail> details = orderDetailRepository.findAllByOrders_Id(order.getId());
+        for(OrderDetail detail : details){
+            Dish dish = dishRepository.findById(detail.getDish().getId()).orElseThrow();
+            dish.setUsedQuantity(dish.getUsedQuantity()+1);
+            dishRepository.save(dish);
+        }
         order.setStatus(OrderStatus.COMPLETED);
         return orderRepository.save(order);
     }
