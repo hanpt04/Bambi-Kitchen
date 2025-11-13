@@ -23,7 +23,7 @@ public class IngredientController {
     private final IngredientService ingredientService;
 
     @PostMapping
-    public ResponseEntity<IngredientWithNutritionResponse> save(@ModelAttribute IngredientCreateRequest ingredient) throws IOException {
+    public ResponseEntity<Ingredient> save(@ModelAttribute IngredientCreateRequest ingredient) throws IOException {
         return ResponseEntity.ok(ingredientService.save(ingredient));
     }
 
