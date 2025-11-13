@@ -74,7 +74,7 @@ public class Gemini {
     }
 
     // API để frontend fetch response của Gemini lên
-    @GetMapping("/calculate-calories")
+    @PostMapping("/calculate-calories")
     public ResponseEntity<Map<Integer, String>> calculateCalories(@RequestBody List<Integer> dishIds) {
         List<DishNutritionRequest> request = dishIds.stream()
                 .map(dishService::fromDishesToNutrition)
