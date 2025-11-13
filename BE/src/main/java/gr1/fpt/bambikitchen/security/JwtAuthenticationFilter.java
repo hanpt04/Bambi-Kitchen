@@ -44,6 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || path.equals("/api/order/getFeedbacks")
                 || path.startsWith("/api/payment/vnpay-return")
                 || path.startsWith("/api/payment/momo-return")
+                || path.startsWith("/api/dish")
                 || ("GET".equals(method) && path.matches("^/api/dish/\\d+$")) // GET /api/dish/{id} cho phép truy cập công khai
                 //  || path.startsWith("/api/")//để tạm để test api, sau này sửa lại, để lại là fillter ko quét
                 || path.equals("/dump-data")) {
