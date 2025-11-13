@@ -9,10 +9,7 @@ import gr1.fpt.bambikitchen.firebase.service.FCMService;
 import gr1.fpt.bambikitchen.model.*;
 import gr1.fpt.bambikitchen.model.dto.request.*;
 import gr1.fpt.bambikitchen.model.dto.response.FeedbackDto;
-import gr1.fpt.bambikitchen.model.enums.DishType;
-import gr1.fpt.bambikitchen.model.enums.OrderStatus;
-import gr1.fpt.bambikitchen.model.enums.SizeCode;
-import gr1.fpt.bambikitchen.model.enums.SourceType;
+import gr1.fpt.bambikitchen.model.enums.*;
 import gr1.fpt.bambikitchen.repository.DishRepository;
 import gr1.fpt.bambikitchen.repository.NutritionRepository;
 import gr1.fpt.bambikitchen.repository.OrderDetailRepository;
@@ -327,15 +324,17 @@ public class OrderService {
         Orders order = orderRepository.findById(id).orElseThrow(
                 () -> new CustomException("Order not found", HttpStatus.NOT_FOUND)
         );
-        order.setStatus(OrderStatus.PREPARING);
-        Notification noti = new Notification();
-        noti.setTitle("Đơn hàng đang được chuẩn bị !!");
-        noti.setMessage("Đơn hàng của bạn đang được làm, vui lòng chờ ít phút.");
-        noti.setAccount(accountService.findById(order.getUserId()));
+        Account account = accountService.findById(order.getUserId());
+        if(account.getRole().equals(Role.USER)) {
+            order.setStatus(OrderStatus.PREPARING);
+            Notification noti = new Notification();
+            noti.setTitle("Đơn hàng đang được chuẩn bị !!");
+            noti.setMessage("Đơn hàng của bạn đang được làm, vui lòng chờ ít phút.");
+            noti.setAccount(account);
 
-        applicationEventPublisher.publishEvent(new EventListenerSystem.SendNotificationToUserEvent(id, noti.getTitle(), noti.getMessage()));
-
-        notificationService.save(noti);
+            applicationEventPublisher.publishEvent(new EventListenerSystem.SendNotificationToUserEvent(id, noti.getTitle(), noti.getMessage()));
+            notificationService.save(noti);
+        }
         return orderRepository.save(order);
     }
 
@@ -343,14 +342,16 @@ public class OrderService {
         Orders order = orderRepository.findById(id).orElseThrow(
                 () -> new CustomException("Order not found", HttpStatus.NOT_FOUND)
         );
-        Notification noti = new Notification();
-        noti.setTitle("Đơn hàng đã hoàn tất !!");
-        noti.setMessage("Đơn hàng của bạn đã làm xong, vui lòng đến quầy nhận đơn nhé.");
-        noti.setAccount(accountService.findById(order.getUserId()));
-        notificationService.save(noti);
+        Account account = accountService.findById(order.getUserId());
+        if(account.getRole().equals(Role.USER)) {
+            Notification noti = new Notification();
+            noti.setTitle("Đơn hàng đã hoàn tất !!");
+            noti.setMessage("Đơn hàng của bạn đã làm xong, vui lòng đến quầy nhận đơn nhé.");
+            noti.setAccount(accountService.findById(order.getUserId()));
+            notificationService.save(noti);
 
-        applicationEventPublisher.publishEvent(new EventListenerSystem.SendNotificationToUserEvent(id, noti.getTitle(), noti.getMessage()));
-
+            applicationEventPublisher.publishEvent(new EventListenerSystem.SendNotificationToUserEvent(id, noti.getTitle(), noti.getMessage()));
+        }
         //set usedquantity
         List<OrderDetail> details = orderDetailRepository.findAllByOrders_Id(order.getId());
         for(OrderDetail detail : details){
