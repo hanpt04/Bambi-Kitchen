@@ -86,7 +86,8 @@ public class PaymentService {
                 accountRepository.findById(order.getUserId())
                         .orElseThrow()
                         .getMail(),
-                order.getId()
+                order.getId(),
+                order.getTotalPrice()
         ));
     }
 

@@ -204,14 +204,14 @@ public class EventListenerSystem {
         }
     }
 
-    public record MailDetails(String email, int orderId) {
+    public record MailDetails(String email, int orderId, double totalPrice) {
     }
 
     @EventListener
     @Async
     public void mailBillToUser(MailDetails mailDetails) throws MessagingException {
         List<OrderDetail> orderDetails = orderDetailRepository.findByOrders_Id(mailDetails.orderId);
-        sendOrder(new SendOrderEvent(mailDetails.email, toOrderDetailsMap(orderDetails)));
+        sendOrder(new SendOrderEvent(mailDetails.email, toOrderDetailsMap(orderDetails), mailDetails.totalPrice));
     }
 
     private List<DishInfo> toOrderDetailsMap(List<OrderDetail> orderDetails) {
@@ -247,7 +247,7 @@ public class EventListenerSystem {
      * @param email
      * @param dishes
      */
-    public record SendOrderEvent(String email, List<DishInfo> dishes) {
+    public record SendOrderEvent(String email, List<DishInfo> dishes, double totalPrice) {
     }
 
     @Builder
@@ -274,7 +274,7 @@ public class EventListenerSystem {
         helper.setSubject("🔑 Your Bill");
 
 
-        String htmlContent = buildBillHtml(event.dishes);
+        String htmlContent = buildBillHtml(event.dishes, event.totalPrice);
 
         helper.setText(htmlContent, true);
 
@@ -282,7 +282,7 @@ public class EventListenerSystem {
     }
 
     // a helper function to build the HTML content for the bill
-    public String buildBillHtml(List<DishInfo> dishes) {
+    public String buildBillHtml(List<DishInfo> dishes, double totalPrice) {
         StringBuilder html = new StringBuilder();
 
         html.append("""
@@ -305,43 +305,9 @@ public class EventListenerSystem {
                         <tr>
                             <td style="padding:40px 30px;">
             """);
-
-        int grandTotal = 0;
         int dishIndex = 1;
 
         for (DishInfo dish : dishes) {
-            DishNutritionRequest requestForDish = null;
-            String viewLink = "#";
-
-            try {
-                var ingredients = new ArrayList<DishNutritionRequest.Ingredient>();
-                for (Map.Entry<IngredientInfo, Integer> ing : dish.ingredients().entrySet()) {
-                    var ingredient = DishNutritionRequest.Ingredient.builder()
-                            .name(ing.getKey().ingredient().getName())
-                            .amount(Double.parseDouble(ing.getValue().toString()))
-                            .unit(ing.getKey().ingredient().getUnit().getName())
-                            .build();
-                    ingredients.add(ingredient);
-                }
-                requestForDish = DishNutritionRequest.builder()
-                        .name(dish.name())
-                        .ingredients(ingredients)
-                        .build();
-
-                var mapper = new ObjectMapper();
-                String json = mapper.writeValueAsString(requestForDish);
-                String encoded = Base64.getUrlEncoder().withoutPadding()
-                        .encodeToString(json.getBytes(StandardCharsets.UTF_8));
-
-                String appBaseUrl = serverUrl + ":" + serverPort;
-                viewLink = appBaseUrl + "/api/mail/calculate-calories?q=" + encoded;
-
-                log.info(viewLink);
-
-            } catch (Exception e) {
-                System.err.println("Error creating nutrition link: " + e.getMessage());
-            }
-
             // Using TABLE layout for email compatibility
             html.append(String.format("""
                                 <!-- Dish Card -->
@@ -356,19 +322,6 @@ public class EventListenerSystem {
                                                             <tr>
                                                                 <td style="width:35px;height:35px;background:#ff8c42;color:white;border-radius:50%%;font-size:16px;font-weight:bold;text-align:center;vertical-align:middle;">%d</td>
                                                                 <td style="padding-left:12px;font-size:22px;font-weight:bold;color:#ff6b35;">%s</td>
-                                                            </tr>
-                                                        </table>
-                                                    </td>
-                                                    <td style="text-align:right;vertical-align:middle;">
-                                                        <table cellpadding="0" cellspacing="0" border="0" align="right">
-                                                            <tr>
-                                                                <td style="background:#ff6b35;color:white;padding:8px 20px;border-radius:25px;font-weight:bold;font-size:18px;margin-bottom:10px;">%,d₫</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td style="padding-top:10px;">
-                                                                    <!-- Email-safe button -->
-                                                                    <a href="%s" style="display:inline-block;background:#ff6b35;color:#ffffff;text-decoration:none;padding:10px 16px;border-radius:20px;font-weight:600;font-size:14px;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;" target="_blank">🔎 Xem dinh dưỡng</a>
-                                                                </td>
                                                             </tr>
                                                         </table>
                                                     </td>
@@ -389,7 +342,7 @@ public class EventListenerSystem {
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
-                """, dishIndex++, dish.name(), dish.price(), viewLink));
+                """, dishIndex++, dish.name(), dish.price()));
 
             for (Map.Entry<IngredientInfo, Integer> ing : dish.ingredients().entrySet()) {
                 html.append(String.format("""
@@ -412,8 +365,6 @@ public class EventListenerSystem {
                                     </tr>
                                 </table>
                 """);
-
-            grandTotal += dish.price();
         }
 
         html.append(String.format("""
@@ -422,7 +373,7 @@ public class EventListenerSystem {
                                     <tr>
                                         <td style="padding:30px;text-align:center;color:white;">
                                             <div style="font-size:18px;margin-bottom:12px;opacity:0.95;font-weight:500;">💰 Tổng Chi Phí Tất Cả Món</div>
-                                            <div style="font-size:36px;font-weight:bold;text-shadow:2px 2px 4px rgba(0,0,0,0.2);letter-spacing:1px;">%,d₫</div>
+                                            <div style="font-size:36px;font-weight:bold;text-shadow:2px 2px 4px rgba(0,0,0,0.2);letter-spacing:1px;">%f₫</div>
                                         </td>
                                     </tr>
                                 </table>
@@ -439,7 +390,7 @@ public class EventListenerSystem {
                     </table>
                 </body>
                 </html>
-            """, grandTotal));
+            """, totalPrice));
 
         return html.toString();
     }
