@@ -25,15 +25,4 @@ public class IngredientCreateRequest {
 
     @Nullable
     MultipartFile file  ;
-
-    private int calories;
-    private float protein;
-    private float carb;
-    private float fiber;
-    private float iron;
-    private float sodium;
-    private float calcium;
-    private float sugar;
-    private float sat_fat;
-    private String per_unit;
 }

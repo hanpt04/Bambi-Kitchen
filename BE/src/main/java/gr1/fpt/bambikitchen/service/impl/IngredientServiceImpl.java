@@ -68,7 +68,7 @@ public class IngredientServiceImpl implements IngredientService {
     }
 
     @Override
-    public IngredientWithNutritionResponse save(IngredientCreateRequest ingredient) throws IOException {
+    public Ingredient save(IngredientCreateRequest ingredient) throws IOException {
 
         IngredientCategory category = ingredientCategoryRepository.findById(ingredient.getCategoryId()).orElseThrow(
                 () -> new CustomException("Ingredient category cannot be found " + ingredient.getCategoryId(), HttpStatus.BAD_REQUEST)
@@ -80,21 +80,6 @@ public class IngredientServiceImpl implements IngredientService {
         newIngredient.setPricePerUnit(ingredient.getPricePerUnit());
         Ingredient ingredientSave = ingredientRepository.save(newIngredient);
 
-        Nutrition nutrition = new Nutrition();
-        nutrition.setIngredient(ingredientSave);
-        nutrition.setCalories(ingredient.getCalories());
-        nutrition.setProtein(ingredient.getProtein());
-        nutrition.setCarb(ingredient.getCarb());
-        nutrition.setFiber(ingredient.getFiber());
-        nutrition.setIron(ingredient.getIron());
-        nutrition.setSodium(ingredient.getSodium());
-        nutrition.setCalcium(ingredient.getCalcium());
-        nutrition.setSugar(ingredient.getSugar());
-        nutrition.setSat_fat(ingredient.getSat_fat());
-        nutrition.setPer_unit(ingredient.getPer_unit());
-
-        nutritionRepository.save(nutrition);
-
         // publisher
         if (!ingredient.getFile().isEmpty()) {
             String absolutePath = FileUtil.saveFile(ingredient.getFile());
@@ -103,10 +88,7 @@ public class IngredientServiceImpl implements IngredientService {
             file.delete(); // xóa file gốc trong uploads/
             eventPublisher.publishEvent(new IngredientDtoRequest(ingredientSave, multipartFile));
         }
-        return IngredientWithNutritionResponse.builder()
-                .ingredient(ingredientSave)
-                .nutrition(nutrition)
-                .build();
+        return ingredientSave;
     }
 
     @Override

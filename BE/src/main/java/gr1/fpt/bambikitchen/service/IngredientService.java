@@ -13,7 +13,7 @@ public interface IngredientService {
     List<Ingredient> findAll();
     Ingredient findById(int id);
     Ingredient findByName(String name);
-    IngredientWithNutritionResponse save(IngredientCreateRequest ingredient) throws IOException;
+    Ingredient save(IngredientCreateRequest ingredient) throws IOException;
     Ingredient update(IngredientUpdateRequest ingredient) throws IOException;
     String delete(int id);
     boolean isEnoughIngredient(Map<Integer,Double> ingredientMap, int orderId );
